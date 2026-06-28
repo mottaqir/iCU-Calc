@@ -5,23 +5,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Bedside Critical Measures</title>
-
-<!-- PWA Core -->
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0a0f1e" id="meta-theme-color">
-
-<!-- iOS / Safari -->
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ICU Calc">
+<meta name="mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-
-<!-- General -->
-<meta name="application-name" content="ICU Calc">
-<meta name="description" content="Bedside Critical Care Calculator — drugs, doses, ECG, ACLS, scores">
-<meta name="mobile-web-app-capable" content="yes">
 <style>
  :root {
  --bg: #0a0f1e;
@@ -6028,17 +6020,12 @@ function toggleCalc(id) {
   body.style.display = isOpen ? 'none' : 'block';
   if (chevron) chevron.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
 }
-<!-- ── PWA: Service Worker Registration ───────────────────────────────── -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
     navigator.serviceWorker.register('./sw.js')
-      .then(function (reg) {
-        console.log('[SW] Registered. Scope:', reg.scope);
-      })
-      .catch(function (err) {
-        console.warn('[SW] Registration failed:', err);
-      });
+      .then(function(r){ console.log('[SW] ok', r.scope); })
+      .catch(function(e){ console.warn('[SW] fail', e); });
   });
 }
 </script>
