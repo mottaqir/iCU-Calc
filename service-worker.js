@@ -1,7 +1,9 @@
-/* ICU Calc — Service Worker
-   Bump CACHE_VERSION whenever index.html/manifest.json/icons change so
-   clients pick up the new files instead of serving stale cache. */
+// ═══ iCU Calc — Service Worker ═══
+// Bump CACHE_VERSION every time you deploy a new index.html so old
+// devices drop the stale cache instead of getting stuck on it.
 const CACHE_VERSION = 'icu-calc-v2';
+const CACHE_NAME = `icu-calc-${CACHE_VERSION}`;
+
 const APP_SHELL = [
   './',
   './index.html',
@@ -17,61 +19,58 @@ const APP_SHELL = [
 ];
 
 // ── Install: pre-cache the app shell ──
-self.addEventListener('install', function (event) {
+self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_VERSION)
-      .then(function (cache) { return cache.addAll(APP_SHELL); })
-      .then(function () { return self.skipWaiting(); })
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(APP_SHELL))
+      .then(() => self.skipWaiting())
   );
 });
 
-// ── Activate: drop old caches, take control immediately ──
-self.addEventListener('activate', function (event) {
+// ── Activate: drop any caches from older versions ──
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(
-        keys.filter(function (key) { return key !== CACHE_VERSION; })
-            .map(function (key) { return caches.delete(key); })
-      );
-    }).then(function () { return self.clients.claim(); })
+    caches.keys().then((names) =>
+      Promise.all(
+        names
+          .filter((name) => name.startsWith('icu-calc-') && name !== CACHE_NAME)
+          .map((name) => caches.delete(name))
+      )
+    ).then(() => self.clients.claim())
   );
 });
 
-// ── Fetch strategy ──
-// HTML (navigations): network-first so updates show up as soon as they're
-// published, falling back to the cached shell when offline.
-// Everything else (icons, manifest, static assets): cache-first for speed,
-// with a background network update to keep the cache fresh.
-self.addEventListener('fetch', function (event) {
+// ── Fetch: network-first for the HTML shell (so updates show up fast),
+//    cache-first for everything else (icons etc. rarely change) ──
+self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
-  const isNavigation = req.mode === 'navigate' ||
-    (req.headers.get('accept') || '').indexOf('text/html') !== -1;
+  const isHTML = req.mode === 'navigate' || req.headers.get('accept')?.includes('text/html');
 
-  if (isNavigation) {
+  if (isHTML) {
     event.respondWith(
-      fetch(req, { cache: 'no-store' })
-        .then(function (res) {
-          const copy = res.clone();
-          caches.open(CACHE_VERSION).then(function (cache) { cache.put('./index.html', copy); });
+      fetch(req)
+        .then((res) => {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
           return res;
         })
-        .catch(function () { return caches.match('./index.html'); })
+        .catch(() => caches.match(req).then((res) => res || caches.match('./index.html')))
     );
     return;
   }
 
   event.respondWith(
-    caches.match(req).then(function (cached) {
-      const fetchPromise = fetch(req).then(function (res) {
-        if (res && res.status === 200) {
-          const copy = res.clone();
-          caches.open(CACHE_VERSION).then(function (cache) { cache.put(req, copy); });
+    caches.match(req).then((cached) => {
+      if (cached) return cached;
+      return fetch(req).then((res) => {
+        if (res && res.status === 200 && res.type === 'basic') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
         }
         return res;
-      }).catch(function () { return cached; });
-      return cached || fetchPromise;
+      }).catch(() => cached);
     })
   );
 });

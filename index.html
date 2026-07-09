@@ -3,20 +3,31 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>ICU Calc</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<title>iCU Calc</title>
 
 <!-- ═══ PWA ═══ -->
 <link rel="manifest" href="./manifest.json">
-<meta name="theme-color" id="themeColorMeta" content="#0d1117">
+
+<!-- Static fallback theme-color (read by OS/browser chrome before JS runs).
+     JS below overrides #themeColorMeta live on every theme toggle. -->
+<meta name="theme-color" id="themeColorMeta" content="#0d1117" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f6f8fa" media="(prefers-color-scheme: light)">
+
 <meta name="mobile-web-app-capable" content="yes">
+<meta name="application-name" content="iCU Calc">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="ICU Calc">
+<meta name="apple-mobile-web-app-status-bar-style" id="appleStatusBarMeta" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="iCU Calc">
+<meta name="msapplication-TileColor" content="#0d1117">
+<meta name="msapplication-TileImage" content="./icon-144x144.png">
+<meta name="color-scheme" content="dark light">
 <link rel="apple-touch-icon" href="./icon-192x192.png">
 <link rel="apple-touch-icon" sizes="152x152" href="./icon-152x152.png">
 <link rel="apple-touch-icon" sizes="144x144" href="./icon-144x144.png">
 <link rel="apple-touch-icon" sizes="128x128" href="./icon-128x128.png">
+<link rel="icon" type="image/png" sizes="512x512" href="./icon-512x512.png">
+<link rel="icon" type="image/png" sizes="384x384" href="./icon-384x384.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./icon-192x192.png">
 <link rel="icon" type="image/png" sizes="96x96" href="./icon-96x96.png">
 <link rel="icon" type="image/png" sizes="72x72" href="./icon-72x72.png">
@@ -235,7 +246,41 @@ body {
 .dose-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
 .dose-val { font-family: var(--heading); font-weight: 400; font-size: 13px; }
 .range-limits { display: flex; justify-content: space-between; font-size: 10px; color: var(--faint); margin-top: 2px; }
-input[type=range] { width: 100%; }
+input[type=range] {
+  width: 100%;
+  -webkit-appearance: none; appearance: none;
+  height: 6px; border-radius: 999px;
+  background: linear-gradient(90deg, #3a5a85, #16283f) !important;
+  outline: none; cursor: pointer; margin: 10px 0;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  -webkit-appearance: none;
+  height: 6px; border-radius: 999px;
+  background: linear-gradient(90deg, #3a5a85, #16283f);
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 23px; height: 11px; border-radius: 5px;
+  background: linear-gradient(90deg, #3a5a85, #16283f);
+  border: 1px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  margin-top: -2.5px; cursor: pointer;
+}
+input[type=range]::-moz-range-track {
+  height: 6px; border-radius: 999px;
+  background: linear-gradient(90deg, #3a5a85, #16283f);
+}
+input[type=range]::-moz-range-thumb {
+  width: 23px; height: 11px; border-radius: 5px;
+  background: linear-gradient(90deg, #3a5a85, #16283f);
+  border: 1px solid #fff;
+  box-shadow: 0 1px 3px rgba(0,0,0,.35);
+  cursor: pointer;
+}
+input[type=range]::-moz-range-progress {
+  height: 6px; border-radius: 999px;
+  background: linear-gradient(90deg, #3a5a85, #16283f);
+}
 
 /* ── Result Box ── */
 .result-box {
@@ -285,7 +330,7 @@ input[type=range] { width: 100%; }
 .calc-card:last-child { margin-bottom: 0; }
 .calc-title {
   padding: 12px 14px; border-bottom: 1px solid var(--border);
-  font-size: 11px; font-weight: 600;
+  font-size: 12px; font-weight: 700;
   font-family: var(--heading);
   display: flex; align-items: center; gap: 8px;
   cursor: pointer; user-select: none;
@@ -311,13 +356,29 @@ input[type=range] { width: 100%; }
 }
 .calc-pin {
   flex-shrink: 0; width: 24px; height: 24px; display: flex;
-  align-items: center; justify-content: center; margin-left: 4px;
+  align-items: center; justify-content: center; margin-left: auto;
   background: transparent; border: none; padding: 0; cursor: pointer;
   font-size: 16px; line-height: 1; color: var(--text-faint);
-  transition: color .15s ease, transform .15s ease;
+  transition: color .15s ease;
 }
-.calc-pin:hover { color: var(--accent); transform: scale(1.18); }
-.calc-pin.pinned { color: var(--accent); }
+.calc-pin-icon {
+  display: inline-block;
+  transition: transform .32s cubic-bezier(.34,1.2,.64,1);
+}
+.calc-pin:hover { color: var(--accent); }
+.calc-pin:hover .calc-pin-icon { transform: scale(1.18); }
+.calc-card.is-expanded .calc-pin-icon { transform: rotate(180deg); }
+.calc-card.is-expanded .calc-pin:hover .calc-pin-icon { transform: rotate(180deg) scale(1.18); }
+.calc-pin.pinned .calc-pin-icon {
+  background: linear-gradient(135deg, #3a5a85, #16283f);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+}
+[data-theme="light"] .calc-pin.pinned .calc-pin-icon {
+  background: linear-gradient(135deg, #2c4a73, #0f1f38);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent; -webkit-text-fill-color: transparent;
+}
 .calc-card.is-pinned { border-color: var(--accent); }
 .pinned-section-label {
   display: none; font-family: var(--mono); font-size: 9.5px;
@@ -1193,7 +1254,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ─── Syringe Pump Dose Calculator ─── -->
  <div class="calc-card" id="calccard-syringe">
-  <div class="calc-title" onclick="toggleCalc('calccard-syringe')"><span class="calc-title-dot"></span><span>Syringe Pump Dose Calculator</span><button type="button" class="calc-pin" data-cid="calccard-syringe" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-syringe', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+  <div class="calc-title" onclick="toggleCalc('calccard-syringe')"><span class="calc-title-dot"></span><span>Syringe Pump Dose Calculator</span><button type="button" class="calc-pin" data-cid="calccard-syringe" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-syringe', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
   <div class="calc-body" style="display:none">
    <div class="sp-tool">
 
@@ -1330,7 +1391,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ─── GCS ─── -->
  <div class="calc-card" id="calccard-gcs">
-  <div class="calc-title" onclick="toggleCalc('calccard-gcs')"><span class="calc-title-dot"></span><span>Glasgow Coma Scale (GCS)</span><button type="button" class="calc-pin" data-cid="calccard-gcs" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-gcs', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+  <div class="calc-title" onclick="toggleCalc('calccard-gcs')"><span class="calc-title-dot"></span><span>Glasgow Coma Scale (GCS)</span><button type="button" class="calc-pin" data-cid="calccard-gcs" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-gcs', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
   <div class="calc-body" style="display:none">
 
    <!-- Eye -->
@@ -1411,7 +1472,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="calc-title" onclick="toggleCalc('calccard-four')">
    <span class="calc-title-dot"></span>
    <span>FOUR Score <span style="color:var(--text-faint);font-weight:400">— For Intubated / Non-Verbal Patients</span></span>
-   <button type="button" class="calc-pin" data-cid="calccard-four" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-four', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+   <button type="button" class="calc-pin" data-cid="calccard-four" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-four', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none">
 
@@ -1487,7 +1548,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  
  <!-- ─── NEWS2 ─── -->
  <div class="calc-card" id="calccard-news2">
-  <div class="calc-title" onclick="toggleCalc('calccard-news2')"><span class="calc-title-dot"></span><span>NEWS2 Score <span style="color:var(--text-faint);font-weight:400">(National Early Warning Score)</span></span><button type="button" class="calc-pin" data-cid="calccard-news2" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-news2', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+  <div class="calc-title" onclick="toggleCalc('calccard-news2')"><span class="calc-title-dot"></span><span>NEWS2 Score <span style="color:var(--text-faint);font-weight:400">(National Early Warning Score)</span></span><button type="button" class="calc-pin" data-cid="calccard-news2" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-news2', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
   <div class="calc-body" style="display:none">
 
    <!-- RR -->
@@ -1591,7 +1652,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ─── APACHE II ─── -->
  <div class="calc-card" id="calccard-apache">
-  <div class="calc-title" onclick="toggleCalc('calccard-apache')"><span class="calc-title-dot"></span><span>APACHE II Score <span style="color:var(--text-faint);font-weight:400">(ICU Mortality Prediction)</span></span><button type="button" class="calc-pin" data-cid="calccard-apache" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-apache', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+  <div class="calc-title" onclick="toggleCalc('calccard-apache')"><span class="calc-title-dot"></span><span>APACHE II Score <span style="color:var(--text-faint);font-weight:400">(ICU Mortality Prediction)</span></span><button type="button" class="calc-pin" data-cid="calccard-apache" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-apache', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
   <div class="calc-body" style="display:none">
 
    <!-- Helper macro: single row param -->
@@ -1798,7 +1859,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="calc-title" onclick="toggleCalc('calccard-chadsvasc')">
    <span class="calc-title-dot"></span>
    <span>CHA&#8322;DS&#8322;-VASc Score <span style="color:var(--text-faint);font-weight:400">— Stroke Risk in Atrial Fibrillation</span></span>
-   <button type="button" class="calc-pin" data-cid="calccard-chadsvasc" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-chadsvasc', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+   <button type="button" class="calc-pin" data-cid="calccard-chadsvasc" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-chadsvasc', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none">
 
@@ -1881,7 +1942,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="calc-title" onclick="toggleCalc('calccard-childpugh')">
    <span class="calc-title-dot"></span>
    <span>Child-Pugh Score <span style="color:var(--text-faint);font-weight:400">— Cirrhosis Severity &amp; Prognosis</span></span>
-   <button type="button" class="calc-pin" data-cid="calccard-childpugh" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-childpugh', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+   <button type="button" class="calc-pin" data-cid="calccard-childpugh" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-childpugh', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none">
 
@@ -1957,7 +2018,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
  </div>
  <div class="calc-card" id="calccard-nacl">
- <div class="calc-title" onclick="toggleCalc('calccard-nacl')"><span class="calc-title-dot"></span><span>3% NaCl &mdash; Hyponatraemia Correction</span><button type="button" class="calc-pin" data-cid="calccard-nacl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-nacl', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-nacl')"><span class="calc-title-dot"></span><span>3% NaCl &mdash; Hyponatraemia Correction</span><button type="button" class="calc-pin" data-cid="calccard-nacl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-nacl', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
  <div class="field-row">
  <div class="field-label">Weight (kg)</div>
@@ -1973,7 +2034,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  </div>
  <div class="calc-card" id="calccard-bicarb">
- <div class="calc-title" onclick="toggleCalc('calccard-bicarb')"><span class="calc-title-dot"></span><span>Sodium Bicarbonate <span class="brand-name">(NaHCO&#8323; / Sodib)</span></span><button type="button" class="calc-pin" data-cid="calccard-bicarb" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-bicarb', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-bicarb')"><span class="calc-title-dot"></span><span>Sodium Bicarbonate <span class="brand-name">(NaHCO&#8323; / Sodib)</span></span><button type="button" class="calc-pin" data-cid="calccard-bicarb" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-bicarb', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
  <div class="field-row">
  <div class="field-label">Weight (kg)</div>
@@ -2008,7 +2069,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  </div>
  <div class="calc-card" id="calccard-kdeficit">
- <div class="calc-title" onclick="toggleCalc('calccard-kdeficit')"><span class="calc-title-dot"></span><span>Potassium Deficit &amp; Correction</span><button type="button" class="calc-pin" data-cid="calccard-kdeficit" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-kdeficit', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-kdeficit')"><span class="calc-title-dot"></span><span>Potassium Deficit &amp; Correction</span><button type="button" class="calc-pin" data-cid="calccard-kdeficit" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-kdeficit', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
  <div class="field-row">
  <div class="field-label">Weight (kg)</div>
@@ -2045,7 +2106,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
 
  <div class="calc-card" id="calccard-calcium">
- <div class="calc-title" onclick="toggleCalc('calccard-calcium')"><span class="calc-title-dot"></span><span>Corrected Calcium <span style="color:var(--text-faint);font-weight:400">(Albumin-adjusted)</span></span><button type="button" class="calc-pin" data-cid="calccard-calcium" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-calcium', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-calcium')"><span class="calc-title-dot"></span><span>Corrected Calcium <span style="color:var(--text-faint);font-weight:400">(Albumin-adjusted)</span></span><button type="button" class="calc-pin" data-cid="calccard-calcium" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-calcium', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <!-- Unit toggle -->
   <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
@@ -2079,7 +2140,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
 
  <div class="calc-card" id="calccard-crcl">
- <div class="calc-title" onclick="toggleCalc('calccard-crcl')"><span class="calc-title-dot"></span><span>Creatinine Clearance / CrCl <span style="color:var(--text-faint);font-weight:400">(Cockcroft-Gault)</span></span><button type="button" class="calc-pin" data-cid="calccard-crcl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-crcl', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-crcl')"><span class="calc-title-dot"></span><span>Creatinine Clearance / CrCl <span style="color:var(--text-faint);font-weight:400">(Cockcroft-Gault)</span></span><button type="button" class="calc-pin" data-cid="calccard-crcl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-crcl', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
    <div style="background:var(--surface-deep);border-radius: 8px;padding:5px 6px">
@@ -2125,7 +2186,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="calc-title" onclick="toggleCalc('calccard-shock')">
    <span class="calc-title-dot"></span>
    <span>Shock Classification &amp; Differentiator</span>
-   <button type="button" class="calc-pin" data-cid="calccard-shock" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-shock', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+   <button type="button" class="calc-pin" data-cid="calccard-shock" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-shock', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none;">
 
@@ -2229,7 +2290,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
 
  <div class="calc-card" id="calccard-map">
- <div class="calc-title" onclick="toggleCalc('calccard-map')"><span class="calc-title-dot"></span><span>MAP <span style="color:var(--text-faint);font-weight:400">(Mean Arterial Pressure)</span></span><button type="button" class="calc-pin" data-cid="calccard-map" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-map', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-map')"><span class="calc-title-dot"></span><span>MAP <span style="color:var(--text-faint);font-weight:400">(Mean Arterial Pressure)</span></span><button type="button" class="calc-pin" data-cid="calccard-map" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-map', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
    <div style="background:var(--surface-deep);border-radius: 8px;padding:5px 6px">
@@ -2270,7 +2331,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
 
  <div class="calc-card" id="calccard-dic">
- <div class="calc-title" onclick="toggleCalc('calccard-dic')"><span class="calc-title-dot"></span><span>DIC Assessment <span style="color:var(--text-faint);font-weight:400">(ISTH Score)</span></span><button type="button" class="calc-pin" data-cid="calccard-dic" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dic', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-dic')"><span class="calc-title-dot"></span><span>DIC Assessment <span style="color:var(--text-faint);font-weight:400">(ISTH Score)</span></span><button type="button" class="calc-pin" data-cid="calccard-dic" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dic', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px">Requires an underlying disorder known to be associated with overt DIC (sepsis, trauma, malignancy, obstetric complication, etc.)</div>
 
@@ -2334,7 +2395,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ═══════════════════════════════════════════════════ SOFA + qSOFA ═══ -->
  <div class="calc-card" id="calccard-sofa">
- <div class="calc-title" onclick="toggleCalc('calccard-sofa')"><span class="calc-title-dot"></span><span>SOFA Score <span style="color:var(--text-faint);font-weight:400">+ qSOFA Sepsis Screen</span></span><button type="button" class="calc-pin" data-cid="calccard-sofa" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-sofa', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-sofa')"><span class="calc-title-dot"></span><span>SOFA Score <span style="color:var(--text-faint);font-weight:400">+ qSOFA Sepsis Screen</span></span><button type="button" class="calc-pin" data-cid="calccard-sofa" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-sofa', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
 
   <!-- qSOFA quick strip -->
@@ -2480,7 +2541,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="calc-title" onclick="toggleCalc('calccard-sepsis3')">
    <span class="calc-title-dot"></span>
    <span>Sepsis-3 Criteria <span style="color:var(--text-faint);font-weight:400">— Infection-Related Organ Dysfunction</span></span>
-   <button type="button" class="calc-pin" data-cid="calccard-sepsis3" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-sepsis3', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+   <button type="button" class="calc-pin" data-cid="calccard-sepsis3" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-sepsis3', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none">
 
@@ -2616,7 +2677,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ═══════════════════════════════════════════════════ BERLIN ARDS ═══ -->
  <div class="calc-card" id="calccard-ards">
- <div class="calc-title" onclick="toggleCalc('calccard-ards')"><span class="calc-title-dot"></span><span>Berlin ARDS Criteria <span style="color:var(--text-faint);font-weight:400">+ P/F Ratio</span></span><button type="button" class="calc-pin" data-cid="calccard-ards" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-ards', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-ards')"><span class="calc-title-dot"></span><span>Berlin ARDS Criteria <span style="color:var(--text-faint);font-weight:400">+ P/F Ratio</span></span><button type="button" class="calc-pin" data-cid="calccard-ards" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-ards', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
 
   <!-- P/F calculator -->
@@ -2682,7 +2743,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ═══════════════════════════════════════════════════ ABG INTERPRETER ═══ -->
  <div class="calc-card" id="calccard-abg">
- <div class="calc-title" onclick="toggleCalc('calccard-abg')"><span class="calc-title-dot"></span><span>ABG Interpreter <span style="color:var(--text-faint);font-weight:400">+ Critical Values</span></span><button type="button" class="calc-pin" data-cid="calccard-abg" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-abg', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-abg')"><span class="calc-title-dot"></span><span>ABG Interpreter <span style="color:var(--text-faint);font-weight:400">+ Critical Values</span></span><button type="button" class="calc-pin" data-cid="calccard-abg" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-abg', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
 
   <!-- Inputs -->
@@ -2771,7 +2832,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
 
  <div class="calc-card" id="calccard-siadh">
- <div class="calc-title" onclick="toggleCalc('calccard-siadh')"><span class="calc-title-dot"></span><span>SIADH <span style="color:var(--text-faint);font-weight:400">vs</span> CSW &mdash; Differentiator</span><button type="button" class="calc-pin" data-cid="calccard-siadh" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-siadh', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-siadh')"><span class="calc-title-dot"></span><span>SIADH <span style="color:var(--text-faint);font-weight:400">vs</span> CSW &mdash; Differentiator</span><button type="button" class="calc-pin" data-cid="calccard-siadh" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-siadh', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none;padding-top:10px">
 
   <!-- Required fields -->
@@ -2872,7 +2933,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-dka')">
   <span class="calc-title-dot"></span>
   <span>DKA / Euglycaemic DKA / HHS Differentiator</span>
-  <button type="button" class="calc-pin" data-cid="calccard-dka" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dka', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+  <button type="button" class="calc-pin" data-cid="calccard-dka" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dka', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
  </div>
  <div class="calc-body" style="display:none">
 
@@ -2927,11 +2988,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <!-- Ketonaemia -->
    <div style="background:var(--surface-deep);border-radius: 8px;padding:6px 8px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Ketonaemia / Ketonuria</div>
-    <div style="display:flex;gap:5px;margin-top:2px">
-     <button onclick="dkaSetKetone('none',this)" id="dka-ket-none" class="ins-sens-btn ins-sens-active" style="font-size:10px;padding:4px 2px">Absent</button>
-     <button onclick="dkaSetKetone('mild',this)" id="dka-ket-mild" class="ins-sens-btn" style="font-size:10px;padding:4px 2px">Mild/+</button>
-     <button onclick="dkaSetKetone('mod',this)" id="dka-ket-mod" class="ins-sens-btn" style="font-size:10px;padding:4px 2px">Mod/++</button>
-     <button onclick="dkaSetKetone('high',this)" id="dka-ket-high" class="ins-sens-btn" style="font-size:10px;padding:4px 2px">High/+++</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:4px;margin-top:2px">
+     <button onclick="dkaSetKetone('none',this)" id="dka-ket-none" class="ins-sens-btn ins-sens-active" style="font-size:9px;padding:2px 4px;border-radius:999px;white-space:nowrap;line-height:1;height:20px;display:flex;align-items:center;justify-content:center">Absent</button>
+     <button onclick="dkaSetKetone('mild',this)" id="dka-ket-mild" class="ins-sens-btn" style="font-size:9px;padding:2px 4px;border-radius:999px;white-space:nowrap;line-height:1;height:20px;display:flex;align-items:center;justify-content:center">Mild/+</button>
+     <button onclick="dkaSetKetone('mod',this)" id="dka-ket-mod" class="ins-sens-btn" style="font-size:9px;padding:2px 4px;border-radius:999px;white-space:nowrap;line-height:1;height:20px;display:flex;align-items:center;justify-content:center">Mod/++</button>
+     <button onclick="dkaSetKetone('high',this)" id="dka-ket-high" class="ins-sens-btn" style="font-size:9px;padding:2px 4px;border-radius:999px;white-space:nowrap;line-height:1;height:20px;display:flex;align-items:center;justify-content:center">High/+++</button>
     </div>
    </div>
 
@@ -3094,7 +3155,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-insulin')">
   <span class="calc-title-dot"></span>
   <span>Insulin — Types, Dosing &amp; Sliding Scale</span>
-  <button type="button" class="calc-pin" data-cid="calccard-insulin" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-insulin', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+  <button type="button" class="calc-pin" data-cid="calccard-insulin" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-insulin', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
  </div>
  <div class="calc-body" style="display:none">
 
@@ -3353,7 +3414,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 </div>
 
  <div class="calc-card" id="calccard-heparin">
- <div class="calc-title" onclick="toggleCalc('calccard-heparin')"><span class="calc-title-dot"></span><span>Unfractionated Heparin with APTT adjustment</span><button type="button" class="calc-pin" data-cid="calccard-heparin" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-heparin', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-heparin')"><span class="calc-title-dot"></span><span>Unfractionated Heparin with APTT adjustment</span><button type="button" class="calc-pin" data-cid="calccard-heparin" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-heparin', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
  <div class="field-row">
  <div class="field-label">Weight (kg)</div>
@@ -3410,7 +3471,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-cbc')">
   <span class="calc-title-dot"></span>
   <span>Critical CBC Interpreter <span style="color:var(--text-faint);font-weight:400">— Haematology Panel</span></span>
-  <button type="button" class="calc-pin" data-cid="calccard-cbc" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-cbc', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+  <button type="button" class="calc-pin" data-cid="calccard-cbc" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-cbc', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
  </div>
  <div class="calc-body" style="display:none">
 
@@ -3605,7 +3666,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-dengue')">
   <span class="calc-title-dot"></span>
   <span>Dengue HCT Monitor <span style="color:var(--text-faint);font-weight:400">— Plasma Leakage &amp; Haemorrhage Tracker</span></span>
-  <button type="button" class="calc-pin" data-cid="calccard-dengue" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dengue', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+  <button type="button" class="calc-pin" data-cid="calccard-dengue" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dengue', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
  </div>
  <div class="calc-body" style="display:none">
 
@@ -3781,7 +3842,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-unitconv')">
   <span class="calc-title-dot"></span>
   <span>ICU Unit Converter <span style="color:var(--text-faint);font-weight:400">— Bidirectional Lab Value Conversion</span></span>
-  <button type="button" class="calc-pin" data-cid="calccard-unitconv" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-unitconv', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+  <button type="button" class="calc-pin" data-cid="calccard-unitconv" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-unitconv', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
  </div>
  <div class="calc-body" style="display:none">
 
@@ -4024,7 +4085,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="calc-title" onclick="toggleCalc('calccard-braindeath')">
    <span class="calc-title-dot"></span>
    <span>Brain Death Assessment <span class="calc-subtitle-break" style="color:var(--text-faint);font-weight:400">— Clinical Criteria<br class="cd-phone-break"> Checklist</span></span>
-   <button type="button" class="calc-pin" data-cid="calccard-braindeath" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-braindeath', this)" title="Pin to top" aria-label="Pin to top">☆</button><span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+   <button type="button" class="calc-pin" data-cid="calccard-braindeath" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-braindeath', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none">
 
@@ -5881,7 +5942,12 @@ function applyGlobalWt() { menuWtAutoApply(document.getElementById('menu-wt-num'
  if (!saved) saved = (window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches) ? 'light' : 'dark';
  if (saved === 'light') document.body.setAttribute('data-theme', 'light');
  var metaTC = document.getElementById('themeColorMeta');
- if (metaTC) metaTC.setAttribute('content', saved === 'light' ? '#f6f8fa' : '#0d1117');
+ if (metaTC) {
+   metaTC.removeAttribute('media'); // JS is now authoritative over the static media-query fallback
+   metaTC.setAttribute('content', saved === 'light' ? '#f6f8fa' : '#0d1117');
+ }
+ var metaSB = document.getElementById('appleStatusBarMeta');
+ if (metaSB) metaSB.setAttribute('content', saved === 'light' ? 'default' : 'black-translucent');
 })();
 
 window.addEventListener('load', function() {
@@ -6201,6 +6267,8 @@ function applyTheme(theme) {
  }
  var metaTC = document.getElementById('themeColorMeta');
  if (metaTC) metaTC.setAttribute('content', theme === 'light' ? '#f6f8fa' : '#0d1117');
+ var metaSB = document.getElementById('appleStatusBarMeta');
+ if (metaSB) metaSB.setAttribute('content', theme === 'light' ? 'default' : 'black-translucent');
 }
 
 function toggleTheme() {
@@ -7787,6 +7855,7 @@ function toggleCalc(id) {
   if (!body) return;
   const isOpen = body.style.display !== 'none';
   body.style.display = isOpen ? 'none' : 'block';
+  card.classList.toggle('is-expanded', !isOpen);
   if (chevron) chevron.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
   if (typeof navSaveState === 'function') navSaveState();
 }
@@ -7836,7 +7905,8 @@ function applyFavoriteCalcs() {
   container.querySelectorAll('.calc-pin').forEach(function (btn) {
     var cid = btn.getAttribute('data-cid');
     var isFav = !!favSet[cid];
-    btn.textContent = isFav ? '\u2605' : '\u2606';
+    var icon = btn.querySelector('.calc-pin-icon');
+    if (icon) icon.textContent = isFav ? '\u2605' : '\u2606';
     btn.classList.toggle('pinned', isFav);
     btn.title = isFav ? 'Unpin' : 'Pin to top';
     var card = document.getElementById(cid);
