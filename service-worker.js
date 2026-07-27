@@ -1,16 +1,12 @@
-// ═══ iCU Calc — Service Worker ═══
-// v9 — aggressive cache invalidation: every deploy bumps CACHE_VERSION,
-// which forces ALL previous caches (any version, any name) to be wiped
-// on activate, and every navigation/asset fetch prefers the network so
-// updates show up immediately instead of being stuck behind an old
-// cached copy.
+// ═══ iCU Calc — Service Worker (v6, aggressive cache cleaner) ═══
+// Strategy: network-first for everything, so the app never gets stuck
+// showing stale HTML/icons/manifest while online. Cache is only a
+// fallback for offline use. Every activation nukes ANY cache that isn't
+// the current version — no accumulation of old app-shell caches ever.
+const VERSION = 'v6';
+const CACHE_NAME = 'icu-calc-' + VERSION;
 
-const CACHE_VERSION = 'icu-calc-v9';
-const CACHE_NAME = CACHE_VERSION;
-
-// Only these are pre-cached for offline fallback. Everything else is
-// fetched network-first anyway, so the pre-cache list stays minimal.
-const PRECACHE_URLS = [
+const APP_SHELL = [
   './',
   './index.html',
   './manifest.json',
@@ -24,68 +20,86 @@ const PRECACHE_URLS = [
   './icon-512x512.png'
 ];
 
-// ═══ INSTALL: pre-cache core shell, then activate immediately ═══
-self.addEventListener('install', function (event) {
-  self.skipWaiting(); // don't wait for old tabs to close — take over ASAP
+self.addEventListener('install', (event) => {
+  // Take over immediately, don't wait for old tabs to close.
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(function (cache) {
-      return cache.addAll(PRECACHE_URLS).catch(function (err) {
-        // Don't let a single missing asset block install
-        console.warn('[SW] precache addAll failed:', err);
-      });
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
   );
 });
 
-// ═══ ACTIVATE: aggressively nuke every cache that isn't this version ═══
-self.addEventListener('activate', function (event) {
+self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then(function (keys) {
-      return Promise.all(
-        keys
-          .filter(function (key) { return key !== CACHE_NAME; })
-          .map(function (key) {
-            console.log('[SW] deleting stale cache:', key);
-            return caches.delete(key);
-          })
-      );
-    }).then(function () {
-      return self.clients.claim(); // take control of all open tabs right away
-    })
+    (async () => {
+      // Aggressively wipe every cache that isn't this exact version —
+      // including caches from any earlier naming scheme.
+      const keys = await caches.keys();
+      await Promise.all(keys.map((key) => {
+        if (key !== CACHE_NAME) return caches.delete(key);
+      }));
+      // clients.claim() alone is enough for this new worker to start
+      // controlling already-open pages (their next fetch/navigation
+      // routes through it) — no explicit reload needed. Forcing
+      // client.navigate(client.url) here used to fire a second, SW-driven
+      // reload on top of whatever navigation the user/browser was already
+      // doing (e.g. a pull-to-refresh), and two overlapping navigations to
+      // the same window can tear the render — which is the most likely
+      // explanation for the duplicated rows / stretched-then-scrollable
+      // layout seen right after pull-to-refresh.
+      await self.clients.claim();
+    })()
   );
 });
 
-// ═══ FETCH: network-first, falling back to cache only when offline ═══
-self.addEventListener('fetch', function (event) {
-  // Only handle GET requests — let everything else (POST etc.) pass through
-  if (event.request.method !== 'GET') return;
-
-  const url = new URL(event.request.url);
-  // Only handle same-origin requests; let cross-origin (fonts CDN etc.) go straight to network
-  if (url.origin !== self.location.origin) return;
-
-  event.respondWith(
-    fetch(event.request, { cache: 'no-store' })
-      .then(function (networkResponse) {
-        // Stash a fresh copy for offline fallback, then serve the live response
-        const cloned = networkResponse.clone();
-        caches.open(CACHE_NAME).then(function (cache) {
-          cache.put(event.request, cloned);
-        });
-        return networkResponse;
-      })
-      .catch(function () {
-        // Offline (or network failed) — fall back to whatever's cached
-        return caches.match(event.request).then(function (cached) {
-          return cached || caches.match('./index.html');
-        });
-      })
-  );
+// Let the page force an update check / immediate activation on demand.
+self.addEventListener('message', (event) => {
+  if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
-// ═══ Allow the page to trigger an immediate takeover after update ═══
-self.addEventListener('message', function (event) {
-  if (event.data === 'SKIP_WAITING') {
-    self.skipWaiting();
+self.addEventListener('fetch', (event) => {
+  const req = event.request;
+  if (req.method !== 'GET') return;
+
+  const url = new URL(req.url);
+  const isSameOrigin = url.origin === self.location.origin;
+
+  // Network-first for navigations and same-origin app-shell files
+  // (HTML, manifest, icons): always try to get the freshest copy first,
+  // update the cache in the background, and only fall back to cache
+  // when the network is unreachable (offline).
+  if (req.mode === 'navigate' || isSameOrigin) {
+    event.respondWith(
+      fetch(req, { cache: 'no-store' })
+        .then((res) => {
+          if (res && res.status === 200) {
+            const copy = res.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              const key = req.mode === 'navigate' ? './index.html' : req;
+              cache.put(key, copy);
+            });
+          }
+          return res;
+        })
+        .catch(() =>
+          caches.match(req.mode === 'navigate' ? './index.html' : req)
+        )
+    );
+    return;
   }
+
+  // Cross-origin (e.g. fonts/CDN): network first, cache as fallback.
+  // Only cache successful, cacheable responses — an error response (4xx/5xx)
+  // or an unusable opaque-redirect must never overwrite a good cached copy,
+  // otherwise a transient failure "poisons" the offline fallback permanently.
+  event.respondWith(
+    fetch(req)
+      .then((res) => {
+        if (res && (res.status === 200 || res.type === 'opaque') && res.type !== 'opaqueredirect') {
+          const copy = res.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+        }
+        return res;
+      })
+      .catch(() => caches.match(req))
+  );
 });
