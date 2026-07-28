@@ -219,19 +219,18 @@ body {
 /* Tab contents */
 .tab-content { display: none; padding: 6px 10px 12px; }
 .tab-content.active { display: block; flex: 1 0 auto; }
-/* Special Calc: "everything fits on one screen" with EQUAL gaps that span
-   further than just this element — from the header subtitle's baseline all
-   the way down to the footer's top edge, including the tab-bar capsule and
-   every row/card gap in between (but NOT the 6px gap between the 4 tab pills
-   themselves, which stays fixed). Because that span crosses several separate
-   DOM boxes (header, tab-bar, this element, footer) that a single CSS flex/
-   grid container can't unify, the actual pixel gap is computed and applied
-   as explicit margins by syncSpecialGaps() in the script below. This block
-   just keeps each child at its natural height (flex-shrink:0) so if content
-   is ever taller than the screen it grows past 100dvh and scrolls normally,
-   no fallback-detection needed. */
+/* Special Calc: "everything fits on one screen" via native flexbox instead of
+   JS pixel-measurement (which proved unreliable across real devices/browser-
+   chrome-settling timing). flex-shrink:0 on children below via default auto
+   basis keeps each row at its natural height; space-evenly distributes any
+   leftover room as gaps — including the gap before the first row and after
+   the last one (space-between would leave those two at zero and dump all the
+   slack into the middle gaps only, which looked disproportionate). If content
+   is taller than the screen, flex-shrink:0 here lets #tab-special grow past
+   100dvh instead of squeezing content — the page then just scrolls normally,
+   no JS fallback-detection needed. */
 #tab-special.active {
-  display: flex; flex-direction: column; justify-content: flex-start;
+  display: flex; flex-direction: column; justify-content: space-evenly;
   flex-shrink: 0;
 }
 #tab-special.active > * { flex-shrink: 0; }
@@ -10461,11 +10460,7 @@ function showTab(name, btn) {
  document.getElementById('tab-' + name).classList.add('active');
  btn.classList.add('active');
  if (name === 'bolus') renderBolus();
- if (name === 'special' && typeof scheduleSpecialCompactFit === 'function') {
-  scheduleSpecialCompactFit();
- } else if (typeof specialGapModeOff === 'function') {
-  specialGapModeOff();
- }
+ if (name === 'special' && typeof scheduleSpecialCompactFit === 'function') scheduleSpecialCompactFit();
  if (name === 'defib' && typeof fitEcgTitle === 'function') fitEcgTitle();
  if (typeof fitAllDrugNames === 'function') fitAllDrugNames();
  if (typeof navSaveState === 'function') navSaveState();
@@ -14202,102 +14197,23 @@ window.addEventListener('resize', function () {
   if (body && body.style.display !== 'none') gcsAlignVerbalToggle();
 });
 
-/* ── Special Calc: compact "everything fits, no scroll" layout ──
-   In its default collapsed state (nothing expanded), the Special Calc tab is
-   just a short stack of rows: S/P Calculator, each category, At a Glance
-   (plus a Pinned row if any favourites exist). ONE equal pixel gap is spread
-   across every vertical gap from the header subtitle's baseline down to the
-   footer's top edge: subtitle→tab-bar, tab-bar→1st row, every row→row gap,
-   and last row→footer. (The 6px gap between the 4 tab pills themselves is
-   left alone — that's inside the tab-bar, not one of these.)
-
-   That span crosses several separate DOM boxes (header, tab-bar, the tab
-   content, footer) that a single CSS flex/grid container can't unify on its
-   own, so the actual pixel value is measured and applied here as explicit
-   margins — and only while the Special Calc tab is active; switching to any
-   other tab restores each shared element's normal CSS spacing untouched. */
-var SPECIAL_GAP_MIN = 6; // floor once content no longer fits the screen — falls back to normal scroll, same as before
-var specialGapRaf = null;
-
-// Zeroes out the fixed padding on the shared elements that sit inside this
-// gap span, so the ONLY space between them is the margin this script sets.
-function specialGapModeOn() {
-  var header = document.querySelector('.app-header');
-  var tabBar = document.querySelector('.tab-bar');
-  var footer = document.querySelector('.app-footer');
-  if (header) header.style.paddingBottom = '0px';
-  if (tabBar) { tabBar.style.paddingTop = '0px'; tabBar.style.paddingBottom = '0px'; }
-  if (footer) footer.style.paddingTop = '0px';
-}
-
-// Restores normal (untouched) spacing on those shared elements — called the
-// moment the person leaves the Special Calc tab, since header/tab-bar/footer
-// are used by every tab, not just this one.
-function specialGapModeOff() {
-  var header = document.querySelector('.app-header');
-  var tabBar = document.querySelector('.tab-bar');
-  var tabEl = document.getElementById('tab-special');
-  var footer = document.querySelector('.app-footer');
-  if (header) header.style.paddingBottom = '';
-  if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = ''; tabBar.style.marginTop = ''; }
-  if (footer) { footer.style.paddingTop = ''; footer.style.marginTop = ''; }
-  if (tabEl) {
-    Array.prototype.forEach.call(tabEl.children, function (k) { k.style.marginTop = ''; });
-  }
-}
-
-function syncSpecialGaps() {
-  var tabEl = document.getElementById('tab-special');
-  if (!tabEl || !tabEl.classList.contains('active')) return;
-  var eyebrow = document.querySelector('.hdr-eyebrow');
-  var tabBar = document.querySelector('.tab-bar');
-  var footer = document.querySelector('.app-footer');
-  if (!eyebrow || !tabBar || !footer) return;
-
-  specialGapModeOn();
-
-  var kids = Array.prototype.filter.call(tabEl.children, function (k) {
-    return k.nodeType === 1 && getComputedStyle(k).display !== 'none';
-  });
-
-  // Zero every margin first so the measurements below are natural/ungapped
-  // heights, not last run's already-gapped ones.
-  tabBar.style.marginTop = '0px';
-  kids.forEach(function (k) { k.style.marginTop = '0px'; });
-  footer.style.marginTop = '0px';
-
-  var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  var eyebrowBottom = eyebrow.getBoundingClientRect().bottom;
-  var footerH = footer.offsetHeight;
-  var used = tabBar.offsetHeight;
-  kids.forEach(function (k) { used += k.offsetHeight; });
-
-  // Gap slots: subtitle→tab-bar, tab-bar→1st row, (N-1) between rows, last row→footer = N+2
-  var gapCount = kids.length + 2;
-  var spaceForGapsAndContent = viewportH - eyebrowBottom - footerH;
-  var gap = (spaceForGapsAndContent - used) / gapCount;
-  if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) gap = SPECIAL_GAP_MIN;
-
-  tabBar.style.marginTop = gap + 'px';
-  kids.forEach(function (k) { k.style.marginTop = gap + 'px'; });
-  footer.style.marginTop = gap + 'px';
-}
-
-function scheduleSpecialCompactFit() {
-  if (specialGapRaf) cancelAnimationFrame(specialGapRaf);
-  specialGapRaf = requestAnimationFrame(function () {
-    specialGapRaf = null;
-    syncSpecialGaps();
-  });
-}
-function fitSpecialCalcCompact() { syncSpecialGaps(); }
-
-window.addEventListener('resize', scheduleSpecialCompactFit);
-window.addEventListener('orientationchange', scheduleSpecialCompactFit);
-window.addEventListener('pageshow', scheduleSpecialCompactFit);
-document.addEventListener('visibilitychange', function () {
-  if (document.visibilityState === 'visible') scheduleSpecialCompactFit();
-});
+/* ── Special Calc "everything fits, no scroll" layout ───
+   This used to be done in JS: measure available space between the tab-bar
+   and footer, then set explicit pixel margins between rows. That one-shot
+   measurement proved unreliable on real devices (mobile browser chrome
+   collapsing/expanding, pull-to-refresh timing, and a follow-up attempt to
+   also fold the tab-bar/footer into the same distribution ran into a
+   circular measurement bug on top of that) — sometimes the footer was cut
+   off, sometimes missing entirely, sometimes gaps just collapsed to the
+   minimum regardless of screen size.
+   It's now handled natively by CSS flexbox instead (#tab-special.active in
+   the stylesheet): the browser redistributes the gaps itself on every
+   resize/orientation change/font-load, instantly and correctly, with no JS
+   measurement involved at all. These two functions are kept as no-ops purely
+   so the existing call sites elsewhere (toggleCalc, showTab, pin toggles,
+   resize/orientation listeners, etc.) don't throw errors.*/
+function scheduleSpecialCompactFit() {}
+function fitSpecialCalcCompact() {}
 
 /* ── Special Calc: Pin / Favorite system ── */
 var SPECIAL_FAV_KEY = 'special-calc-favs-v1';
