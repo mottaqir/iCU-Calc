@@ -14266,13 +14266,16 @@ function syncSpecialGaps() {
   kids.forEach(function (k) { k.style.marginTop = '0px'; });
   footer.style.marginTop = '0px';
 
-  var available = footer.getBoundingClientRect().top - eyebrow.getBoundingClientRect().bottom;
+  var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  var eyebrowBottom = eyebrow.getBoundingClientRect().bottom;
+  var footerH = footer.offsetHeight;
   var used = tabBar.offsetHeight;
   kids.forEach(function (k) { used += k.offsetHeight; });
 
   // Gap slots: subtitle→tab-bar, tab-bar→1st row, (N-1) between rows, last row→footer = N+2
   var gapCount = kids.length + 2;
-  var gap = (available - used) / gapCount;
+  var spaceForGapsAndContent = viewportH - eyebrowBottom - footerH;
+  var gap = (spaceForGapsAndContent - used) / gapCount;
   if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) gap = SPECIAL_GAP_MIN;
 
   tabBar.style.marginTop = gap + 'px';
