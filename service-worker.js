@@ -1,9 +1,9 @@
-// ═══ iCU Calc — Service Worker (v6, aggressive cache cleaner) ═══
+// ═══ iCU Calc — Service Worker (v7, aggressive cache cleaner) ═══
 // Strategy: network-first for everything, so the app never gets stuck
 // showing stale HTML/icons/manifest while online. Cache is only a
 // fallback for offline use. Every activation nukes ANY cache that isn't
 // the current version — no accumulation of old app-shell caches ever.
-const VERSION = 'v6';
+const VERSION = 'v7';
 const CACHE_NAME = 'icu-calc-' + VERSION;
 
 const APP_SHELL = [

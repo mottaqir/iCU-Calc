@@ -219,18 +219,19 @@ body {
 /* Tab contents */
 .tab-content { display: none; padding: 6px 10px 12px; }
 .tab-content.active { display: block; flex: 1 0 auto; }
-/* Special Calc: "everything fits on one screen" via native flexbox instead of
-   JS pixel-measurement (which proved unreliable across real devices/browser-
-   chrome-settling timing). flex-shrink:0 on children below via default auto
-   basis keeps each row at its natural height; space-evenly distributes any
-   leftover room as gaps — including the gap before the first row and after
-   the last one (space-between would leave those two at zero and dump all the
-   slack into the middle gaps only, which looked disproportionate). If content
-   is taller than the screen, flex-shrink:0 here lets #tab-special grow past
-   100dvh instead of squeezing content — the page then just scrolls normally,
-   no JS fallback-detection needed. */
+/* Special Calc: "everything fits on one screen" with EQUAL gaps that span
+   further than just this element — from the header subtitle's baseline all
+   the way down to the footer's top edge, including the tab-bar capsule and
+   every row/card gap in between (but NOT the 6px gap between the 4 tab pills
+   themselves, which stays fixed). Because that span crosses several separate
+   DOM boxes (header, tab-bar, this element, footer) that a single CSS flex/
+   grid container can't unify, the actual pixel gap is computed and applied
+   as explicit margins by syncSpecialGaps() in the script below. This block
+   just keeps each child at its natural height (flex-shrink:0) so if content
+   is ever taller than the screen it grows past 100dvh and scrolls normally,
+   no fallback-detection needed. */
 #tab-special.active {
-  display: flex; flex-direction: column; justify-content: space-evenly;
+  display: flex; flex-direction: column; justify-content: flex-start;
   flex-shrink: 0;
 }
 #tab-special.active > * { flex-shrink: 0; }
@@ -570,7 +571,7 @@ input[type=range]::-moz-range-progress {
 /* Sub-category tool cards nested under each category (GCS, FOUR Score, Sepsis-3,
    etc.): drop the calc-card box outline, and badge-style just the middle title
    text — chevron dot and pin star stay untouched, casing stays as-written. */
-.special-cat-body .calc-card { border: none; background: transparent; }
+.special-cat-body .calc-card { border: none; background: transparent; margin-bottom: 4px; }
 .special-cat-body .calc-title > span:not(.calc-title-dot) {
   color: var(--text-strong);
   padding: 4px 10px;
@@ -3671,7 +3672,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
 
  
-<div class="calc-card" id="calccard-shock" style="margin-bottom:8px;">
+<div class="calc-card" id="calccard-shock" style="margin-bottom:4px;">
   <div class="calc-title" onclick="toggleCalc('calccard-shock')">
    <span class="calc-title-dot"></span>
    <span>Shock Classification <span class="special-cat-sub" data-base="Differentiator">— Differentiator</span></span>
@@ -4304,13 +4305,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ═══════════════════════════════════════════════════ ABG INTERPRETER ═══ -->
  <div class="calc-card" id="calccard-abg">
- <div class="calc-title" onclick="toggleCalc('calccard-abg')"><span class="calc-title-dot"></span><span>ABG Interpreter <span style="color:var(--text-faint);font-weight:400">+ Critical Values</span></span><button type="button" class="calc-pin" data-cid="calccard-abg" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-abg', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-abg')"><span class="calc-title-dot"></span><span>ABG Calculator <span style="color:var(--text-faint);font-weight:400">— for Critical Values</span></span><button type="button" class="calc-pin" data-cid="calccard-abg" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-abg', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
 
   <!-- Inputs -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:7px">
    <!-- pH -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
     <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px">pH <span style="color:var(--text-faint);font-weight:400">(7.35–7.45)</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="6.80" max="7.80" step="0.01" value="7.40" id="abg-ph" oninput="syncField('abg-ph',this.value);calcABG()" style="flex:1;accent-color:#10b981">
@@ -4318,7 +4319,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     </div>
    </div>
    <!-- PaCO2 -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
     <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px">PaCO₂ <span style="color:var(--text-faint);font-weight:400">mmHg (35–45)</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="10" max="100" step="1" value="40" id="abg-pco2" oninput="syncField('abg-pco2',this.value);calcABG()" style="flex:1;accent-color:#10b981">
@@ -4326,7 +4327,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     </div>
    </div>
    <!-- HCO3 -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
     <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px">HCO₃⁻ <span style="color:var(--text-faint);font-weight:400">mEq/L (22–26)</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="5" max="50" step="0.5" value="24" id="abg-hco3" oninput="syncField('abg-hco3',this.value);calcABG()" style="flex:1;accent-color:#10b981">
@@ -4334,7 +4335,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     </div>
    </div>
    <!-- PaO2 -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
     <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px">PaO₂ <span style="color:var(--text-faint);font-weight:400">mmHg (80–100)</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="20" max="300" step="1" value="95" id="abg-pao2" oninput="syncField('abg-pao2',this.value);calcABG()" style="flex:1;accent-color:#10b981">
@@ -4342,7 +4343,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     </div>
    </div>
    <!-- Na -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
     <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px">Na⁺ <span style="color:var(--text-faint);font-weight:400">mEq/L (135–145)</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="110" max="165" step="1" value="140" id="abg-na" oninput="syncField('abg-na',this.value);calcABG()" style="flex:1;accent-color:#10b981">
@@ -4350,7 +4351,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     </div>
    </div>
    <!-- Cl -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
     <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:4px">Cl⁻ <span style="color:var(--text-faint);font-weight:400">mEq/L (96–106)</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="70" max="130" step="1" value="102" id="abg-cl" oninput="syncField('abg-cl',this.value);calcABG()" style="flex:1;accent-color:#10b981">
@@ -4365,6 +4366,40 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div id="abg-primary" style="font-size:15px;font-weight:900;color:#10b981;margin-bottom:6px">— Enter values above —</div>
    <!-- Step breakdown -->
    <div id="abg-steps" style="font-size:11px;line-height:1.8;color:var(--text-muted)"></div>
+  </div>
+
+  <!-- Derived Values: 2x2 functional calculators -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:8px">
+   <!-- Expected PaCO2 (Winter's formula) -->
+   <div style="background:#3b82f612;border:1px solid #3b82f640;border-radius:4px;padding:8px 8px">
+    <div style="font-size:10px;font-weight:700;color:#3b82f6;letter-spacing:0.3px;margin-bottom:4px">Expected PaCO₂</div>
+    <div id="abg-exp-pco2" style="font-size:15px;font-weight:900;color:var(--text)">—</div>
+    <div id="abg-exp-pco2-note" style="font-size:9px;color:var(--text-faint);margin-top:2px;line-height:1.4">Winter's formula (met. acidosis)</div>
+   </div>
+   <!-- P/F Ratio -->
+   <div style="background:#8b5cf612;border:1px solid #8b5cf640;border-radius:4px;padding:8px 8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;gap:4px">
+     <div style="font-size:10px;font-weight:700;color:#8b5cf6;letter-spacing:0.3px">P/F Ratio</div>
+     <div style="display:flex;align-items:center;gap:3px;flex-shrink:0">
+      <input type="number" min="21" max="100" step="1" value="21" id="abg-fio2" oninput="calcABG()" style="width:34px;padding:2px 3px;background:var(--surface);border:1px solid var(--muted);border-radius:3px;color:var(--text);font-size:10px;font-weight:700;text-align:center">
+      <span style="font-size:9px;color:var(--text-faint)">% FiO₂</span>
+     </div>
+    </div>
+    <div id="abg-pf-ratio" style="font-size:15px;font-weight:900;color:var(--text)">—</div>
+    <div id="abg-pf-note" style="font-size:9px;color:var(--text-faint);margin-top:2px;line-height:1.4">Berlin ARDS criteria</div>
+   </div>
+   <!-- Anion Gap -->
+   <div style="background:#f59e0b12;border:1px solid #f59e0b40;border-radius:4px;padding:8px 8px">
+    <div style="font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:0.3px;margin-bottom:4px">Anion Gap</div>
+    <div id="abg-ag-value" style="font-size:15px;font-weight:900;color:var(--text)">—</div>
+    <div id="abg-ag-note" style="font-size:9px;color:var(--text-faint);margin-top:2px;line-height:1.4">Normal 8–12 mEq/L</div>
+   </div>
+   <!-- Delta-Delta Ratio -->
+   <div style="background:#06b6d412;border:1px solid #06b6d440;border-radius:4px;padding:8px 8px">
+    <div style="font-size:10px;font-weight:700;color:#06b6d4;letter-spacing:0.3px;margin-bottom:4px">Delta-Delta Ratio</div>
+    <div id="abg-delta-value" style="font-size:15px;font-weight:900;color:var(--text)">—</div>
+    <div id="abg-delta-note" style="font-size:9px;color:var(--text-faint);margin-top:2px;line-height:1.4">Needs AG &gt;12</div>
+   </div>
   </div>
 
   <!-- Critical Values panel -->
@@ -10426,7 +10461,11 @@ function showTab(name, btn) {
  document.getElementById('tab-' + name).classList.add('active');
  btn.classList.add('active');
  if (name === 'bolus') renderBolus();
- if (name === 'special' && typeof scheduleSpecialCompactFit === 'function') scheduleSpecialCompactFit();
+ if (name === 'special' && typeof scheduleSpecialCompactFit === 'function') {
+  scheduleSpecialCompactFit();
+ } else if (typeof specialGapModeOff === 'function') {
+  specialGapModeOff();
+ }
  if (name === 'defib' && typeof fitEcgTitle === 'function') fitEcgTitle();
  if (typeof fitAllDrugNames === 'function') fitAllDrugNames();
  if (typeof navSaveState === 'function') navSaveState();
@@ -12107,6 +12146,66 @@ function calcABG() {
  if (critEl) {
   if (criticals.length > 0) { critEl.innerHTML = criticals.join('<br>'); critEl.style.display = 'block'; }
   else { critEl.style.display = 'none'; }
+ }
+
+ // ── Derived value boxes ──
+ // Expected PaCO2 (Winter's formula) — classic metabolic-acidosis compensation check
+ const expEl = document.getElementById('abg-exp-pco2');
+ const expNoteEl = document.getElementById('abg-exp-pco2-note');
+ if (expEl && expNoteEl) {
+  const wLo = 1.5 * hco3 + 8 - 2;
+  const wHi = 1.5 * hco3 + 8 + 2;
+  expEl.textContent = wLo.toFixed(1) + '–' + wHi.toFixed(1);
+  if (disorder === 'Metabolic Acidosis') {
+   if      (pco2 < wLo) { expEl.style.color = '#f59e0b'; expNoteEl.innerHTML = 'Actual ' + pco2 + ' → <span style="color:#f59e0b">+ Resp. Alkalosis</span>'; }
+   else if (pco2 > wHi) { expEl.style.color = '#ef4444'; expNoteEl.innerHTML = 'Actual ' + pco2 + ' → <span style="color:#ef4444">+ Resp. Acidosis</span>'; }
+   else                  { expEl.style.color = '#10b981'; expNoteEl.innerHTML = 'Actual ' + pco2 + ' → <span style="color:#10b981">Adequate compensation</span>'; }
+  } else {
+   expEl.style.color = 'var(--text)';
+   expNoteEl.textContent = "Winter's formula (met. acidosis)";
+  }
+ }
+
+ // P/F Ratio — needs the FiO2 the patient's on
+ const fio2El = document.getElementById('abg-fio2');
+ const pfEl = document.getElementById('abg-pf-ratio');
+ const pfNoteEl = document.getElementById('abg-pf-note');
+ if (pfEl && pfNoteEl) {
+  const fio2 = parseFloat(fio2El ? fio2El.value : 21) || 21;
+  const pf = pao2 / (fio2 / 100);
+  pfEl.textContent = pf.toFixed(0);
+  if      (pf < 100) { pfEl.style.color = '#ef4444'; pfNoteEl.innerHTML = '<span style="color:#ef4444">Severe ARDS</span>'; }
+  else if (pf < 200) { pfEl.style.color = '#f59e0b'; pfNoteEl.innerHTML = '<span style="color:#f59e0b">Moderate ARDS</span>'; }
+  else if (pf < 300) { pfEl.style.color = '#f97316'; pfNoteEl.innerHTML = '<span style="color:#f97316">Mild ARDS</span>'; }
+  else                { pfEl.style.color = '#10b981'; pfNoteEl.innerHTML = '<span style="color:#10b981">Normal</span>'; }
+ }
+
+ // Anion Gap — mirrors Step 4 above, shown as a standalone quick value
+ const agEl = document.getElementById('abg-ag-value');
+ const agNoteEl = document.getElementById('abg-ag-note');
+ if (agEl && agNoteEl) {
+  agEl.textContent = ag.toFixed(1);
+  if      (ag > 12) { agEl.style.color = '#ef4444'; agNoteEl.innerHTML = '<span style="color:#ef4444">High — MUDPILES</span>'; }
+  else if (ag < 8)  { agEl.style.color = '#f59e0b'; agNoteEl.innerHTML = '<span style="color:#f59e0b">Low</span>'; }
+  else               { agEl.style.color = '#10b981'; agNoteEl.innerHTML = '<span style="color:#10b981">Normal (8–12)</span>'; }
+ }
+
+ // Delta-Delta Ratio — only meaningful with a raised anion gap
+ const deltaEl = document.getElementById('abg-delta-value');
+ const deltaNoteEl = document.getElementById('abg-delta-note');
+ if (deltaEl && deltaNoteEl) {
+  if (ag > 12 && hco3 !== 24) {
+   const dd = (ag - 12) / (24 - hco3);
+   deltaEl.textContent = dd.toFixed(2);
+   if      (dd < 0.4) { deltaEl.style.color = '#f59e0b'; deltaNoteEl.innerHTML = '<span style="color:#f59e0b">Pure NAGMA (concurrent)</span>'; }
+   else if (dd < 0.8) { deltaEl.style.color = '#f97316'; deltaNoteEl.innerHTML = '<span style="color:#f97316">Mixed HAGMA + NAGMA</span>'; }
+   else if (dd <= 2)  { deltaEl.style.color = '#10b981'; deltaNoteEl.innerHTML = '<span style="color:#10b981">Pure HAGMA</span>'; }
+   else                { deltaEl.style.color = '#06b6d4'; deltaNoteEl.innerHTML = '<span style="color:#06b6d4">HAGMA + met. alkalosis</span>'; }
+  } else {
+   deltaEl.textContent = '—';
+   deltaEl.style.color = 'var(--text)';
+   deltaNoteEl.textContent = 'Needs AG >12';
+  }
  }
 }
 
@@ -14106,27 +14205,96 @@ window.addEventListener('resize', function () {
 /* ── Special Calc: compact "everything fits, no scroll" layout ──
    In its default collapsed state (nothing expanded), the Special Calc tab is
    just a short stack of rows: S/P Calculator, each category, At a Glance
-   (plus a Pinned row if any favourites exist). This measures the actual free
-   space between the tab-bar's bottom edge and the footer's top edge on the
-   current screen, then spreads those rows across it with equal px gaps —
-   so the whole list sits on one screen, no scrolling, on any phone size.
-   The instant something is expanded it backs off completely and restores
-   normal (scrollable) spacing, since expanded content can be arbitrarily tall. */
-// ─── Special Calc "everything fits, no scroll" layout ───
-// This used to be done in JS: measure available space between the tab-bar
-// and footer, then set explicit pixel margins between rows. That one-shot
-// measurement proved unreliable on real devices (mobile browser chrome
-// collapsing/expanding, pull-to-refresh timing) — sometimes the footer was
-// cut off, sometimes missing entirely, sometimes a whole extra retry pass
-// still didn't catch it in time.
-// It's now handled natively by CSS flexbox instead (#tab-special.active in
-// the stylesheet): the browser redistributes the gaps itself on every
-// resize/orientation change/font-load, instantly and correctly, with no JS
-// measurement involved at all. These two functions are kept as no-ops purely
-// so the existing call sites elsewhere (toggleCalc, showTab, pin toggles,
-// resize/orientation listeners, etc.) don't throw errors.
-function scheduleSpecialCompactFit() {}
-function fitSpecialCalcCompact() {}
+   (plus a Pinned row if any favourites exist). ONE equal pixel gap is spread
+   across every vertical gap from the header subtitle's baseline down to the
+   footer's top edge: subtitle→tab-bar, tab-bar→1st row, every row→row gap,
+   and last row→footer. (The 6px gap between the 4 tab pills themselves is
+   left alone — that's inside the tab-bar, not one of these.)
+
+   That span crosses several separate DOM boxes (header, tab-bar, the tab
+   content, footer) that a single CSS flex/grid container can't unify on its
+   own, so the actual pixel value is measured and applied here as explicit
+   margins — and only while the Special Calc tab is active; switching to any
+   other tab restores each shared element's normal CSS spacing untouched. */
+var SPECIAL_GAP_MIN = 6; // floor once content no longer fits the screen — falls back to normal scroll, same as before
+var specialGapRaf = null;
+
+// Zeroes out the fixed padding on the shared elements that sit inside this
+// gap span, so the ONLY space between them is the margin this script sets.
+function specialGapModeOn() {
+  var header = document.querySelector('.app-header');
+  var tabBar = document.querySelector('.tab-bar');
+  var footer = document.querySelector('.app-footer');
+  if (header) header.style.paddingBottom = '0px';
+  if (tabBar) { tabBar.style.paddingTop = '0px'; tabBar.style.paddingBottom = '0px'; }
+  if (footer) footer.style.paddingTop = '0px';
+}
+
+// Restores normal (untouched) spacing on those shared elements — called the
+// moment the person leaves the Special Calc tab, since header/tab-bar/footer
+// are used by every tab, not just this one.
+function specialGapModeOff() {
+  var header = document.querySelector('.app-header');
+  var tabBar = document.querySelector('.tab-bar');
+  var tabEl = document.getElementById('tab-special');
+  var footer = document.querySelector('.app-footer');
+  if (header) header.style.paddingBottom = '';
+  if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = ''; tabBar.style.marginTop = ''; }
+  if (footer) { footer.style.paddingTop = ''; footer.style.marginTop = ''; }
+  if (tabEl) {
+    Array.prototype.forEach.call(tabEl.children, function (k) { k.style.marginTop = ''; });
+  }
+}
+
+function syncSpecialGaps() {
+  var tabEl = document.getElementById('tab-special');
+  if (!tabEl || !tabEl.classList.contains('active')) return;
+  var eyebrow = document.querySelector('.hdr-eyebrow');
+  var tabBar = document.querySelector('.tab-bar');
+  var footer = document.querySelector('.app-footer');
+  if (!eyebrow || !tabBar || !footer) return;
+
+  specialGapModeOn();
+
+  var kids = Array.prototype.filter.call(tabEl.children, function (k) {
+    return k.nodeType === 1 && getComputedStyle(k).display !== 'none';
+  });
+
+  // Zero every margin first so the measurements below are natural/ungapped
+  // heights, not last run's already-gapped ones.
+  tabBar.style.marginTop = '0px';
+  kids.forEach(function (k) { k.style.marginTop = '0px'; });
+  footer.style.marginTop = '0px';
+
+  var available = footer.getBoundingClientRect().top - eyebrow.getBoundingClientRect().bottom;
+  var used = tabBar.offsetHeight;
+  kids.forEach(function (k) { used += k.offsetHeight; });
+
+  // Gap slots: subtitle→tab-bar, tab-bar→1st row, (N-1) between rows, last row→footer = N+2
+  var gapCount = kids.length + 2;
+  var gap = (available - used) / gapCount;
+  if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) gap = SPECIAL_GAP_MIN;
+
+  tabBar.style.marginTop = gap + 'px';
+  kids.forEach(function (k) { k.style.marginTop = gap + 'px'; });
+  footer.style.marginTop = gap + 'px';
+}
+
+function scheduleSpecialCompactFit() {
+  if (specialGapRaf) cancelAnimationFrame(specialGapRaf);
+  specialGapRaf = requestAnimationFrame(function () {
+    specialGapRaf = null;
+    syncSpecialGaps();
+  });
+}
+function fitSpecialCalcCompact() { syncSpecialGaps(); }
+
+window.addEventListener('resize', scheduleSpecialCompactFit);
+window.addEventListener('orientationchange', scheduleSpecialCompactFit);
+window.addEventListener('pageshow', scheduleSpecialCompactFit);
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible') scheduleSpecialCompactFit();
+});
 
 /* ── Special Calc: Pin / Favorite system ── */
 var SPECIAL_FAV_KEY = 'special-calc-favs-v1';
@@ -14985,7 +15153,7 @@ function gsGetTitle(el) {
     var t = el.querySelector(':scope > .calc-title');
     if (!t) return null;
     var c = t.cloneNode(true);
-    c.querySelectorAll('.calc-title-dot, .calc-chevron, .special-cat-count, .special-cat-chevron').forEach(function (x) { x.remove(); });
+    c.querySelectorAll('.calc-title-dot, .calc-chevron, .special-cat-count, .special-cat-chevron, .calc-pin').forEach(function (x) { x.remove(); });
     return c.textContent.trim();
   }
   if (el.classList.contains('aht-card')) {
@@ -15156,7 +15324,8 @@ function gsClearRecent(ev) {
   gsRenderIdle();
 }
 function gsResultRowHTML(m, onclickAttr) {
-  var titleLine = gsEscape(m.title) + ' <span class="gs-result-tag-inline">(' + gsEscape(m.tag) + ')</span>';
+  var cleanTitle = m.title.replace(/[★☆]/g, '').replace(/\s+/g, ' ').trim();
+  var titleLine = gsEscape(cleanTitle) + ' <span class="gs-result-tag-inline">(' + gsEscape(m.tag) + ')</span>';
   var subLine = m.sub ? '<div class="gs-result-sub">' + gsEscape(m.sub) + '</div>' : '';
   return '<div class="gs-result-item" ' + onclickAttr + '>'
     + '<div style="flex:1;min-width:0"><div class="gs-result-title">' + titleLine + '</div>' + subLine + '</div>'
