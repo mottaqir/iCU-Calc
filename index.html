@@ -14222,9 +14222,11 @@ var specialGapRaf = null;
 function specialGapModeOn() {
   var header = document.querySelector('.app-header');
   var tabBar = document.querySelector('.tab-bar');
+  var tabEl = document.getElementById('tab-special');
   var footer = document.querySelector('.app-footer');
   if (header) header.style.paddingBottom = '0px';
   if (tabBar) { tabBar.style.paddingTop = '0px'; tabBar.style.paddingBottom = '0px'; }
+  if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; }
   if (footer) footer.style.paddingTop = '0px';
 }
 
@@ -14237,6 +14239,8 @@ function specialGapModeOff() {
   if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = ''; tabBar.style.marginTop = ''; }
   if (footer) { footer.style.paddingTop = ''; footer.style.marginTop = ''; }
   if (tabEl) {
+    tabEl.style.paddingTop = '';
+    tabEl.style.paddingBottom = '';
     Array.prototype.forEach.call(tabEl.children, function (k) { k.style.marginTop = ''; });
   }
 }
