@@ -191,6 +191,10 @@ body {
 }
 .hdr-btn:hover { background: var(--surface2); border-color: var(--accent); }
 .hdr-btn svg { width: 18px; height: 18px; }
+/* Bolus tab only: extra header bottom padding so the gap above the tab
+   capsules is 15px here specifically (5px default + 4px), without
+   affecting Infusion/Special/Cardio (which keep the original 11px = 5+6). */
+body[data-active-tab="bolus"] .app-header { padding-bottom: 9px; }
 
 /* ── Tab Bar ── */
 .tab-bar {
@@ -209,7 +213,10 @@ body {
   letter-spacing: 0.02em; text-transform: none;
   cursor: pointer; text-align: center; line-height: 1.35;
   transition: all .15s;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
 }
+.tab-btn:focus, .tab-btn:focus-visible { outline: none; }
 .tab-btn.active {
   background: var(--accent); color: #0d1117;
   border-color: var(--accent); font-weight: 900;
@@ -219,6 +226,10 @@ body {
 /* Tab contents */
 .tab-content { display: none; padding: 4px 10px 12px; }
 .tab-content.active { display: block; flex: 1 0 auto; }
+/* Bolus tab only: extra top padding so the gap below the tab capsules is
+   17px here specifically (tab-bar's own bottom padding is 4px, shared by
+   all tabs, +13px here = 17px), without affecting Infusion/Special/Cardio. */
+#tab-bolus.active { padding-top: 13px; }
 /* Special Calc: "everything fits on one screen" with EQUAL gaps that span
    further than just this element — from the header subtitle's baseline all
    the way down to the footer's top edge, including the tab-bar capsule and
@@ -2186,7 +2197,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
 </style>
 </head>
-<body>
+<body data-active-tab="bolus">
 <script>
 // Apply theme immediately (before any content below paints) so the OS
 // status bar / theme-color meta are correct on THIS load — this is what
@@ -8773,7 +8784,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <span id="ecgemerg-titlewrap"><span id="ecgemerg-maintext">10 ECG Emergencies </span><span id="ecgemerg-caption" style="color:var(--text-faint);font-weight:400">— Recognize Fast. Treat Faster.</span></span>
    <span class="calc-chevron" id="ecgemerg-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
-  <div class="calc-body" id="ecgemerg-body" style="display:block;padding:0px 6px 6px;">
+  <div class="calc-body" id="ecgemerg-body" style="display:block;padding:0px 6px 3px;">
 
   <style>
    .ecg-card { background:var(--surface); border:1px solid var(--border); border-radius: 4px; margin-bottom:7px; overflow:hidden; }
@@ -9891,22 +9902,31 @@ function syncWt(val) {
 
 const slidingScaleHTML = `
  <div style="margin-top:10px;overflow-x:auto">
-  <table style="width:100%;border-collapse:collapse;font-size:11px">
-   <thead>
-    <tr style="background:var(--surface2)">
-     <th style="padding:6px 4px;text-align:left;color:#10b981">CBG (mmol/L)</th>
-     <th style="padding:6px 4px;text-align:left;color:#10b981">Dose</th>
-     <th style="padding:6px 4px;text-align:left;color:#10b981">Action</th>
-    </tr>
-   </thead>
-   <tbody style="color:var(--text)">
-    <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 4px">8 – 10</td><td style="padding:5px 4px;font-weight:700;color:#10b981">2 units S/C</td><td style="padding:5px 4px">Give S/C</td></tr>
-    <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 4px">10 – 14</td><td style="padding:5px 4px;font-weight:700;color:#10b981">4 units S/C</td><td style="padding:5px 4px">Give S/C</td></tr>
-    <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 4px">14 – 17</td><td style="padding:5px 4px;font-weight:700;color:#10b981">6 units S/C</td><td style="padding:5px 4px">Give S/C</td></tr>
-    <tr style="border-bottom:1px solid var(--border)"><td style="padding:5px 4px">17 – 20</td><td style="padding:5px 4px;font-weight:700;color:#10b981">8 units S/C</td><td style="padding:5px 4px">Give S/C</td></tr>
-    <tr><td style="padding:5px 4px">&gt; 20</td><td style="padding:5px 4px;font-weight:700;color:#ef4444">10 units S/C</td><td style="padding:5px 4px;color:#ef4444">Give S/C or start in S/P</td></tr>
-   </tbody>
-  </table>
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;font-size:11px;color:var(--text)">
+   <div style="background:var(--surface2);padding:6px 4px 6px 18px;color:#10b981;font-weight:700;white-space:nowrap">CBG (mmol/L)</div>
+   <div style="background:var(--surface2);padding:6px 4px 6px 10px;color:#10b981;font-weight:700;white-space:nowrap">Dose</div>
+   <div style="background:var(--surface2);padding:6px 4px;color:#10b981;font-weight:700;white-space:nowrap">Action</div>
+
+   <div style="padding:5px 4px 5px 18px;border-bottom:1px solid var(--border);white-space:nowrap"><span style="display:inline-grid;grid-template-columns:16px 14px 16px"><span style="text-align:right">8</span><span style="text-align:center">–</span><span>10</span></span></div>
+   <div style="padding:5px 4px 5px 10px;border-bottom:1px solid var(--border);font-weight:700;color:#10b981;white-space:nowrap">2 units S/C</div>
+   <div style="padding:5px 4px;border-bottom:1px solid var(--border);white-space:nowrap">Give S/C</div>
+
+   <div style="padding:5px 4px 5px 18px;border-bottom:1px solid var(--border);white-space:nowrap"><span style="display:inline-grid;grid-template-columns:16px 14px 16px"><span style="text-align:right">10</span><span style="text-align:center">–</span><span>14</span></span></div>
+   <div style="padding:5px 4px 5px 10px;border-bottom:1px solid var(--border);font-weight:700;color:#10b981;white-space:nowrap">4 units S/C</div>
+   <div style="padding:5px 4px;border-bottom:1px solid var(--border);white-space:nowrap">Give S/C</div>
+
+   <div style="padding:5px 4px 5px 18px;border-bottom:1px solid var(--border);white-space:nowrap"><span style="display:inline-grid;grid-template-columns:16px 14px 16px"><span style="text-align:right">14</span><span style="text-align:center">–</span><span>17</span></span></div>
+   <div style="padding:5px 4px 5px 10px;border-bottom:1px solid var(--border);font-weight:700;color:#10b981;white-space:nowrap">6 units S/C</div>
+   <div style="padding:5px 4px;border-bottom:1px solid var(--border);white-space:nowrap">Give S/C</div>
+
+   <div style="padding:5px 4px 5px 18px;border-bottom:1px solid var(--border);white-space:nowrap"><span style="display:inline-grid;grid-template-columns:16px 14px 16px"><span style="text-align:right">17</span><span style="text-align:center">–</span><span>20</span></span></div>
+   <div style="padding:5px 4px 5px 10px;border-bottom:1px solid var(--border);font-weight:700;color:#10b981;white-space:nowrap">8 units S/C</div>
+   <div style="padding:5px 4px;border-bottom:1px solid var(--border);white-space:nowrap">Give S/C</div>
+
+   <div style="padding:5px 4px 5px 18px;white-space:nowrap"><span style="display:inline-grid;grid-template-columns:16px 14px 16px"><span style="text-align:right">&gt;</span><span></span><span>20</span></span></div>
+   <div style="padding:5px 4px 5px 10px;font-weight:700;color:#ef4444;white-space:nowrap">10 units S/C</div>
+   <div style="padding:5px 4px;color:#ef4444;white-space:nowrap">Give S/C or start in S/P</div>
+  </div>
  </div>`;
 
 function renderBolus() {
@@ -10258,6 +10278,7 @@ function showTab(name, btn) {
  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
  document.getElementById('tab-' + name).classList.add('active');
  btn.classList.add('active');
+ document.body.setAttribute('data-active-tab', name);
  if (name === 'bolus') renderBolus();
  if (name === 'special' && typeof scheduleSpecialCompactFit === 'function') {
   scheduleSpecialCompactFit();
