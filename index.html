@@ -209,7 +209,8 @@ body[data-active-tab="bolus"] .app-header { padding-bottom: 9px; }
   border-radius: 20px;
   background: var(--surface2);
   color: var(--muted);
-  font-family: 'Courier New', Courier, monospace; font-size: 13px; font-weight: 900;
+  font-family: 'Courier New', Courier, monospace; font-size: 14px; font-weight: 900;
+  -webkit-text-stroke: 0.3px currentColor;
   letter-spacing: 0.02em; text-transform: none;
   cursor: pointer; text-align: center; line-height: 1.35;
   transition: all .15s;
@@ -693,7 +694,14 @@ input[type=range]::-moz-range-progress {
 /* ── Calc Fields ── */
 .field-row { margin-bottom: 10px; }
 .field-label { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-.field-inputs { display: flex; gap: 8px; align-items: center; }
+.field-inputs { display: flex; gap: 4px; align-items: center; }
+/* Wider slider view: any box that directly wraps a field-inputs row (the
+   "background:var(--surface-deep);padding:5px 6px" pattern used across the
+   Special Calc cards) had 6-10px of left/right padding eating into the
+   slider's usable width. Flatten that down to 2px on both sides everywhere,
+   matching the wide-slider look of the ABG card, without touching each of
+   the many inline padding declarations one by one. */
+div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !important; }
 .field-inputs input[type=range] { flex: 1; }
 .field-inputs input[type=number] {
   width: 62px; background: var(--surface2);
@@ -2262,7 +2270,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-nora">
  <div class="drug-header" onclick="toggleCard('nora')">
  <div class="drug-dot" style="background:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Noradrenaline</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Noradrenaline</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-nora">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3849,6 +3857,47 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    • Post-aortic surgery: 70–80 mmHg<br>
    <strong>Vasopressor trigger:</strong> MAP &lt;65 despite adequate fluid resuscitation → Noradrenaline 1st line<br>
    <strong>Pulse Pressure:</strong> &lt;25 mmHg = narrow (low SV / tamponade / hypovolaemia) | &gt;60 mmHg = wide (AR / sepsis / AV fistula)
+  </div>
+ </div>
+ </div>
+
+ <div class="calc-card" id="calccard-fwd">
+ <div class="calc-title" onclick="toggleCalc('calccard-fwd')"><span class="calc-title-dot"></span><span>Free Water Deficit <span style="color:var(--text-faint);font-weight:400">(Hypernatraemia)</span></span><button type="button" class="calc-pin" data-cid="calccard-fwd" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-fwd', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Weight (kg)</div>
+    <div class="field-inputs"><input type="range" min="5" max="150" step="1" value="60" id="fwd-wt" oninput="syncGlobalWeight(this.value)" style="accent-color:#0ea5e9"><input type="number" min="5" max="150" value="60" id="fwd-wt-n" oninput="syncGlobalWeight(this.value)" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
+   </div>
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px 8px 6px">
+    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">Sex</div>
+    <div style="display:flex;justify-content:space-between;align-items:center">
+     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="fwd-sex" value="male" onchange="calcFWD()" checked style="accent-color:#0ea5e9"> Male</label>
+     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="fwd-sex" value="female" onchange="calcFWD()" style="accent-color:#0ea5e9"> Female</label>
+    </div>
+   </div>
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Current Na⁺ (mEq/L)</div>
+    <div class="field-inputs"><input type="range" min="130" max="200" step="1" value="160" id="fwd-na" oninput="syncField('fwd-na',this.value);calcFWD()" style="accent-color:#0ea5e9"><input type="number" min="130" max="200" value="160" id="fwd-na-n" oninput="syncField('fwd-na',this.value);calcFWD()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
+   </div>
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Target Na⁺ (mEq/L)</div>
+    <div class="field-inputs"><input type="range" min="130" max="150" step="1" value="140" id="fwd-target" oninput="syncField('fwd-target',this.value);calcFWD()" style="accent-color:#0ea5e9"><input type="number" min="130" max="150" value="140" id="fwd-target-n" oninput="syncField('fwd-target',this.value);calcFWD()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
+   </div>
+  </div>
+  <label style="font-size:11px;display:flex;align-items:center;gap:5px;margin-bottom:8px;color:var(--text-muted)"><input type="checkbox" id="fwd-elderly" onchange="calcFWD()" style="accent-color:#0ea5e9"> Elderly (&gt;65y) — use lower TBW fraction</label>
+  <div id="fwd-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;background:var(--surface-deep);border:1px solid var(--border-strong)">
+   <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px;text-transform:uppercase;letter-spacing:0.4px">Free Water Deficit</div>
+   <div id="fwd-result-val" style="font-size:36px;font-weight:900;color:#0ea5e9">—</div>
+   <div id="fwd-result-interp" style="font-size:12px;font-weight:700;margin-top:8px"></div>
+   <div style="font-size:10px;color:var(--text-faint);margin-top:6px">FWD (L) = TBW × [(Current Na ÷ Target Na) − 1] &nbsp;|&nbsp; TBW = fraction × Wt</div>
+  </div>
+  <div class="note-box">
+   <strong>TBW fraction:</strong> Male 0.6 (0.5 if elderly) · Female 0.5 (0.45 if elderly)<br>
+   <strong>Correction rate:</strong> Lower Na no faster than 8–10 mEq/L per 24h (chronic hypernatraemia) — faster correction risks cerebral oedema<br>
+   <strong>Replacement:</strong> Give ~half the calculated deficit in the first 24h (plus ongoing insensible/urinary free water losses), remainder over the next 24–48h<br>
+   <strong>Monitor:</strong> Serum Na q2–4hrly during active correction; use D5W or enteral free water<br>
+   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> This estimates water deficit only — does not account for ongoing losses or concurrent volume deficit.
   </div>
  </div>
  </div>
@@ -8519,9 +8568,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div class="gl-sub-body" id="gls-pe-body">
 
      <div class="gl-tabs">
-      <div class="gl-tab gl-active" onclick="glTab('pe','dx',this)">Dx</div>
+      <div class="gl-tab gl-active" onclick="glTab('pe','dx',this)" style="text-transform:none">Dx</div>
       <div class="gl-tab" onclick="glTab('pe','bp',this)">BP</div>
-      <div class="gl-tab" onclick="glTab('pe','mag',this)">MgSO₄</div>
+      <div class="gl-tab" onclick="glTab('pe','mag',this)" style="text-transform:none">MgSO₄</div>
       <div class="gl-tab" onclick="glTab('pe','sz',this)">Seizure</div>
       <div class="gl-tab" onclick="glTab('pe','hellp',this)">HELLP</div>
       <div class="gl-tab" onclick="glTab('pe','fluid',this)">Fluids</div>
@@ -9858,6 +9907,11 @@ function syncGlobalWeight(val) {
  if (idaWt && idaWt !== active) idaWt.value = v;
  if (idaWtN && idaWtN !== active) idaWtN.value = v;
 
+ // Special Calc — Free Water Deficit
+ const fwdWt = document.getElementById('fwd-wt'), fwdWtN = document.getElementById('fwd-wt-n');
+ if (fwdWt && fwdWt !== active) fwdWt.value = v;
+ if (fwdWtN && fwdWtN !== active) fwdWtN.value = v;
+
  // Bolus Drugs — Heparin protocol
  const hepWt = document.getElementById('hep-wt'), hepWtN = document.getElementById('hep-wt-n');
  if (hepWt && hepWt !== active) hepWt.value = v;
@@ -9873,6 +9927,7 @@ function syncGlobalWeight(val) {
  try { calcCrCl(); } catch(e) {}
  try { calcInsDosingAll(); } catch(e) {}
  try { idaUpdateTarget(); calcGanzoni(); calcTable(); calcOral(); calcIV(); } catch(e) {}
+ try { calcFWD(); } catch(e) {}
 }
 
 // Back-compat wrappers (kept so existing onclick/oninput references still work)
@@ -10356,6 +10411,7 @@ window.addEventListener('load', function() {
  try { calcMentzer(); idaUpdateTarget(); calcGanzoni(); calcTable(); calcIron(); calcOral(); calcIV(); } catch(e) {}
  try { thyBuildChecklists(); calcThyroid(); } catch(e) {}
  try { calcMAP(); } catch(e) {}
+ try { calcFWD(); } catch(e) {}
  try { calcSOFA(); } catch(e) {}
  try { calcARDS(); } catch(e) {}
  try { calcABG(); } catch(e) {}
@@ -11440,6 +11496,34 @@ function calcMAP() {
  else if (map <= 120){ interp = '🟡 Hypertensive — consider antihypertensive'; color = '#f59e0b'; }
  else                { interp = '🔴 Hypertensive emergency'; color = '#ef4444'; }
  interpEl.textContent = interp; interpEl.style.color = color;
+ box.style.borderColor = color + '60';
+}
+
+function calcFWD() {
+ const wt = parseFloat(document.getElementById('fwd-wt-n').value) || 60;
+ const na = parseFloat(document.getElementById('fwd-na').value) || 160;
+ const target = parseFloat(document.getElementById('fwd-target').value) || 140;
+ const sex = document.querySelector('input[name="fwd-sex"]:checked')?.value || 'male';
+ const elderly = document.getElementById('fwd-elderly').checked;
+ let tbwFrac = sex === 'male' ? 0.6 : 0.5;
+ if (elderly) tbwFrac -= 0.05;
+ const tbw = tbwFrac * wt;
+ const fwd = tbw * ((na / target) - 1);
+ const valEl = document.getElementById('fwd-result-val');
+ const interpEl = document.getElementById('fwd-result-interp');
+ const box = document.getElementById('fwd-result-box');
+ if (fwd <= 0) {
+  valEl.textContent = '0.0 L';
+  interpEl.textContent = 'No free water deficit — current Na⁺ ≤ target';
+  interpEl.style.color = 'var(--text-muted)';
+  box.style.borderColor = 'var(--border-strong)';
+  return;
+ }
+ valEl.textContent = fwd.toFixed(2) + ' L';
+ const half = (fwd / 2).toFixed(2);
+ let color = fwd > 6 ? '#ef4444' : (fwd > 3 ? '#f59e0b' : '#10b981');
+ interpEl.innerHTML = 'Replace ≈' + half + ' L in first 24h (+ ongoing losses), remainder over next 24–48h';
+ interpEl.style.color = color;
  box.style.borderColor = color + '60';
 }
 
@@ -14134,7 +14218,7 @@ var SPECIAL_LAYOUT = [
     'calccard-ards', 'calccard-sepsis3', 'calccard-braindeath'
   ] },
   { slot: 'specialcat-calculators-body', cards: [
-    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-unitconv', 'calccard-abg', 'calccard-ventcalc'
+    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-fwd', 'calccard-unitconv', 'calccard-abg', 'calccard-ventcalc'
   ] },
   { slot: 'specialcat-correction-body', cards: [
     'calccard-nacl', 'calccard-bicarb', 'calccard-kdeficit', 'calccard-insulin', 'calccard-heparin'
