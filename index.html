@@ -1897,7 +1897,9 @@ ul.vent-facts code{
   font-size: 9px; color: var(--faint);
   line-height: 1.6; white-space: normal;
   word-break: break-word;
+  margin: 0 auto;
 }
+#ftNormal { margin-left: 0.35em; }
 
 /* ── Defib expand ── */
 .defib-expand { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; margin-bottom: 6px; overflow: hidden; }
@@ -2488,7 +2490,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-nora">
  <div class="drug-header" onclick="toggleCard('nora')">
  <div class="drug-dot" style="background:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Noradrenalin / Norepinephrine</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Noradrenaline / Norepinephrine</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-nora">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -2840,6 +2842,16 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       the matching *-body container on load, based on the SPECIAL_LAYOUT map. Cards
       keep their original markup/IDs/handlers untouched; only their DOM parent moves. -->
 
+ <div class="special-cat" id="specialcat-assessment">
+  <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-assessment')">
+   <span class="special-cat-icon">🩺</span>
+   <span class="special-cat-label">Assessment <span class="special-cat-sub" data-base="Differential &amp; Diagnostic Tools">Differential &amp; Diagnostic Tools</span></span>
+   <span class="special-cat-count" id="specialcat-assessment-count"></span>
+   <span class="special-cat-chevron"></span>
+  </div>
+  <div class="special-cat-body" id="specialcat-assessment-body" style="display:none"></div>
+ </div>
+
  <div class="special-cat" id="specialcat-scores">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-scores')">
    <span class="special-cat-icon">📊</span>
@@ -2848,16 +2860,6 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <span class="special-cat-chevron"></span>
   </div>
   <div class="special-cat-body" id="specialcat-scores-body" style="display:none"></div>
- </div>
-
- <div class="special-cat" id="specialcat-criteria">
-  <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-criteria')">
-   <span class="special-cat-icon">✅</span>
-   <span class="special-cat-label">Criterias <span class="special-cat-sub" data-base="important Diagnostic Criteria sets">important Diagnostic Criteria sets</span></span>
-   <span class="special-cat-count" id="specialcat-criteria-count"></span>
-   <span class="special-cat-chevron"></span>
-  </div>
-  <div class="special-cat-body" id="specialcat-criteria-body" style="display:none"></div>
  </div>
 
  <div class="special-cat" id="specialcat-calculators">
@@ -2870,6 +2872,16 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="special-cat-body" id="specialcat-calculators-body" style="display:none"></div>
  </div>
 
+ <div class="special-cat" id="specialcat-criteria">
+  <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-criteria')">
+   <span class="special-cat-icon">✅</span>
+   <span class="special-cat-label">Criteria <span class="special-cat-sub" data-base="important Diagnostic Criteria sets">important Diagnostic Criteria sets</span></span>
+   <span class="special-cat-count" id="specialcat-criteria-count"></span>
+   <span class="special-cat-chevron"></span>
+  </div>
+  <div class="special-cat-body" id="specialcat-criteria-body" style="display:none"></div>
+ </div>
+
  <div class="special-cat" id="specialcat-correction">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-correction')">
    <span class="special-cat-icon">💉</span>
@@ -2878,16 +2890,6 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <span class="special-cat-chevron"></span>
   </div>
   <div class="special-cat-body" id="specialcat-correction-body" style="display:none"></div>
- </div>
-
- <div class="special-cat" id="specialcat-assessment">
-  <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-assessment')">
-   <span class="special-cat-icon">🩺</span>
-   <span class="special-cat-label">Assessment <span class="special-cat-sub" data-base="Differential &amp; Diagnostic Tools">Differential &amp; Diagnostic Tools</span></span>
-   <span class="special-cat-count" id="specialcat-assessment-count"></span>
-   <span class="special-cat-chevron"></span>
-  </div>
-  <div class="special-cat-body" id="specialcat-assessment-body" style="display:none"></div>
  </div>
 
  <!-- ─── GCS ─── -->
@@ -9868,7 +9870,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <!-- Footer text: 2 lines equal width -->
   <div class="footer-text">
     <div class="ft-line1" id="ftLine1">Ref: WMCCM &bull; Irwin &amp; Rippe &bull; CMDT &bull; ESC &bull; AHA ACLS 2025</div>
-    <div class="ft-line2"><span id="ftShrink"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Please verify doses by Local Protocol.</span> <span id="ftNormal">&copy; Dr. Mottaqir Mamun</span></div>
+    <div class="ft-line2" id="ftLine2"><span id="ftShrink"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Verify doses by Local Protocol.</span><span id="ftNormal">&copy; Dr. Mottaqir Mamun</span></div>
   </div>
   <!-- Hamburger: footer right -->
   <button class="footer-icon-btn" onclick="openMenu()" aria-label="Menu">
@@ -14477,23 +14479,28 @@ try { hgInit(); } catch(e) {}
   }
   function equalizeFooterLines() {
     var line1 = document.getElementById('ftLine1');
+    var line2 = document.getElementById('ftLine2');
     var shrink = document.getElementById('ftShrink');
     var normal = document.getElementById('ftNormal');
-    if (!line1 || !shrink || !normal) return;
+    if (!line1 || !line2 || !shrink || !normal) return;
 
     var baseSize = 9; // ft-line2's default font-size
-    shrink.style.fontSize = baseSize + 'px';
+    line2.style.fontSize = baseSize + 'px';
 
     var target = textWidth(line1.textContent, fontOf(line1));
-    var normalWidth = textWidth(normal.textContent, fontOf(normal));
-    var gapWidth = textWidth(' ', fontOf(normal));
-    var naturalShrinkWidth = textWidth(shrink.textContent, fontOf(shrink, baseSize));
+    var gapNatural = baseSize * 0.35; // matches #ftNormal's margin-left: 0.35em at baseSize
+    var shrinkWidth = textWidth(shrink.textContent, fontOf(shrink, baseSize));
+    var normalWidth = textWidth(normal.textContent, fontOf(normal, baseSize));
+    var naturalTotal = shrinkWidth + gapNatural + normalWidth;
 
-    var available = target - normalWidth - gapWidth;
-    if (available > 0 && naturalShrinkWidth > 0) {
-      var scale = available / naturalShrinkWidth;
-      var newSize = Math.max(6, Math.min(baseSize, baseSize * scale));
-      shrink.style.fontSize = newSize.toFixed(2) + 'px';
+    var container = line1.parentElement; // .footer-text
+    var maxAvailable = container ? container.clientWidth : target;
+    var usableTarget = Math.min(target, maxAvailable);
+
+    if (naturalTotal > 0) {
+      var scale = usableTarget / naturalTotal;
+      var newSize = Math.max(6, Math.min(16, baseSize * scale));
+      line2.style.fontSize = newSize.toFixed(2) + 'px';
     }
   }
   function runWhenReady() {
