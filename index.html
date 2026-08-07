@@ -120,14 +120,12 @@
   --sp-info-bg: #e8edf5;    --sp-info-border: #2c4a73;  --sp-info-text: #1e3a5f;
   --sp-none-bg: #f6f8fa;    --sp-none-border: #d0d7de;  --sp-none-text: #57606a;
 }
-[data-theme="light"] .tab-btn.active,
 [data-theme="light"] .sp-tool .sp-btn-primary,
 [data-theme="light"] .menu-tab-btn.active-tab {
   background: linear-gradient(135deg, #2c4a73, #0f1f38) !important;
   color: #fff !important;
   border-color: transparent !important;
 }
-body:not([data-theme="light"]) .tab-btn.active,
 body:not([data-theme="light"]) .sp-tool .sp-btn-primary,
 body:not([data-theme="light"]) .menu-tab-btn.active-tab {
   background: linear-gradient(135deg, #3a5a85, #16283f) !important;
@@ -204,6 +202,7 @@ body[data-active-tab="bolus"] .app-header { padding-bottom: 9px; }
   gap: 4px; padding: 6px 10px 4px;
 }
 .tab-btn {
+  position: relative; z-index: 0;
   padding: 8px 6px;
   border: 1px solid var(--border);
   border-radius: 20px;
@@ -218,11 +217,35 @@ body[data-active-tab="bolus"] .app-header { padding-bottom: 9px; }
   outline: none;
 }
 .tab-btn:focus, .tab-btn:focus-visible { outline: none; }
-.tab-btn.active {
-  background: var(--accent); color: #0d1117;
-  border-color: var(--accent); font-weight: 900;
+body:not([data-theme="light"]) .tab-btn:not(.active) { background: transparent; }
+body:not([data-theme="light"]) .tab-btn.active {
+  background:
+    linear-gradient(var(--bg), var(--bg)) padding-box,
+    conic-gradient(from var(--tab-angle, 0deg), transparent 0deg, rgba(255,255,255,0.6) 60deg, transparent 120deg) border-box,
+    linear-gradient(var(--tabc), var(--tabc)) border-box;
 }
-.tab-btn:hover:not(.active) { border-color: var(--accent); color: var(--text); }
+/* Per-category tint outlines — always-on faint border, thickened (not
+   filled) when that tab is the active one. */
+.tab-btn-bolus    { border-color: rgba(16,185,129,0.45); }
+.tab-btn-infusion { border-color: rgba(6,182,212,0.5); }
+.tab-btn-special  { border-color: rgba(12,58,74,0.7); }
+.tab-btn-defib    { border-color: rgba(239,68,68,0.45); }
+.tab-btn.active {
+  color: var(--text);
+  font-weight: 900; border-width: 2px; border-color: transparent; padding: 7px 5px;
+  background:
+    linear-gradient(var(--surface2), var(--surface2)) padding-box,
+    conic-gradient(from var(--tab-angle, 0deg), transparent 0deg, rgba(255,255,255,0.6) 60deg, transparent 120deg) border-box,
+    linear-gradient(var(--tabc), var(--tabc)) border-box;
+  animation: tabGradSpin 3.2s linear infinite;
+}
+@property --tab-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+@keyframes tabGradSpin { to { --tab-angle: 360deg; } }
+.tab-btn-bolus.active    { --tabc: #10b981; }
+.tab-btn-infusion.active { --tabc: #0891b2; }
+.tab-btn-special.active  { --tabc: #0c3a4a; }
+.tab-btn-defib.active    { --tabc: #ef4444; }
+.tab-btn:hover:not(.active) { color: var(--text); filter: brightness(1.3); }
 
 /* Tab contents */
 .tab-content { display: none; padding: 4px 10px 12px; }
@@ -548,11 +571,11 @@ input[type=range]::-moz-range-progress {
 /* ── Special Calc: category groups ── */
 .special-cat { margin-bottom: 0; }
 .special-cat-header {
-  display: flex; align-items: center; gap: 11px;
+  display: flex; align-items: flex-start; gap: 11px;
   padding: 11px 2px; border-radius: 4px;
   cursor: pointer; user-select: none;
 }
-.special-cat-icon { font-size: 14px; flex-shrink: 0; line-height: 1; }
+.special-cat-icon { font-size: 14px; flex-shrink: 0; line-height: 1; align-self: center; }
 .special-cat-label {
   flex: 1 1 auto; min-width: 0;
   font-size: 12.5px; font-weight: 800; letter-spacing: 0.3px;
@@ -560,6 +583,8 @@ input[type=range]::-moz-range-progress {
   overflow-wrap: break-word;
 }
 .special-cat-sub {
+  display: block; margin-top: 0.5px;
+  letter-spacing: 0.2px;
   font-weight: 400 !important; color: var(--text-faint) !important;
 }
 .special-cat-count {
@@ -611,18 +636,25 @@ input[type=range]::-moz-range-progress {
   width: auto; height: auto; border-radius: 0; background: none !important;
   -webkit-mask-image: none; mask-image: none;
   font-size: 15px; line-height: 1; transform: none !important;
-  align-self: center; margin-top: 0;
+  align-self: flex-start; margin-top: 3px;
 }
 #calccard-glance > .calc-title,
 #calccard-syringe > .calc-title {
   gap: 11px;
 }
-/* Standalone card sitting at the same list level as Scores/Criteria/etc. category
-   rows below it — match their surface2 shade instead of the plain-white calc-card.
-   Now given the same title-only enclosure treatment as #calccard-glance: the outer
-   card border/background is dropped, only the title bar keeps the boxed look, and
-   the body loses its side padding so fields get a bit more horizontal room. */
-#calccard-syringe { border: none; background: transparent; }
+/* Syringe Pump Calculator now sits at the top of the Infusion Drugs tab, in
+   place of a drug-card — flat/borderless like the drug-cards below it (same
+   convention as .drug-card), with the same 2px side padding used throughout
+   this tab so the title and body line up with everything under it. */
+#calccard-syringe { border: none; background: transparent; margin-top: -13px; }
+#calccard-syringe > .calc-title {
+  padding-left: 2px; padding-right: 2px;
+  align-items: flex-start;
+  position: relative; left: -1.5px;
+}
+#calccard-syringe > .calc-body {
+  padding-left: 2px; padding-right: 2px;
+}
 #calccard-syringe > .calc-title > span:not(.calc-title-dot):not(.special-cat-count) {
   font-size: 12.5px; font-weight: 800; letter-spacing: 0.3px;
   color: var(--text-strong);
@@ -2269,10 +2301,10 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
 <!-- ═══ STICKY TAB BAR ═══ -->
 <nav class="tab-bar">
-  <button class="tab-btn active" onclick="showTab('bolus',this)">Bolus Drugs</button>
-  <button class="tab-btn" onclick="showTab('infusion',this)">Infusion Drugs</button>
-  <button class="tab-btn" onclick="showTab('special',this)">Special Calc</button>
-  <button class="tab-btn" onclick="showTab('defib',this)">Cardio / Defib</button>
+  <button class="tab-btn tab-btn-bolus active" onclick="showTab('bolus',this)">Bolus Drugs</button>
+  <button class="tab-btn tab-btn-infusion" onclick="showTab('infusion',this)">Infusion Drugs</button>
+  <button class="tab-btn tab-btn-special" onclick="showTab('special',this)">Special Calc</button>
+  <button class="tab-btn tab-btn-defib" onclick="showTab('defib',this)">Cardio / Defib</button>
 </nav>
 
 <!-- ═══ GLOBAL SEARCH OVERLAY ═══ -->
@@ -2292,12 +2324,171 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
 <div id="tab-infusion" class="tab-content" style="padding-top:14px">
  <div class="formula-banner">Formula: ml/hr = (Dose &times; Weight &times; 60) &divide; Concentration</div>
+
+ <!-- ─── Syringe Pump Dose Calculator ─── -->
+ <div class="calc-card" id="calccard-syringe">
+  <div class="calc-title" onclick="toggleCalc('calccard-syringe')"><span class="calc-title-dot">📟</span><span>Syringe Pump Calculator <span class="special-cat-sub">calculate Syringe Pump rate of any drug</span></span><span class="special-cat-chevron"></span></div>
+  <div class="calc-body" style="display:none">
+   <div class="sp-tool">
+
+    <div class="sp-tabs">
+      <button class="sp-tab-btn active-mode" id="tab-mode-dose" onclick="switchMode('dose')">dose &rarr; mL/hr</button>
+      <button class="sp-tab-btn" id="tab-mode-rate" onclick="switchMode('rate')">mL/hr &rarr; dose</button>
+    </div>
+
+    <div class="sp-grid sp-grid-uneven">
+      <div class="sp-field">
+        <div class="sp-field-select-row">
+          <label for="drugSelect">Drug</label>
+          <div class="sp-custom-select" id="drugSelectWrap">
+            <button type="button" class="sp-custom-select-trigger" id="drugSelectTrigger" onclick="toggleDrugDropdown()">
+              <span id="drugSelectLabel">Select drug</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sp-custom-select-panel" id="drugSelectPanel"></div>
+          </div>
+        </div>
+        <span class="sp-hint" id="drugNote"></span>
+      </div>
+      <div class="sp-field sp-field-weight">
+        <div class="sp-field-inline-row">
+          <label for="weight">Patient weight <span class="sp-field-weight-flag" id="weightFlag"></span></label>
+          <div class="sp-field-inline-controls">
+            <input type="number" step="0.1" id="weight" placeholder="70">
+            <span class="sp-unit-suffix">kg</span>
+          </div>
+        </div>
+        <span class="sp-hint">Only needed for weight-based (per kg) dosing.</span>
+      </div>
+    </div>
+
+    <div class="sp-grid sp-grid-uneven" style="margin-top:14px;">
+      <div class="sp-field">
+        <div class="sp-field-inline-row" id="concAmountRow">
+          <label for="concAmount">Drug amount</label>
+          <div class="sp-field-inline-controls">
+            <input type="number" step="any" id="concAmount" placeholder="4">
+            <div class="sp-custom-select sp-custom-select-sm" id="concUnitWrap">
+              <button type="button" class="sp-custom-select-trigger" onclick="toggleCustomSelect('concUnit')">
+                <span id="concUnitLabel">&mdash;</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+              <div class="sp-custom-select-panel" id="concUnitPanel"></div>
+            </div>
+          </div>
+        </div>
+        <span class="sp-hint">Total drug mass/units drawn up &mdash; edit to match what's actually hanging.</span>
+      </div>
+      <div class="sp-field sp-field-diluent">
+        <div class="sp-field-inline-row">
+          <label for="concVolume">Total diluent volume</label>
+          <div class="sp-field-inline-controls">
+            <input type="number" step="any" id="concVolume" placeholder="50">
+            <span class="sp-unit-suffix">mL</span>
+          </div>
+        </div>
+        <span class="sp-hint" id="concHint">Standard adult dilution shown as default &mdash; verify locally.</span>
+      </div>
+    </div>
+
+    <!-- MODE: Dose -> Rate -->
+    <div class="sp-mode-section active" id="mode-dose">
+      <div class="sp-grid" style="margin-top:14px;">
+        <div class="sp-field">
+          <div class="sp-field-inline-row">
+            <label for="doseValue">Desired dose</label>
+            <div class="sp-field-inline-controls">
+              <input type="number" step="any" id="doseValue" placeholder="0.1">
+              <div class="sp-custom-select sp-custom-select-sm" id="doseUnitWrap">
+                <button type="button" class="sp-custom-select-trigger" onclick="toggleCustomSelect('doseUnit')">
+                  <span id="doseUnitLabel">&mdash;</span>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="sp-custom-select-panel" id="doseUnitPanel"></div>
+              </div>
+            </div>
+          </div>
+          <span class="sp-hint" id="doseRangeHint"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODE: Rate -> Dose -->
+    <div class="sp-mode-section" id="mode-rate">
+      <div class="sp-grid" style="margin-top:14px;">
+        <div class="sp-field">
+          <div class="sp-field-inline-row">
+            <label for="rateValue">Current pump rate</label>
+            <div class="sp-field-inline-controls">
+              <input type="number" step="any" id="rateValue" placeholder="26.25">
+              <span class="sp-unit-suffix">mL/hr</span>
+            </div>
+          </div>
+        </div>
+        <div class="sp-field">
+          <label>Show dose as</label>
+          <div class="sp-custom-select" id="outDoseUnitWrap">
+            <button type="button" class="sp-custom-select-trigger" onclick="toggleCustomSelect('outDoseUnit')">
+              <span id="outDoseUnitLabel">&mdash;</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div class="sp-custom-select-panel" id="outDoseUnitPanel"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="sp-divider" style="margin-top:16px;">
+    <div class="sp-actions">
+      <button class="sp-btn-primary" onclick="calculate()">Calculate</button>
+      <button class="sp-btn-ghost" onclick="resetForm()">Clear</button>
+    </div>
+
+    <div class="sp-term-toggle-row" id="terminalToggle" onclick="toggleTerminal()">
+      <span class="sp-term-toggle-label">Calculation Terminal &mdash; Live Working</span>
+      <svg class="sp-term-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </div>
+    <div class="sp-terminal-wrap" id="terminalWrap">
+      <div class="sp-terminal" id="terminal">
+        <span class="sp-terminal-empty">$ awaiting calculation... enter values above and press Calculate</span>
+      </div>
+    </div>
+
+    <div id="final-result-box" class="sp-final-result">
+      <div class="sp-final-result-label" id="final-result-label">Result</div>
+      <div class="sp-final-result-value" id="final-result-value">&mdash;</div>
+      <div class="sp-final-result-note" id="final-result-note">Select a drug, enter the concentration and dose above, then press Calculate.</div>
+    </div>
+
+   </div>
+  </div>
+ </div>
  <div class="cat-block">
  <div class="cat-label">Vasopressors &amp; Inotropes</div>
+ <div class="drug-card" id="card-adren">
+ <div class="drug-header" onclick="toggleCard('adren')">
+ <div class="drug-dot" style="background:#ef4444"></div>
+ <div style="flex:1"><div class="drug-name">Adrenaline / Epinephrine</div><div class="drug-dilution">8 amp [8mg] + 42ml NS &rarr; 50ml<br>Conc: 160mcg/ml</div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-adren">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
+ </div>
+ <div class="drug-body">
+ <div class="card-wt-row">
+ <div class="dose-label"><span>Weight</span><span class="dose-val" style="color:#60a5fa"><span id="cwt-val-adren">60</span> kg</span></div>
+ <input type="range" id="cwt-adren" min="5" max="150" step="1" value="60" oninput="cwtSync('adren',this.value)" style="accent-color:#60a5fa">
+</div>
+ 
+ <div class="dose-row">
+ <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#ef4444"><span id="dv-adren">0.10</span> mcg/kg/min</span></div>
+ <input type="range" id="range-adren" min="0.1" max="1.0" step="0.1" value="0.1" oninput="calcInfusion('adren',this.value,60,160,'mcg/kg/min')" style="accent-color:#ef4444">
+ <div class="range-limits"><span>0.1</span><span>1.0</span></div>
+ </div>
+ <div class="note-box">Arrest: 10ml push in seconds | Anaphylaxis WMCCM: 1 min | Anaphylaxis OHCM: 10 min</div>
+ </div>
+ </div>
  <div class="drug-card" id="card-nora">
  <div class="drug-header" onclick="toggleCard('nora')">
  <div class="drug-dot" style="background:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Noradrenaline</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Noradrenalin / Norepinephrine</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-nora">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -2326,26 +2517,6 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="range-limits"><span>0.01</span><span>0.04</span></div>
  </div>
  <div class="note-box">Fixed dose — NOT titrated to effect like catecholamines | Used as add-on to Noradrenaline in refractory shock | Max: 0.04units/min | <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Verify dilution/dose against your unit protocol — chart not available at entry time</div>
- </div>
- </div>
- <div class="drug-card" id="card-adren">
- <div class="drug-header" onclick="toggleCard('adren')">
- <div class="drug-dot" style="background:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Adrenaline</div><div class="drug-dilution">8 amp [8mg] + 42ml NS &rarr; 50ml<br>Conc: 160mcg/ml</div></div>
- <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-adren">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
- </div>
- <div class="drug-body">
- <div class="card-wt-row">
- <div class="dose-label"><span>Weight</span><span class="dose-val" style="color:#60a5fa"><span id="cwt-val-adren">60</span> kg</span></div>
- <input type="range" id="cwt-adren" min="5" max="150" step="1" value="60" oninput="cwtSync('adren',this.value)" style="accent-color:#60a5fa">
-</div>
- 
- <div class="dose-row">
- <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#ef4444"><span id="dv-adren">0.10</span> mcg/kg/min</span></div>
- <input type="range" id="range-adren" min="0.1" max="1.0" step="0.1" value="0.1" oninput="calcInfusion('adren',this.value,60,160,'mcg/kg/min')" style="accent-color:#ef4444">
- <div class="range-limits"><span>0.1</span><span>1.0</span></div>
- </div>
- <div class="note-box">Arrest: 10ml push in seconds | Anaphylaxis WMCCM: 1 min | Anaphylaxis OHCM: 10 min</div>
  </div>
  </div>
  <div class="drug-card" id="card-dopa">
@@ -2662,147 +2833,6 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div id="special-pinned-body"></div>
  </div>
 
- <!-- ═══ Syringe Pump: standalone, above all categories ═══ -->
- <div id="special-standalone-syringe"></div>
-
- <!-- ─── Syringe Pump Dose Calculator ─── -->
- <div class="calc-card" id="calccard-syringe">
-  <div class="calc-title" onclick="toggleCalc('calccard-syringe')"><span class="calc-title-dot">📟</span><span>S/P Calculator <span class="special-cat-sub" data-base="Syringe Pump Dose Conversion for any drug">— Syringe Pump Dose Conversion for any drug</span></span><button type="button" class="calc-pin" data-cid="calccard-syringe" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-syringe', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button><span class="special-cat-chevron"></span></div>
-  <div class="calc-body" style="display:none">
-   <div class="sp-tool">
-
-    <div class="sp-tabs">
-      <button class="sp-tab-btn active-mode" id="tab-mode-dose" onclick="switchMode('dose')">dose &rarr; mL/hr</button>
-      <button class="sp-tab-btn" id="tab-mode-rate" onclick="switchMode('rate')">mL/hr &rarr; dose</button>
-    </div>
-
-    <div class="sp-grid sp-grid-uneven">
-      <div class="sp-field">
-        <div class="sp-field-select-row">
-          <label for="drugSelect">Drug</label>
-          <div class="sp-custom-select" id="drugSelectWrap">
-            <button type="button" class="sp-custom-select-trigger" id="drugSelectTrigger" onclick="toggleDrugDropdown()">
-              <span id="drugSelectLabel">Select drug</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sp-custom-select-panel" id="drugSelectPanel"></div>
-          </div>
-        </div>
-        <span class="sp-hint" id="drugNote"></span>
-      </div>
-      <div class="sp-field sp-field-weight">
-        <div class="sp-field-inline-row">
-          <label for="weight">Patient weight <span class="sp-field-weight-flag" id="weightFlag"></span></label>
-          <div class="sp-field-inline-controls">
-            <input type="number" step="0.1" id="weight" placeholder="70">
-            <span class="sp-unit-suffix">kg</span>
-          </div>
-        </div>
-        <span class="sp-hint">Only needed for weight-based (per kg) dosing.</span>
-      </div>
-    </div>
-
-    <div class="sp-grid sp-grid-uneven" style="margin-top:14px;">
-      <div class="sp-field">
-        <div class="sp-field-inline-row" id="concAmountRow">
-          <label for="concAmount">Drug amount</label>
-          <div class="sp-field-inline-controls">
-            <input type="number" step="any" id="concAmount" placeholder="4">
-            <div class="sp-custom-select sp-custom-select-sm" id="concUnitWrap">
-              <button type="button" class="sp-custom-select-trigger" onclick="toggleCustomSelect('concUnit')">
-                <span id="concUnitLabel">&mdash;</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-              <div class="sp-custom-select-panel" id="concUnitPanel"></div>
-            </div>
-          </div>
-        </div>
-        <span class="sp-hint">Total drug mass/units drawn up &mdash; edit to match what's actually hanging.</span>
-      </div>
-      <div class="sp-field sp-field-diluent">
-        <div class="sp-field-inline-row">
-          <label for="concVolume">Total diluent volume</label>
-          <div class="sp-field-inline-controls">
-            <input type="number" step="any" id="concVolume" placeholder="50">
-            <span class="sp-unit-suffix">mL</span>
-          </div>
-        </div>
-        <span class="sp-hint" id="concHint">Standard adult dilution shown as default &mdash; verify locally.</span>
-      </div>
-    </div>
-
-    <!-- MODE: Dose -> Rate -->
-    <div class="sp-mode-section active" id="mode-dose">
-      <div class="sp-grid" style="margin-top:14px;">
-        <div class="sp-field">
-          <div class="sp-field-inline-row">
-            <label for="doseValue">Desired dose</label>
-            <div class="sp-field-inline-controls">
-              <input type="number" step="any" id="doseValue" placeholder="0.1">
-              <div class="sp-custom-select sp-custom-select-sm" id="doseUnitWrap">
-                <button type="button" class="sp-custom-select-trigger" onclick="toggleCustomSelect('doseUnit')">
-                  <span id="doseUnitLabel">&mdash;</span>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                </button>
-                <div class="sp-custom-select-panel" id="doseUnitPanel"></div>
-              </div>
-            </div>
-          </div>
-          <span class="sp-hint" id="doseRangeHint"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- MODE: Rate -> Dose -->
-    <div class="sp-mode-section" id="mode-rate">
-      <div class="sp-grid" style="margin-top:14px;">
-        <div class="sp-field">
-          <div class="sp-field-inline-row">
-            <label for="rateValue">Current pump rate</label>
-            <div class="sp-field-inline-controls">
-              <input type="number" step="any" id="rateValue" placeholder="26.25">
-              <span class="sp-unit-suffix">mL/hr</span>
-            </div>
-          </div>
-        </div>
-        <div class="sp-field">
-          <label>Show dose as</label>
-          <div class="sp-custom-select" id="outDoseUnitWrap">
-            <button type="button" class="sp-custom-select-trigger" onclick="toggleCustomSelect('outDoseUnit')">
-              <span id="outDoseUnitLabel">&mdash;</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-            </button>
-            <div class="sp-custom-select-panel" id="outDoseUnitPanel"></div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <hr class="sp-divider" style="margin-top:16px;">
-    <div class="sp-actions">
-      <button class="sp-btn-primary" onclick="calculate()">Calculate</button>
-      <button class="sp-btn-ghost" onclick="resetForm()">Clear</button>
-    </div>
-
-    <div class="sp-term-toggle-row" id="terminalToggle" onclick="toggleTerminal()">
-      <span class="sp-term-toggle-label">Calculation Terminal &mdash; Live Working</span>
-      <svg class="sp-term-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-    </div>
-    <div class="sp-terminal-wrap" id="terminalWrap">
-      <div class="sp-terminal" id="terminal">
-        <span class="sp-terminal-empty">$ awaiting calculation... enter values above and press Calculate</span>
-      </div>
-    </div>
-
-    <div id="final-result-box" class="sp-final-result">
-      <div class="sp-final-result-label" id="final-result-label">Result</div>
-      <div class="sp-final-result-value" id="final-result-value">&mdash;</div>
-      <div class="sp-final-result-note" id="final-result-note">Select a drug, enter the concentration and dose above, then press Calculate.</div>
-    </div>
-
-   </div>
-  </div>
- </div>
 
  <!-- ═══════════════════════════════════════════════════ SPECIAL CALC CATEGORIES ═══
       These are empty shells — JS (applyFavoriteCalcs, in the pin/favourite script
@@ -2813,7 +2843,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-scores">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-scores')">
    <span class="special-cat-icon">📊</span>
-   <span class="special-cat-label">Scores <span class="special-cat-sub" data-base="Severity &amp; Risk Scoring Systems">— Severity &amp; Risk Scoring Systems</span></span>
+   <span class="special-cat-label">Scores <span class="special-cat-sub" data-base="Severity &amp; Risk Scoring Systems">Severity &amp; Risk Scoring Systems</span></span>
    <span class="special-cat-count" id="specialcat-scores-count"></span>
    <span class="special-cat-chevron"></span>
   </div>
@@ -2823,7 +2853,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-criteria">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-criteria')">
    <span class="special-cat-icon">✅</span>
-   <span class="special-cat-label">Criteria <span class="special-cat-sub" data-base="Diagnostic Criteria Sets">— Diagnostic Criteria Sets</span></span>
+   <span class="special-cat-label">Criterias <span class="special-cat-sub" data-base="important Diagnostic Criteria sets">important Diagnostic Criteria sets</span></span>
    <span class="special-cat-count" id="specialcat-criteria-count"></span>
    <span class="special-cat-chevron"></span>
   </div>
@@ -2833,7 +2863,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-calculators">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-calculators')">
    <span class="special-cat-icon">🧮</span>
-   <span class="special-cat-label">Calculators <span class="special-cat-sub" data-base="Bedside Clinical Calculators">— Bedside Clinical Calculators</span></span>
+   <span class="special-cat-label">Calculators <span class="special-cat-sub" data-base="Bedside Clinical Calculators">Bedside Clinical Calculators</span></span>
    <span class="special-cat-count" id="specialcat-calculators-count"></span>
    <span class="special-cat-chevron"></span>
   </div>
@@ -2843,7 +2873,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-correction">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-correction')">
    <span class="special-cat-icon">💉</span>
-   <span class="special-cat-label">Correction <span class="special-cat-sub" data-base="Electrolyte &amp; Infusion Correction">— Electrolyte &amp; Infusion Correction</span></span>
+   <span class="special-cat-label">Correction <span class="special-cat-sub" data-base="Electrolyte &amp; Infusion Correction">Electrolyte &amp; Infusion Correction</span></span>
    <span class="special-cat-count" id="specialcat-correction-count"></span>
    <span class="special-cat-chevron"></span>
   </div>
@@ -2853,7 +2883,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-assessment">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-assessment')">
    <span class="special-cat-icon">🩺</span>
-   <span class="special-cat-label">Assessment <span class="special-cat-sub" data-base="Differential &amp; Diagnostic Tools">— Differential &amp; Diagnostic Tools</span></span>
+   <span class="special-cat-label">Assessment <span class="special-cat-sub" data-base="Differential &amp; Diagnostic Tools">Differential &amp; Diagnostic Tools</span></span>
    <span class="special-cat-count" id="specialcat-assessment-count"></span>
    <span class="special-cat-chevron"></span>
   </div>
@@ -6571,7 +6601,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-card" id="calccard-glance">
   <div class="calc-title" onclick="toggleCalc('calccard-glance')">
    <span class="calc-title-dot">👁️</span>
-   <span>At a Glance <span class="special-cat-sub" data-base="Cheatsheets &amp; Quick Reference">— Cheatsheets &amp; Quick Reference</span></span>
+   <span>At a Glance <span class="special-cat-sub" data-base="Cheatsheets &amp; Quick Reference">Cheatsheets &amp; Quick Reference</span></span>
    <span class="special-cat-count">10</span>
    <span class="special-cat-chevron"></span>
   </div>
@@ -9838,7 +9868,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <!-- Footer text: 2 lines equal width -->
   <div class="footer-text">
     <div class="ft-line1" id="ftLine1">Ref: WMCCM &bull; Irwin &amp; Rippe &bull; CMDT &bull; ESC &bull; AHA ACLS 2025</div>
-    <div class="ft-line2"><span id="ftShrink"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Educational use only &mdash; verify doses.</span> <span id="ftNormal">&copy; Dr. Mottaqir Mamun</span></div>
+    <div class="ft-line2"><span id="ftShrink"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Please verify doses by Local Protocol.</span> <span id="ftNormal">&copy; Dr. Mottaqir Mamun</span></div>
   </div>
   <!-- Hamburger: footer right -->
   <button class="footer-icon-btn" onclick="openMenu()" aria-label="Menu">
@@ -14274,7 +14304,6 @@ var SPECIAL_FAV_KEY = 'special-calc-favs-v1';
 // controls which container each one gets moved into (and where the "rest" of
 // each category lands once a card is unpinned back out of Favourites).
 var SPECIAL_LAYOUT = [
-  { slot: 'special-standalone-syringe', cards: ['calccard-syringe'] },
   { slot: 'specialcat-scores-body', cards: [
     'calccard-gcs', 'calccard-four', 'calccard-news2', 'calccard-apache',
     'calccard-chadsvasc', 'calccard-childpugh', 'calccard-sofa', 'calccard-wellspe', 'calccard-dic'
@@ -14332,7 +14361,7 @@ function updateCategorySubtitles() {
     if (!subEl) return;
     var base = subEl.getAttribute('data-base') || subEl.textContent.replace(/^—\s*/, '').replace(/\s*\(.*\)\s*$/, '').trim();
     subEl.setAttribute('data-base', base);
-    subEl.textContent = '\u2014 ' + base;
+    subEl.textContent = base;
   });
 }
 
