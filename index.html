@@ -806,14 +806,31 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
 .ucv-clear { background: transparent; border: none; color: var(--faint); font-size: 13px; cursor: pointer; padding: 2px 4px; }
 
 /* ── Renal Dose Adjustment Calculator (nested under Special Calc) ── */
-.rdac-dd { position: relative; margin-bottom: 8px; }
+.rdac-dd { position: relative; margin-bottom: 8px; display: flex; gap: 6px; align-items: stretch; }
 .rdac-dd-trigger {
+  flex: 1; min-width: 0;
   width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
   background: var(--surface-deep); border: 1px solid var(--border-strong); color: var(--text);
   font-family: var(--heading); font-size: 12.5px; font-weight: 600;
   padding: 9px 12px; border-radius: 4px; cursor: pointer;
 }
 .rdac-dd-trigger .rdac-placeholder-label { color: var(--text-faint); font-weight: 400; }
+.rdac-search-btn {
+  flex-shrink: 0; width: 40px;
+  background: var(--surface-deep); border: 1px solid var(--border-strong);
+  border-radius: 4px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+.rdac-search-btn:active { background: var(--accent-dim); }
+.rdac-search-icon {
+  width: 16px; height: 16px; background: #3b82f6; display: block;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'/%3E%3C/svg%3E");
+  -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat;
+  -webkit-mask-position: center; mask-position: center;
+  -webkit-mask-size: contain; mask-size: contain;
+}
 .rdac-dd-chevron {
   width: 14px; height: 14px; flex-shrink: 0;
   background: #3b82f6;
@@ -832,6 +849,12 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
   border-radius: 4px; box-shadow: 0 10px 26px rgba(0,0,0,0.35);
 }
 .rdac-dd.open .rdac-dd-panel { display: block; }
+.rdac-dd-searchrow { position: sticky; top: 0; background: var(--surface-deep); padding: 7px; border-bottom: 1px solid var(--border-strong); z-index: 1; }
+.rdac-dd-search {
+  width: 100%; box-sizing: border-box; background: var(--surface); border: 1px solid var(--border-strong);
+  border-radius: 4px; color: var(--text); font-size: 12.5px; padding: 7px 10px; outline: none;
+}
+.rdac-dd-search:focus { border-color: #3b82f6; }
 .rdac-dd-cat {
   font-family: var(--mono); font-size: 9.5px; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.6px; color: var(--text-faint); padding: 8px 12px 4px;
@@ -842,6 +865,10 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
 }
 .rdac-dd-cat:first-child, .rdac-dd-cat + .rdac-dd-opt { border-top: none; }
 .rdac-dd-opt:hover, .rdac-dd-opt.selected { background: var(--accent-dim); color: #3b82f6; }
+.rdac-dd-opt.rdac-match {
+  font-weight: 800; color: #eaf2ff;
+  text-shadow: 0 0 10px rgba(59,130,246,0.95), 0 0 3px rgba(59,130,246,0.95);
+}
 .rdac-dose-box {
   padding: 10px 12px;
 }
@@ -3695,6 +3722,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <span id="rdacDropLabel" class="rdac-placeholder-label">Select an antibiotic</span>
     <span class="rdac-dd-chevron"></span>
    </button>
+   <button type="button" class="rdac-search-btn" onclick="rdacOpenSearch(event)" title="Search antibiotics" aria-label="Search antibiotics"><span class="rdac-search-icon"></span></button>
    <div class="rdac-dd-panel" id="rdacDropPanel"></div>
   </div>
   <div class="rdac-dose-box" id="rdac-doseOutput"><p class="rdac-placeholder-text">Select an antibiotic above to see the recommended dose</p></div>
@@ -10964,16 +10992,51 @@ function rdacBuildDropdown() {
  var panel = document.getElementById('rdacDropPanel');
  if (!panel || panel.dataset.built) return;
  panel.dataset.built = '1';
- var html = '';
+ var html = '<div class="rdac-dd-searchrow"><input type="text" id="rdacSearchInput" class="rdac-dd-search" placeholder="Search antibiotic…" oninput="rdacFilterDropdown(this.value)" onclick="event.stopPropagation()"></div>';
+ html += '<div id="rdacDdOptsWrap">';
  rdacMainDropdownList.forEach(function(d) {
-  html += '<div class="rdac-dd-opt" data-id="'+d.id+'" onclick="rdacSelectDrug(\''+d.id+'\')">'+d.name
+  html += '<div class="rdac-dd-opt" data-id="'+d.id+'" data-name="'+d.name.toLowerCase()+'" onclick="rdacSelectDrug(\''+d.id+'\')">'+d.name
         + (d.type === 'note' ? '<span class="rdac-dd-tag">guided</span>' : '') + '</div>';
  });
+ html += '<div id="rdacSearchEmpty" style="display:none;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">No match — full list shown below</div>';
+ html += '</div>';
  panel.innerHTML = html;
+}
+
+function rdacOpenSearch(e) {
+ e.stopPropagation();
+ rdacBuildDropdown();
+ var wrap = document.getElementById('rdacDdWrap');
+ if (!wrap.classList.contains('open')) wrap.classList.add('open');
+ setTimeout(function() {
+  var inp = document.getElementById('rdacSearchInput');
+  if (inp) inp.focus();
+ }, 20);
+}
+
+function rdacFilterDropdown(q) {
+ q = (q || '').trim().toLowerCase();
+ var panel = document.getElementById('rdacDropPanel');
+ var opts = panel.querySelectorAll('.rdac-dd-opt');
+ var firstMatch = null;
+ opts.forEach(function(o) {
+  var match = !!q && (o.dataset.name || '').indexOf(q) !== -1;
+  o.classList.toggle('rdac-match', match);
+  if (match && !firstMatch) firstMatch = o;
+ });
+ var empty = document.getElementById('rdacSearchEmpty');
+ if (empty) empty.style.display = (q && !firstMatch) ? 'block' : 'none';
+ if (firstMatch) {
+  requestAnimationFrame(function() {
+   var target = firstMatch.offsetTop - firstMatch.clientHeight;
+   panel.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
+  });
+ }
 }
 
 function rdacToggleDropdown(e) {
  e.stopPropagation();
+ rdacBuildDropdown();
  var wrap = document.getElementById('rdacDdWrap');
  var wasOpen = wrap.classList.contains('open');
  rdacCloseDropdown();
@@ -10982,6 +11045,8 @@ function rdacToggleDropdown(e) {
 function rdacCloseDropdown() {
  var wrap = document.getElementById('rdacDdWrap');
  if (wrap) wrap.classList.remove('open');
+ var inp = document.getElementById('rdacSearchInput');
+ if (inp) { inp.value = ''; rdacFilterDropdown(''); }
 }
 document.addEventListener('click', function(e) {
  if (e.target.closest('#rdacDdWrap')) return;
@@ -14218,10 +14283,10 @@ var SPECIAL_LAYOUT = [
     'calccard-ards', 'calccard-sepsis3', 'calccard-braindeath'
   ] },
   { slot: 'specialcat-calculators-body', cards: [
-    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-fwd', 'calccard-unitconv', 'calccard-abg', 'calccard-ventcalc'
+    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-unitconv', 'calccard-abg', 'calccard-ventcalc'
   ] },
   { slot: 'specialcat-correction-body', cards: [
-    'calccard-nacl', 'calccard-bicarb', 'calccard-kdeficit', 'calccard-insulin', 'calccard-heparin'
+    'calccard-nacl', 'calccard-fwd', 'calccard-bicarb', 'calccard-kdeficit', 'calccard-insulin', 'calccard-heparin'
   ] },
   { slot: 'specialcat-assessment-body', cards: [
     'calccard-shock', 'calccard-siadh', 'calccard-dka', 'calccard-cbc', 'calccard-ida', 'calccard-hemolysis', 'calccard-thyroid', 'calccard-dengue'
