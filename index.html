@@ -3963,7 +3963,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
 
  <div class="calc-card" id="calccard-dic">
- <div class="calc-title" onclick="toggleCalc('calccard-dic')"><span class="calc-title-dot"></span><span>DIC Assessment <span style="color:var(--text-faint);font-weight:400">(ISTH Score)</span></span><button type="button" class="calc-pin" data-cid="calccard-dic" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dic', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-dic')"><span class="calc-title-dot"></span><span>ISTH Criteria for DIC <span style="color:var(--text-faint);font-weight:400">(Disseminated Intravascular Coagulation)</span></span><button type="button" class="calc-pin" data-cid="calccard-dic" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dic', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <div style="font-size:10px;color:var(--text-faint);margin-bottom:8px">Requires an underlying disorder known to be associated with overt DIC (sepsis, trauma, malignancy, obstetric complication, etc.)</div>
 
@@ -6595,6 +6595,264 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
   </div>
+ </div>
+
+ <!-- ═══════════════════════════════════════════════════ LIGHT'S CRITERIA — Pleural Effusion ═══ -->
+ <div class="calc-card" id="calccard-lights">
+ <div class="calc-title" onclick="toggleCalc('calccard-lights')"><span class="calc-title-dot"></span><span>Light's Criteria <span style="color:var(--text-faint);font-weight:400">— Exudate vs Transudate</span></span><button type="button" class="calc-pin" data-cid="calccard-lights" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-lights', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+
+  <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+   <strong style="color:var(--text-strong)">Purpose:</strong> Classifies a pleural effusion as exudate or transudate using paired pleural fluid and serum protein/LDH. Draw both samples at the same time.
+  </div>
+
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 8px;margin-bottom:8px">
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Pleural Protein (g/dL)</div>
+     <input type="number" min="0" max="12" step="0.1" value="4.0" id="lights-pprot-n" oninput="calcLights()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Serum Protein (g/dL)</div>
+     <input type="number" min="0" max="12" step="0.1" value="6.0" id="lights-sprot-n" oninput="calcLights()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Pleural LDH (IU/L)</div>
+     <input type="number" min="0" max="5000" step="1" value="250" id="lights-pldh-n" oninput="calcLights()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Serum LDH (IU/L)</div>
+     <input type="number" min="0" max="2000" step="1" value="200" id="lights-sldh-n" oninput="calcLights()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+   </div>
+   <div>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Serum LDH Upper Limit of Normal — lab-specific (IU/L)</div>
+    <input type="number" min="0" max="2000" step="1" value="200" id="lights-uln-n" oninput="calcLights()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+   </div>
+  </div>
+
+  <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;margin-bottom:6px">EXUDATE IF ANY 1 OF 3 IS TRUE</div>
+  <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+   <div id="lights-c1" style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <div style="font-size:11px;color:var(--text-muted)">Pleural/Serum Protein &gt; 0.5</div>
+    <div id="lights-c1-val" style="font-size:12px;font-weight:800;font-family:'IBM Plex Mono',monospace">—</div>
+   </div>
+   <div id="lights-c2" style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <div style="font-size:11px;color:var(--text-muted)">Pleural/Serum LDH &gt; 0.6</div>
+    <div id="lights-c2-val" style="font-size:12px;font-weight:800;font-family:'IBM Plex Mono',monospace">—</div>
+   </div>
+   <div id="lights-c3" style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <div style="font-size:11px;color:var(--text-muted)">Pleural LDH &gt; ⅔ × Serum ULN</div>
+    <div id="lights-c3-val" style="font-size:12px;font-weight:800;font-family:'IBM Plex Mono',monospace">—</div>
+   </div>
+  </div>
+
+  <div id="lights-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;background:var(--surface-deep);border:1px solid var(--border-strong)">
+   <div id="lights-verdict" style="font-size:18px;font-weight:900;margin-bottom:4px;color:var(--text-muted)">—</div>
+   <div id="lights-detail" style="font-size:11px;line-height:1.65;color:var(--text-muted)"></div>
+  </div>
+
+  <div class="note-box">
+   <strong>Transudate</strong> (all 3 negative) → think heart failure, cirrhosis, nephrotic syndrome, hypoalbuminaemia — treat the underlying cause, fluid restriction/diuretics<br>
+   <strong>Exudate</strong> (any 1 positive) → think infection/empyema, malignancy, PE, TB, pancreatitis — send cell count, culture, cytology, ADA/pH as indicated<br>
+   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ~25% of transudates (esp. on diuretics) are mis-classified as exudates by Light's criteria — if clinical picture suggests transudate, check serum-pleural albumin gradient (&gt;1.2 g/dL favours transudate).
+  </div>
+ </div>
+ </div>
+
+ <!-- ═══════════════════════════════════════════════════ JONES CRITERIA — Acute Rheumatic Fever ═══ -->
+ <div class="calc-card" id="calccard-jones">
+ <div class="calc-title" onclick="toggleCalc('calccard-jones')"><span class="calc-title-dot"></span><span>Jones Criteria <span style="color:var(--text-faint);font-weight:400">— Acute Rheumatic Fever</span></span><button type="button" class="calc-pin" data-cid="calccard-jones" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-jones', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+
+  <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+   <strong style="color:var(--text-strong)">Purpose:</strong> Diagnoses acute rheumatic fever. Requires evidence of preceding Group A Strep (GAS) infection PLUS the major/minor criteria below. Bangladesh is a moderate/high-risk population.
+  </div>
+
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:6px">
+   <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Population Risk</div>
+   <div style="display:flex;gap:6px">
+    <label style="flex:1"><input type="radio" name="jones-risk" value="low" onchange="calcJones()"> <span style="font-size:11px">Low-risk</span></label>
+    <label style="flex:1"><input type="radio" name="jones-risk" value="high" onchange="calcJones()" checked> <span style="font-size:11px">Moderate/High-risk</span></label>
+   </div>
+  </div>
+
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:8px">
+   <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Episode Type</div>
+   <div style="display:flex;gap:6px">
+    <label style="flex:1"><input type="radio" name="jones-episode" value="initial" onchange="calcJones()" checked> <span style="font-size:11px">Initial episode</span></label>
+    <label style="flex:1"><input type="radio" name="jones-episode" value="recurrent" onchange="calcJones()"> <span style="font-size:11px">Recurrent (known ARF/RHD)</span></label>
+   </div>
+  </div>
+
+  <label style="background:#f59e0b15;border:1px solid #f59e0b30;border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin-bottom:8px">
+   <input type="checkbox" id="jones-gas" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px">
+   <div><div style="font-size:11px;font-weight:700;color:#f59e0b">Evidence of preceding GAS infection</div><div style="font-size:10px;color:var(--text-faint)">Positive throat culture/rapid antigen test, or rising/elevated ASO or anti-DNase B titre — required for diagnosis</div></div>
+  </label>
+
+  <div style="margin-bottom:8px"><span style="display:inline-block;font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.4px;padding:3px 10px;border-radius:999px;background:var(--accent-dim);border:1px solid var(--border-strong)">MAJOR CRITERIA</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;align-items:stretch">
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-maj-carditis" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div style="font-size:11px;font-weight:600">❤️ Carditis</div><div style="font-size:10px;color:var(--text-faint)">Clinical (murmur, HF) or subclinical (echo valvulitis)</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-maj-arthritis" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div id="jones-maj-arthritis-label" style="font-size:11px;font-weight:600">🦴 Polyarthritis</div><div id="jones-maj-arthritis-sub" style="font-size:10px;color:var(--text-faint)">Low-risk: polyarthritis only</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-maj-chorea" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div style="font-size:11px;font-weight:600">🧠 Sydenham Chorea</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-maj-erythema" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div style="font-size:11px;font-weight:600">🌸 Erythema Marginatum</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-maj-nodules" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div style="font-size:11px;font-weight:600">🔘 Subcutaneous Nodules</div></div>
+   </label>
+  </div>
+
+  <div style="margin-bottom:8px"><span style="display:inline-block;font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:0.4px;padding:3px 10px;border-radius:999px;background:#f59e0b15;border:1px solid #f59e0b30">MINOR CRITERIA</span></div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;align-items:stretch">
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-min-fever" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div id="jones-min-fever-label" style="font-size:11px;font-weight:600">🌡 Fever</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-min-arthralgia" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div style="font-size:11px;font-weight:600">🦴 Arthralgia</div><div style="font-size:10px;color:var(--text-faint)">Only if arthritis not ticked major</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-min-esr" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div style="font-size:11px;font-weight:600">🧪 Elevated ESR/CRP</div><div id="jones-min-esr-sub" style="font-size:10px;color:var(--text-faint)"></div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+    <input type="checkbox" id="jones-min-pr" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
+    <div><div style="font-size:11px;font-weight:600">〰️ Prolonged PR</div><div style="font-size:10px;color:var(--text-faint)">Only if carditis not ticked major</div></div>
+   </label>
+  </div>
+
+  <div id="jones-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;background:var(--surface-deep);border:1px solid var(--border-strong)">
+   <div id="jones-verdict" style="font-size:16px;font-weight:900;margin-bottom:4px;color:var(--text-muted)">— Tick criteria above —</div>
+   <div id="jones-detail" style="font-size:11px;line-height:1.65;color:var(--text-muted)"></div>
+  </div>
+
+  <div class="note-box">
+   <strong>Initial episode:</strong> 2 major, OR 1 major + 2 minor (plus GAS evidence)<br>
+   <strong>Recurrent episode</strong> (prior ARF/RHD): 2 major, OR 1 major + 2 minor, OR 3 minor (moderate/high-risk only) — plus GAS evidence<br>
+   <strong>Echo required</strong> in all suspected/confirmed cases, even with normal auscultation, to assess for subclinical carditis<br>
+   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> A criterion cannot be counted as both major and minor in the same patient (e.g. arthritis, carditis/PR interval). Chorea and indolent carditis alone may not require GAS evidence per full 2015 AHA guideline.
+  </div>
+ </div>
+ </div>
+
+ <!-- ═══════════════════════════════════════════════════ GOLD CRITERIA — COPD Staging ═══ -->
+ <div class="calc-card" id="calccard-gold">
+ <div class="calc-title" onclick="toggleCalc('calccard-gold')"><span class="calc-title-dot"></span><span>GOLD Criteria <span style="color:var(--text-faint);font-weight:400">— for COPD Staging</span></span><button type="button" class="calc-pin" data-cid="calccard-gold" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-gold', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+
+  <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+   <strong style="color:var(--text-strong)">Purpose:</strong> Grades airflow limitation severity (spirometric) and symptom/exacerbation risk group (ABE) in confirmed COPD. Use <strong>post-bronchodilator</strong> spirometry.
+  </div>
+
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 8px;margin-bottom:8px">
+   <div style="font-size:10px;font-weight:700;color:var(--accent);margin-bottom:8px">📊 Spirometric Grade</div>
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Post-BD FEV1/FVC</div>
+     <input type="number" min="0.2" max="1.0" step="0.01" value="0.60" id="gold-ratio-n" oninput="calcGOLD()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">FEV1 (% predicted)</div>
+     <input type="number" min="10" max="150" step="1" value="65" id="gold-fev1-n" oninput="calcGOLD()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+   </div>
+   <div id="gold-grade-display" style="font-size:20px;font-weight:900;color:var(--accent);text-align:center;padding:6px 0">—</div>
+  </div>
+
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 8px;margin-bottom:8px">
+   <div style="font-size:10px;font-weight:700;color:var(--text-muted);margin-bottom:8px">📋 Symptom / Exacerbation Group (ABE)</div>
+   <div style="margin-bottom:8px">
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Symptom burden</div>
+    <div style="display:flex;gap:6px">
+     <label style="flex:1"><input type="radio" name="gold-symptom" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">mMRC 0–1 / CAT &lt;10</span></label>
+     <label style="flex:1"><input type="radio" name="gold-symptom" value="high" onchange="calcGOLD()"> <span style="font-size:11px">mMRC ≥2 / CAT ≥10</span></label>
+    </div>
+   </div>
+   <div>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Exacerbations in past year</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+     <label style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">0–1 (no hospitalisation)</span></label>
+     <label style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="high" onchange="calcGOLD()"> <span style="font-size:11px">≥2, or ≥1 hospitalised</span></label>
+    </div>
+   </div>
+  </div>
+
+  <div id="gold-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;background:var(--surface-deep);border:1px solid var(--border-strong)">
+   <div id="gold-verdict" style="font-size:18px;font-weight:900;margin-bottom:4px;color:var(--text-muted)">—</div>
+   <div id="gold-detail" style="font-size:11px;line-height:1.65;color:var(--text-muted)"></div>
+  </div>
+
+  <div class="note-box">
+   <strong>GOLD 1 Mild:</strong> FEV1 ≥80% | <strong>GOLD 2 Moderate:</strong> 50–79% | <strong>GOLD 3 Severe:</strong> 30–49% | <strong>GOLD 4 Very Severe:</strong> &lt;30%<br>
+   <strong>Group A:</strong> low symptoms + low exacerbation risk | <strong>Group B:</strong> high symptoms + low exacerbation risk | <strong>Group E:</strong> ≥2 exacerbations or ≥1 hospitalisation (regardless of symptoms)<br>
+   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> FEV1/FVC &lt;0.70 post-bronchodilator confirms airflow obstruction — required before staging applies.
+  </div>
+ </div>
+ </div>
+
+ <!-- ═══════════════════════════════════════════════════ CURB-65 — CAP Severity ═══ -->
+ <div class="calc-card" id="calccard-curb65">
+ <div class="calc-title" onclick="toggleCalc('calccard-curb65')"><span class="calc-title-dot"></span><span>CURB-65 Score <span style="color:var(--text-faint);font-weight:400">— for CAP</span></span><button type="button" class="calc-pin" data-cid="calccard-curb65" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-curb65', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+
+  <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+   <strong style="color:var(--text-strong)">Purpose:</strong> Grades severity of community-acquired pneumonia (CAP) and guides site-of-care decisions. British Thoracic Society (BTS) derived score.
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+    <input type="checkbox" id="curb-c" onchange="calcCURB65()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px">
+    <div><div style="font-size:11px;font-weight:600">🧠 Confusion</div><div style="font-size:10px;color:var(--text-faint)">New disorientation in person, place, or time (AMTS ≤8 or equivalent)</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+    <input type="checkbox" id="curb-u" onchange="calcCURB65()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px">
+    <div><div style="font-size:11px;font-weight:600">🧪 Urea &gt; 7 mmol/L</div><div style="font-size:10px;color:var(--text-faint)">&gt; 20 mg/dL</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+    <input type="checkbox" id="curb-r" onchange="calcCURB65()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px">
+    <div><div style="font-size:11px;font-weight:600">🫁 Respiratory Rate ≥ 30/min</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+    <input type="checkbox" id="curb-b" onchange="calcCURB65()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px">
+    <div><div style="font-size:11px;font-weight:600">🩸 Blood Pressure</div><div style="font-size:10px;color:var(--text-faint)">Systolic &lt; 90 mmHg or Diastolic ≤ 60 mmHg</div></div>
+   </label>
+   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer">
+    <input type="checkbox" id="curb-65" onchange="calcCURB65()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px">
+    <div><div style="font-size:11px;font-weight:600">🎂 Age ≥ 65 years</div></div>
+   </label>
+  </div>
+
+  <div id="curb65-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;background:var(--surface-deep);border:1px solid var(--border-strong)">
+   <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
+    <div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.4px">CURB-65</div>
+    <div id="curb65-score" style="font-size:28px;font-weight:900;color:var(--text-muted)">0</div>
+    <div style="font-size:11px;color:var(--text-faint)">/ 5</div>
+   </div>
+   <div id="curb65-risk" style="font-size:14px;font-weight:800;margin-bottom:4px"></div>
+   <div id="curb65-management" style="font-size:11px;line-height:1.65;color:var(--text-muted)"></div>
+  </div>
+
+  <div class="note-box">
+   <strong>0–1 (Low risk, mortality &lt;3%):</strong> Outpatient treatment<br>
+   <strong>2 (Moderate risk, mortality ~9%):</strong> Consider short inpatient stay or closely-supervised outpatient treatment<br>
+   <strong>3–5 (High risk, mortality 15–40%):</strong> Hospitalise — consider ICU admission, especially if score is 4–5<br>
+   <strong>CRB-65</strong> (drop the Urea criterion) can be used in primary care where labs are unavailable<br>
+   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> A high score should prompt early aggressive management and empiric antibiotics per local CAP guideline — this score does not replace clinical judgement.
+  </div>
+ </div>
  </div>
 
  <!-- ═══ At a Glance: standalone, below all categories ═══ -->
@@ -13898,7 +14156,216 @@ function calcFour() {
   if (boxEl) boxEl.style.borderColor = borderColor;
 }
 
-// ─────────────────────── CHA2DS2-VASc SCORE ───────────────────────
+// ─────────────────────── LIGHT'S CRITERIA — Pleural Effusion ───────────────────────
+function calcLights() {
+  const g = id => { const el = document.getElementById(id); return el ? parseFloat(el.value) : NaN; };
+  const pprot = g('lights-pprot-n'), sprot = g('lights-sprot-n');
+  const pldh = g('lights-pldh-n'), sldh = g('lights-sldh-n'), uln = g('lights-uln-n');
+
+  const verdictEl = document.getElementById('lights-verdict');
+  const detailEl = document.getElementById('lights-detail');
+  const boxEl = document.getElementById('lights-result-box');
+  if (!verdictEl) return;
+
+  const c1box = document.getElementById('lights-c1'), c1val = document.getElementById('lights-c1-val');
+  const c2box = document.getElementById('lights-c2'), c2val = document.getElementById('lights-c2-val');
+  const c3box = document.getElementById('lights-c3'), c3val = document.getElementById('lights-c3-val');
+
+  if ([pprot, sprot, pldh, sldh, uln].some(v => isNaN(v) || v <= 0)) {
+    verdictEl.textContent = '— Enter all values —';
+    verdictEl.style.color = 'var(--text-muted)';
+    detailEl.innerHTML = '';
+    [c1val, c2val, c3val].forEach(el => { if (el) el.textContent = '—'; });
+    return;
+  }
+
+  const ratioProt = pprot / sprot;
+  const ratioLdh = pldh / sldh;
+  const ldhCut = (2 / 3) * uln;
+
+  const pos1 = ratioProt > 0.5;
+  const pos2 = ratioLdh > 0.6;
+  const pos3 = pldh > ldhCut;
+
+  function paint(box, val, positive, text) {
+    if (val) val.textContent = text;
+    if (val) val.style.color = positive ? '#ef4444' : '#10b981';
+    if (box) { box.style.border = '1px solid ' + (positive ? '#ef444450' : 'var(--border)'); }
+  }
+  paint(c1box, c1val, pos1, ratioProt.toFixed(2) + (pos1 ? ' ✓' : ' ✗'));
+  paint(c2box, c2val, pos2, ratioLdh.toFixed(2) + (pos2 ? ' ✓' : ' ✗'));
+  paint(c3box, c3val, pos3, pldh.toFixed(0) + ' vs ' + ldhCut.toFixed(0) + (pos3 ? ' ✓' : ' ✗'));
+
+  const exudate = pos1 || pos2 || pos3;
+  const posCount = [pos1, pos2, pos3].filter(Boolean).length;
+
+  if (exudate) {
+    verdictEl.textContent = '🔴 EXUDATE';
+    verdictEl.style.color = '#ef4444';
+    detailEl.innerHTML = posCount + ' of 3 Light\'s criteria positive. Consistent with an exudative effusion — pursue infective, malignant, or inflammatory work-up.';
+    if (boxEl) boxEl.style.borderColor = '#ef444460';
+  } else {
+    verdictEl.textContent = '🟢 TRANSUDATE';
+    verdictEl.style.color = '#10b981';
+    detailEl.innerHTML = 'All 3 Light\'s criteria negative. Consistent with a transudative effusion — evaluate for heart failure, cirrhosis, or hypoalbuminaemia.';
+    if (boxEl) boxEl.style.borderColor = '#10b98140';
+  }
+}
+
+// ─────────────────────── JONES CRITERIA — Acute Rheumatic Fever ───────────────────────
+function calcJones() {
+  const highRisk = (document.querySelector('input[name="jones-risk"]:checked') || {}).value === 'high';
+  const recurrent = (document.querySelector('input[name="jones-episode"]:checked') || {}).value === 'recurrent';
+  const gasEvidence = !!document.getElementById('jones-gas')?.checked;
+
+  const arthritisLabel = document.getElementById('jones-maj-arthritis-label');
+  const arthritisSub = document.getElementById('jones-maj-arthritis-sub');
+  if (arthritisLabel) arthritisLabel.textContent = highRisk ? '🦴 Polyarthritis, Monoarthritis, or Polyarthralgia' : '🦴 Polyarthritis';
+  if (arthritisSub) arthritisSub.textContent = highRisk ? 'Moderate/high-risk: broader arthritis definition applies' : 'Low-risk: polyarthritis only';
+
+  const feverLabel = document.getElementById('jones-min-fever-label');
+  if (feverLabel) feverLabel.textContent = highRisk ? '🌡 Fever ≥38.0°C' : '🌡 Fever ≥38.5°C';
+  const esrSub = document.getElementById('jones-min-esr-sub');
+  if (esrSub) esrSub.textContent = highRisk ? 'ESR ≥30 mm/hr and/or CRP ≥3 mg/dL' : 'ESR ≥60 mm/hr and/or CRP ≥3 mg/dL';
+
+  const majIds = ['jones-maj-carditis', 'jones-maj-arthritis', 'jones-maj-chorea', 'jones-maj-erythema', 'jones-maj-nodules'];
+  const minIds = ['jones-min-fever', 'jones-min-arthralgia', 'jones-min-esr', 'jones-min-pr'];
+
+  const arthritisIsMajor = !!document.getElementById('jones-maj-arthritis')?.checked;
+  const carditisIsMajor = !!document.getElementById('jones-maj-carditis')?.checked;
+
+  let majorCount = majIds.filter(id => document.getElementById(id)?.checked).length;
+  let minorCount = 0;
+  if (document.getElementById('jones-min-fever')?.checked) minorCount++;
+  if (document.getElementById('jones-min-arthralgia')?.checked && !arthritisIsMajor) minorCount++;
+  if (document.getElementById('jones-min-esr')?.checked) minorCount++;
+  if (document.getElementById('jones-min-pr')?.checked && !carditisIsMajor) minorCount++;
+
+  const verdictEl = document.getElementById('jones-verdict');
+  const detailEl = document.getElementById('jones-detail');
+  const boxEl = document.getElementById('jones-result-box');
+  if (!verdictEl) return;
+
+  const anyTicked = majorCount > 0 || minorCount > 0 || gasEvidence;
+  if (!anyTicked) {
+    verdictEl.textContent = '— Tick criteria above —';
+    verdictEl.style.color = 'var(--text-muted)';
+    detailEl.innerHTML = '';
+    return;
+  }
+
+  let meets = false;
+  if (majorCount >= 2) meets = true;
+  else if (majorCount >= 1 && minorCount >= 2) meets = true;
+  else if (recurrent && highRisk && minorCount >= 3) meets = true;
+
+  const breakdown = majorCount + ' major, ' + minorCount + ' minor — ' + (gasEvidence ? 'GAS evidence present' : 'GAS evidence NOT documented');
+
+  if (meets && gasEvidence) {
+    verdictEl.textContent = '🔴 ARF Criteria Met';
+    verdictEl.style.color = '#ef4444';
+    detailEl.innerHTML = breakdown + '.<br>Diagnosis of acute rheumatic fever supported. Start anti-inflammatory therapy, begin secondary prophylaxis, arrange echocardiography and cardiology/paediatric referral.';
+    if (boxEl) boxEl.style.borderColor = '#ef444460';
+  } else if (meets && !gasEvidence) {
+    verdictEl.textContent = '🟡 Criteria Met — GAS Evidence Missing';
+    verdictEl.style.color = '#f59e0b';
+    detailEl.innerHTML = breakdown + '.<br>Major/minor threshold reached, but evidence of preceding GAS infection is required to confirm the diagnosis — send ASO/anti-DNase B titres or throat culture.';
+    if (boxEl) boxEl.style.borderColor = '#f59e0b60';
+  } else {
+    verdictEl.textContent = '🟢 Criteria Not Met';
+    verdictEl.style.color = 'var(--text-muted)';
+    detailEl.innerHTML = breakdown + '.<br>Does not currently meet Jones criteria for ' + (recurrent ? 'recurrent' : 'initial') + ' ARF. Reassess if new findings emerge.';
+    if (boxEl) boxEl.style.borderColor = 'var(--border)';
+  }
+}
+
+// ─────────────────────── GOLD CRITERIA — COPD Staging ───────────────────────
+function calcGOLD() {
+  const ratio = parseFloat(document.getElementById('gold-ratio-n')?.value);
+  const fev1 = parseFloat(document.getElementById('gold-fev1-n')?.value);
+  const gradeEl = document.getElementById('gold-grade-display');
+  const verdictEl = document.getElementById('gold-verdict');
+  const detailEl = document.getElementById('gold-detail');
+  const boxEl = document.getElementById('gold-result-box');
+  if (!gradeEl || !verdictEl) return;
+
+  const highSymptom = (document.querySelector('input[name="gold-symptom"]:checked') || {}).value === 'high';
+  const highExac = (document.querySelector('input[name="gold-exac"]:checked') || {}).value === 'high';
+
+  let group;
+  if (highExac) group = 'E';
+  else if (highSymptom) group = 'B';
+  else group = 'A';
+
+  if (isNaN(ratio) || isNaN(fev1)) {
+    gradeEl.textContent = '—';
+    verdictEl.textContent = '— Enter spirometry values —';
+    verdictEl.style.color = 'var(--text-muted)';
+    detailEl.innerHTML = '';
+    return;
+  }
+
+  if (ratio >= 0.70) {
+    gradeEl.textContent = 'No airflow obstruction confirmed';
+    gradeEl.style.color = 'var(--text-muted)';
+    verdictEl.textContent = '🟢 FEV1/FVC ≥0.70';
+    verdictEl.style.color = '#10b981';
+    detailEl.innerHTML = 'Post-bronchodilator FEV1/FVC ≥0.70 — GOLD spirometric staging does not apply. Reconsider diagnosis or look for an alternative cause of symptoms.';
+    if (boxEl) boxEl.style.borderColor = '#10b98140';
+    return;
+  }
+
+  let grade, color, desc;
+  if (fev1 >= 80) { grade = 'GOLD 1'; desc = 'Mild'; color = '#10b981'; }
+  else if (fev1 >= 50) { grade = 'GOLD 2'; desc = 'Moderate'; color = 'var(--accent)'; }
+  else if (fev1 >= 30) { grade = 'GOLD 3'; desc = 'Severe'; color = '#f97316'; }
+  else { grade = 'GOLD 4'; desc = 'Very Severe'; color = '#ef4444'; }
+
+  gradeEl.textContent = grade + ' — ' + desc + ' (FEV1 ' + fev1.toFixed(0) + '%)';
+  gradeEl.style.color = color;
+
+  verdictEl.textContent = grade + desc[0] + ' · Group ' + group;
+  verdictEl.style.color = color;
+  detailEl.innerHTML = 'Airflow obstruction confirmed (FEV1/FVC ' + ratio.toFixed(2) + ') → <strong>' + grade + ' (' + desc + ')</strong>. Symptom/exacerbation profile → <strong>Group ' + group + '</strong>' +
+    (group === 'E' ? ' — high exacerbation risk, escalate maintenance therapy regardless of symptom burden.' :
+     group === 'B' ? ' — high symptoms, low exacerbation risk — consider LABA+LAMA.' :
+     ' — low symptoms, low exacerbation risk — bronchodilator therapy as needed.');
+  if (boxEl) boxEl.style.borderColor = color + '60';
+}
+
+// ─────────────────────── CURB-65 — Community-Acquired Pneumonia Severity ───────────────────────
+function calcCURB65() {
+  const ids = ['curb-c', 'curb-u', 'curb-r', 'curb-b', 'curb-65'];
+  const score = ids.filter(id => document.getElementById(id)?.checked).length;
+
+  const scoreEl = document.getElementById('curb65-score');
+  const riskEl = document.getElementById('curb65-risk');
+  const mgmtEl = document.getElementById('curb65-management');
+  const boxEl = document.getElementById('curb65-result-box');
+  if (!scoreEl) return;
+
+  scoreEl.textContent = score;
+
+  let risk, color, mortality, mgmt;
+  if (score <= 1) {
+    risk = '🟢 Low Risk'; color = '#10b981'; mortality = '<3%';
+    mgmt = 'Outpatient treatment is generally appropriate.';
+  } else if (score === 2) {
+    risk = '🟡 Moderate Risk'; color = '#f59e0b'; mortality = '~9%';
+    mgmt = 'Consider a short inpatient stay or closely-supervised outpatient treatment.';
+  } else {
+    risk = '🔴 High Risk'; color = '#ef4444'; mortality = '15–40%';
+    mgmt = 'Hospitalise. Consider ICU admission, especially if score is 4–5.';
+  }
+
+  scoreEl.style.color = color;
+  riskEl.textContent = risk;
+  riskEl.style.color = color;
+  mgmtEl.innerHTML = 'Estimated mortality ≈ ' + mortality + '. ' + mgmt;
+  if (boxEl) boxEl.style.borderColor = color + '60';
+}
+
+
 function cvPick(rowId, val, btnEl) {
   const row = document.getElementById(rowId);
   if (!row) return;
@@ -14278,9 +14745,19 @@ function syncSpecialGaps() {
   var gap = (spaceForGapsAndContent - used) / gapCount;
   if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) gap = SPECIAL_GAP_MIN;
 
+  // Per-slot fine-tuning: the tab-bar→1st-row slot carries 8px of extra
+  // static padding baked into the first category header that the eyebrow→
+  // tab-bar slot above it doesn't have, which made it look visually
+  // heavier than every other gap. Shave 8px off that one slot and hand it
+  // straight back to the 5 between-row slots (+1px each) and the
+  // last-row→footer slot (+3px) — offsets net to zero, so the whole-screen
+  // fill math above still holds exactly.
+  var kidOffsets = kids.map(function (_, i) { return i === 0 ? -8 : 1; });
+  var footerOffset = 3;
+
   tabBar.style.marginTop = gap + 'px';
-  kids.forEach(function (k) { k.style.marginTop = gap + 'px'; });
-  footer.style.marginTop = gap + 'px';
+  kids.forEach(function (k, i) { k.style.marginTop = Math.max(SPECIAL_GAP_MIN, gap + kidOffsets[i]) + 'px'; });
+  footer.style.marginTop = Math.max(SPECIAL_GAP_MIN, gap + footerOffset) + 'px';
 }
 
 function scheduleSpecialCompactFit() {
@@ -14309,10 +14786,10 @@ var SPECIAL_FAV_KEY = 'special-calc-favs-v1';
 var SPECIAL_LAYOUT = [
   { slot: 'specialcat-scores-body', cards: [
     'calccard-gcs', 'calccard-four', 'calccard-news2', 'calccard-apache',
-    'calccard-chadsvasc', 'calccard-childpugh', 'calccard-sofa', 'calccard-wellspe', 'calccard-dic'
+    'calccard-chadsvasc', 'calccard-childpugh', 'calccard-wellspe', 'calccard-curb65', 'calccard-sofa'
   ] },
   { slot: 'specialcat-criteria-body', cards: [
-    'calccard-ards', 'calccard-sepsis3', 'calccard-braindeath'
+    'calccard-sepsis3', 'calccard-dic', 'calccard-ards', 'calccard-gold', 'calccard-lights', 'calccard-jones', 'calccard-braindeath'
   ] },
   { slot: 'specialcat-calculators-body', cards: [
     'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-unitconv', 'calccard-abg', 'calccard-ventcalc'
