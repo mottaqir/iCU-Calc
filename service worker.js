@@ -3,7 +3,7 @@
 // showing stale HTML/icons/manifest while online. Cache is only a
 // fallback for offline use. Every activation nukes ANY cache that isn't
 // the current version — no accumulation of old app-shell caches ever.
-const VERSION = 'v21';
+const VERSION = 'v22';
 const CACHE_NAME = 'icu-calc-' + VERSION;
 
 const APP_SHELL = [
