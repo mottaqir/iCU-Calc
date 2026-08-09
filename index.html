@@ -5094,7 +5094,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 <div class="calc-card" id="calccard-insulin">
  <div class="calc-title" onclick="toggleCalc('calccard-insulin')">
   <span class="calc-title-dot"></span>
-  <span>Insulin — Types, Dosing &amp; Sliding Scale</span>
+  <span>Insulin — Types &amp; Dosing</span>
   <button type="button" class="calc-pin" data-cid="calccard-insulin" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-insulin', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
  </div>
  <div class="calc-body" style="display:none">
@@ -6665,11 +6665,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-jones')"><span class="calc-title-dot"></span><span>Jones Criteria <span style="color:var(--text-faint);font-weight:400">— Acute Rheumatic Fever</span></span><button type="button" class="calc-pin" data-cid="calccard-jones" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-jones', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
 
-  <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+  <div style="border:1px solid var(--border);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
    <strong style="color:var(--text-strong)">Purpose:</strong> Diagnoses acute rheumatic fever. Requires evidence of preceding Group A Strep (GAS) infection PLUS the major/minor criteria below. Bangladesh is a moderate/high-risk population.
   </div>
 
-  <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:6px">
+  <div style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;margin-bottom:6px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Population Risk</div>
    <div style="display:flex;gap:6px">
     <label style="flex:1"><input type="radio" name="jones-risk" value="low" onchange="calcJones()"> <span style="font-size:11px">Low-risk</span></label>
@@ -6677,7 +6677,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
   </div>
 
-  <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:8px">
+  <div style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;margin-bottom:8px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Episode Type</div>
    <div style="display:flex;gap:6px">
     <label style="flex:1"><input type="radio" name="jones-episode" value="initial" onchange="calcJones()" checked> <span style="font-size:11px">Initial episode</span></label>
@@ -6685,56 +6685,56 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
   </div>
 
-  <label style="background:#f59e0b15;border:1px solid #f59e0b30;border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin-bottom:8px">
+  <label style="border:1px solid #f59e0b30;border-radius: 4px;padding:7px 10px;display:flex;align-items:flex-start;gap:8px;cursor:pointer;margin-bottom:8px">
    <input type="checkbox" id="jones-gas" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px">
    <div><div style="font-size:11px;font-weight:700;color:#f59e0b">Evidence of preceding GAS infection</div><div style="font-size:10px;color:var(--text-faint)">Positive throat culture/rapid antigen test, or rising/elevated ASO or anti-DNase B titre — required for diagnosis</div></div>
   </label>
 
-  <div style="margin-bottom:8px"><span style="display:inline-block;font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.4px;padding:3px 10px;border-radius:999px;background:var(--accent-dim);border:1px solid var(--border-strong)">MAJOR CRITERIA</span></div>
+  <div style="margin-bottom:8px"><span style="display:inline-block;font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.4px;padding:3px 10px;border-radius:4px;border:1px solid #58a6ff45">MAJOR CRITERIA</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;align-items:stretch">
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-maj-carditis" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div style="font-size:11px;font-weight:600">❤️ Carditis</div><div style="font-size:10px;color:var(--text-faint)">Clinical (murmur, HF) or subclinical (echo valvulitis)</div></div>
    </label>
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-maj-arthritis" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div id="jones-maj-arthritis-label" style="font-size:11px;font-weight:600">🦴 Polyarthritis</div><div id="jones-maj-arthritis-sub" style="font-size:10px;color:var(--text-faint)">Low-risk: polyarthritis only</div></div>
    </label>
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-maj-chorea" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div style="font-size:11px;font-weight:600">🧠 Sydenham Chorea</div></div>
    </label>
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-maj-erythema" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div style="font-size:11px;font-weight:600">🌸 Erythema Marginatum</div></div>
    </label>
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-maj-nodules" onchange="calcJones()" style="accent-color:var(--accent);width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div style="font-size:11px;font-weight:600">🔘 Subcutaneous Nodules</div></div>
    </label>
   </div>
 
-  <div style="margin-bottom:8px"><span style="display:inline-block;font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:0.4px;padding:3px 10px;border-radius:999px;background:#f59e0b15;border:1px solid #f59e0b30">MINOR CRITERIA</span></div>
+  <div style="margin-bottom:8px"><span style="display:inline-block;font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:0.4px;padding:3px 10px;border-radius:4px;border:1px solid #f59e0b30">MINOR CRITERIA</span></div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:8px;align-items:stretch">
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-min-fever" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div id="jones-min-fever-label" style="font-size:11px;font-weight:600">🌡 Fever</div></div>
    </label>
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-min-arthralgia" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div style="font-size:11px;font-weight:600">🦴 Arthralgia</div><div style="font-size:10px;color:var(--text-faint)">Only if arthritis not ticked major</div></div>
    </label>
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-min-esr" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div style="font-size:11px;font-weight:600">🧪 Elevated ESR/CRP</div><div id="jones-min-esr-sub" style="font-size:10px;color:var(--text-faint)"></div></div>
    </label>
-   <label style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
+   <label style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;display:flex;align-items:flex-start;gap:6px;cursor:pointer">
     <input type="checkbox" id="jones-min-pr" onchange="calcJones()" style="accent-color:#f59e0b;width:14px;height:14px;margin-top:1px;flex-shrink:0">
     <div><div style="font-size:11px;font-weight:600">〰️ Prolonged PR</div><div style="font-size:10px;color:var(--text-faint)">Only if carditis not ticked major</div></div>
    </label>
   </div>
 
-  <div id="jones-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;background:var(--surface-deep);border:1px solid var(--border-strong)">
+  <div id="jones-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;border:1px solid var(--border-strong)">
    <div id="jones-verdict" style="font-size:16px;font-weight:900;margin-bottom:4px;color:var(--text-muted)">— Tick criteria above —</div>
    <div id="jones-detail" style="font-size:11px;line-height:1.65;color:var(--text-muted)"></div>
   </div>
