@@ -3540,7 +3540,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
  </div>
  <div class="calc-card" id="calccard-nacl">
- <div class="calc-title" onclick="toggleCalc('calccard-nacl')"><span class="calc-title-dot"></span><span>3% NaCl &mdash; Hyponatraemia Correction</span><button type="button" class="calc-pin" data-cid="calccard-nacl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-nacl', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-nacl')"><span class="calc-title-dot"></span><span>3% NaCl in Hyponatraemia</span><button type="button" class="calc-pin" data-cid="calccard-nacl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-nacl', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
  <div class="field-row">
  <div class="field-label">Weight (kg)</div>
@@ -3776,7 +3776,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 <div class="calc-card" id="calccard-shock" style="margin-bottom:4px;">
   <div class="calc-title" onclick="toggleCalc('calccard-shock')">
    <span class="calc-title-dot"></span>
-   <span>Shock Classification <span class="special-cat-sub" data-base="Differentiator">— Differentiator</span></span>
+   <span>Shock Classification <span style="color:var(--text-faint);font-weight:400">— Differentiator</span></span>
    <button type="button" class="calc-pin" data-cid="calccard-shock" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-shock', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none;">
@@ -4772,14 +4772,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
 
  <div class="calc-card" id="calccard-siadh">
- <div class="calc-title" onclick="toggleCalc('calccard-siadh')"><span class="calc-title-dot"></span><span>SIADH <span style="color:var(--text-faint);font-weight:400">vs</span> CSW &mdash; Differentiator</span><button type="button" class="calc-pin" data-cid="calccard-siadh" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-siadh', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-siadh')"><span class="calc-title-dot"></span><span>SIADH <span style="color:var(--text-faint);font-weight:400">/</span> CSW <span style="color:var(--text-faint);font-weight:400">— Differentiator</span></span><button type="button" class="calc-pin" data-cid="calccard-siadh" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-siadh', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none;padding-top:10px">
 
   <!-- Required fields -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
    <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Serum Na⁺ (mmol/L)</div>
-    <div class="field-inputs"><input type="range" min="100" max="135" step="1" value="122" id="csw-sna" oninput="syncField('csw-sna',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="100" max="135" value="122" id="csw-sna-n" oninput="syncField('csw-sna',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
+    <div class="field-inputs"><input type="range" min="100" max="170" step="1" value="122" id="csw-sna" oninput="syncField('csw-sna',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="100" max="170" value="122" id="csw-sna-n" oninput="syncField('csw-sna',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
    <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Serum Osm (mOsm/kg)</div>
@@ -4815,7 +4815,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
 
   <!-- Volume status -->
-  <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px;margin-bottom:6px">
+  <div style="padding:0 2px;margin-bottom:6px">
    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px">Clinical Volume Status</div>
    <div style="display:flex;gap:5px">
     <button onclick="setVolStatus('depleted')" id="vs-depleted" style="flex:1;padding:5px 3px;border-radius: 4px;border:1px solid var(--accent);background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:700;cursor:pointer">⬇ Depleted</button>
@@ -4825,7 +4825,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
 
   <!-- Score breakdown -->
-  <div id="siadh-score-box" style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:6px;display:none">
+  <div id="siadh-score-box" style="padding:0 2px;margin-bottom:6px;display:none">
    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px">Parameter Analysis</div>
    <div id="siadh-score-rows"></div>
   </div>
@@ -4849,15 +4849,22 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      <th style="padding:5px 4px;text-align:center;color:#f97316">CSW</th>
     </tr></thead>
     <tbody style="color:var(--text)">
+     <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Serum Na⁺</td><td style="padding:4px 4px;text-align:center">⬇ Low</td><td style="padding:4px 4px;text-align:center;color:#f97316;font-weight:600">⬇ Low</td></tr>
      <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Volume status</td><td style="padding:4px 4px;text-align:center">Normal / ⬆ expanded</td><td style="padding:4px 4px;text-align:center;color:#f97316;font-weight:600">⬇ Depleted</td></tr>
+     <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Urine output</td><td style="padding:4px 4px;text-align:center">Normal/low</td><td style="padding:4px 4px;text-align:center">Normal/high (natriuresis)</td></tr>
      <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Urine Na⁺</td><td style="padding:4px 4px;text-align:center">&gt;40 mmol/L</td><td style="padding:4px 4px;text-align:center;color:#f97316;font-weight:600">&gt;40 (very high)</td></tr>
      <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Urine Osm</td><td style="padding:4px 4px;text-align:center">&gt;100 mOsm/kg</td><td style="padding:4px 4px;text-align:center">&gt;100 mOsm/kg</td></tr>
      <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Serum Uric Acid</td><td style="padding:4px 4px;text-align:center;color:var(--accent);font-weight:600">⬇ &lt;4 mg/dL</td><td style="padding:4px 4px;text-align:center">Normal / low</td></tr>
      <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">BUN/Cr ratio</td><td style="padding:4px 4px;text-align:center;color:var(--accent);font-weight:600">Low (&lt;10)</td><td style="padding:4px 4px;text-align:center;color:#f97316;font-weight:600">⬆ High (&gt;10)</td></tr>
-     <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Response to NS</td><td style="padding:4px 4px;text-align:center;color:#ef4444;font-weight:600">Worsens hypoNa</td><td style="padding:4px 4px;text-align:center;color:#10b981;font-weight:600">Improves</td></tr>
+     <tr style="border-bottom:1px solid var(--border)"><td style="padding:4px 4px;color:var(--text-muted)">Response to therapy</td><td style="padding:4px 4px;text-align:center;color:#ef4444;font-weight:600">NS worsens hypoNa</td><td style="padding:4px 4px;text-align:center;color:#10b981;font-weight:600">NS improves</td></tr>
      <tr><td style="padding:4px 4px;color:var(--text-muted)">Treatment</td><td style="padding:4px 4px;text-align:center">Fluid restrict</td><td style="padding:4px 4px;text-align:center;color:#f97316;font-weight:600">IV NS + NaCl</td></tr>
     </tbody>
    </table>
+  </div>
+
+  <div style="position:relative;margin-top:8px;font-size:11px;color:var(--text-muted);background:transparent;border:1px solid #a855f760;border-radius:4px;padding:8px 10px 8px 12px;line-height:1.55">
+   <span style="position:absolute;left:-1px;top:-1px;bottom:-1px;width:4px;background:#a855f7;border-radius:4px 0 0 4px"></span>
+   <span style="color:#a855f7;font-weight:700">💧 Cranial DI</span> isn't scored above — enter <strong>Serum Na⁺ &gt; 145</strong> and this card auto-switches to a separate DI assessment (dilute urine vs serum Osm), since DI sits on the opposite (hypernatraemic) side and doesn't compare meaningfully against SIADH/CSW on the same table.
   </div>
 
   <div class="note-box" style="margin-top:8px">
@@ -4872,7 +4879,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 <div class="calc-card" id="calccard-dka">
  <div class="calc-title" onclick="toggleCalc('calccard-dka')">
   <span class="calc-title-dot"></span>
-  <span>DKA / Euglycaemic DKA / HHS Differentiator</span>
+  <span>DKA / euDKA / HHS <span style="color:var(--text-faint);font-weight:400">— Differentiator</span></span>
   <button type="button" class="calc-pin" data-cid="calccard-dka" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-dka', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
  </div>
  <div class="calc-body" style="display:none">
@@ -5405,6 +5412,1014 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  </div>
  </div>
+
+ <!-- ═══════════════════════════════════════════════════ ELECTROLYTE IMBALANCE WORKUP ═══ -->
+ <style>
+    
+  
+  #calccard-eiw .eiw-card{
+    background:transparent;
+    border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+    border-radius:14px;
+    margin-bottom:14px;
+    overflow:hidden;
+  }
+
+  /* ===== COLLAPSED STATE (senior view) ===== */
+  #calccard-eiw .eiw-card-header{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 16px; cursor:pointer;
+  }
+  #calccard-eiw .eiw-card-title-group{ display:flex; align-items:center; gap:10px; }
+  #calccard-eiw .eiw-card-icon{
+    min-width:40px; height:36px; padding:0 10px; border-radius:9px;
+    background:var(--sp-danger-bg); border:1px solid var(--sp-danger-border);
+    display:flex; align-items:center; justify-content:center;
+    font-size:14px; font-weight:600; color:var(--sp-danger-text); flex-shrink:0;
+    white-space:nowrap;
+  }
+  #calccard-eiw .eiw-card-title{ font-size:15px; font-weight:600; }
+  #calccard-eiw .eiw-card-subtitle{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+  #calccard-eiw .eiw-chevron{
+    width:18px; height:18px; color:var(--muted);
+    transition:transform 0.2s ease;
+  }
+  #calccard-eiw .eiw-card.eiw-open .eiw-chevron{ transform:rotate(180deg); }
+
+  /* quick-glance strip visible even when collapsed */
+  #calccard-eiw .eiw-quick-strip{
+    display:flex; flex-direction:column; gap:6px; padding:0 16px 14px 16px;
+  }
+  #calccard-eiw .eiw-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px; line-height:1.5;
+    padding-left:14px; position:relative;
+    background:transparent; border:none;
+    color:var(--accent);
+  }
+  #calccard-eiw .eiw-chip::before{
+    content:"•"; position:absolute; left:0; color:var(--accent);
+  }
+  #calccard-eiw .eiw-chip.eiw-danger{ color:var(--sp-danger-text); }
+  #calccard-eiw .eiw-chip.eiw-danger::before{ color:var(--sp-danger-text); }
+
+  /* ===== EXPANDED CONTENT (novice view) ===== */
+  #calccard-eiw .eiw-card-body{
+    max-height:0; overflow:hidden;
+    transition:max-height 0.3s ease;
+    border-top:1px solid var(--border);
+  }
+  #calccard-eiw .eiw-card.eiw-open .eiw-card-body{ max-height:2600px; }
+  #calccard-eiw .eiw-card-body-inner{ padding:16px; }
+
+  #calccard-eiw .eiw-step{
+    display:flex; gap:10px; margin-bottom:12px;
+  }
+  #calccard-eiw .eiw-step-num{
+    width:22px; height:22px; border-radius:6px;
+    background:var(--accent-dim); color:var(--accent);
+    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+    margin-top:1px;
+  }
+  #calccard-eiw .eiw-step-text{ font-size:13.5px; line-height:1.5; }
+  #calccard-eiw .eiw-step-text b{ color:var(--text); }
+  #calccard-eiw .eiw-dose{
+    font-family:'IBM Plex Mono',monospace; font-size:12px;
+    color:var(--accent); background:var(--accent-dim);
+    padding:1px 6px; border-radius:5px; display:inline-block;
+    margin-top:3px;
+  }
+
+  #calccard-eiw .eiw-divider-label{
+    font-size:10.5px; text-transform:uppercase; letter-spacing:0.08em;
+    color:var(--muted); margin:16px 0 10px 0;
+    padding-top:12px; border-top:1px dashed var(--border);
+  }
+
+  /* Pearls section - the senior value-add */
+  #calccard-eiw .eiw-pearls{
+    background:var(--sp-caution-bg);
+    border:1px solid var(--sp-caution-border);
+    border-radius:10px; padding:12px 14px; margin-top:14px;
+  }
+  #calccard-eiw .eiw-pearls-title{
+    font-size:11.5px; font-weight:600; color:var(--sp-caution-text);
+    text-transform:uppercase; letter-spacing:0.05em;
+    margin-bottom:8px; display:flex; align-items:center; gap:6px;
+  }
+  #calccard-eiw .eiw-pearl-item{
+    font-size:12.5px; line-height:1.5; color:var(--text);
+    margin-bottom:7px; padding-left:14px; position:relative;
+  }
+  #calccard-eiw .eiw-pearl-item:last-child{ margin-bottom:0; }
+  #calccard-eiw .eiw-pearl-item::before{
+    content:"—"; position:absolute; left:0; color:var(--sp-caution-text);
+  }
+
+  #calccard-eiw .eiw-ref-tag{
+    margin-top:14px; font-size:10px; color:var(--muted);
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  /* Hyper/Hypo tab switch */
+  #calccard-eiw .eiw-subtabs{
+    display:flex; gap:6px; padding:0 16px 14px 16px;
+    margin-top:-2px;
+  }
+  #calccard-eiw .eiw-subtab{
+    flex:1; text-align:center; padding:8px 0;
+    border-radius:8px; font-size:12.5px; font-weight:600;
+    background:var(--surface2); border:1px solid var(--border);
+    color:var(--muted); cursor:pointer;
+  }
+  #calccard-eiw .eiw-subtab.eiw-active-hyper{ background:var(--sp-danger-bg); border-color:var(--sp-danger-border); color:var(--sp-danger-text); }
+  #calccard-eiw .eiw-subtab.eiw-active-hypo{ background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 40%, transparent); color:var(--accent); }
+  #calccard-eiw .eiw-subpanel{ display:none; }
+  #calccard-eiw .eiw-subpanel.eiw-visible{ display:block; }
+
+  /* Ion charge super/subscripts — same native glyph, just nudged up slightly */
+  #calccard-eiw .eiw-ion{
+    position:relative;
+    top:-0.2em;
+  }
+  #calccard-eiw .eiw-ion.eiw-ion-sub{
+    top:0.08em;
+  }
+ </style>
+ <div class="calc-card" id="calccard-eiw">
+ <div class="calc-title" onclick="toggleCalc('calccard-eiw')"><span class="calc-title-dot"></span><span>Electrolyte Imbalance Workup</span><button type="button" class="calc-pin" data-cid="calccard-eiw" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-eiw', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+  <div style="padding:2px 2px 0 2px">
+<!-- ===== SODIUM CARD ===== -->
+<div class="eiw-card" id="eiw-card0">
+  <div class="eiw-card-header" onclick="document.getElementById('eiw-card0').classList.toggle('eiw-open')">
+    <div class="eiw-card-title-group">
+      <div class="eiw-card-icon" id="eiw-na-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Na<span class="eiw-ion">⁺</span></div>
+      <div>
+        <div class="eiw-card-title">Sodium (Na<span class="eiw-ion">⁺</span>)</div>
+        <div class="eiw-card-subtitle" id="eiw-na-subtitle">Hyponatremia · Correction Protocol</div>
+      </div>
+    </div>
+    <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+
+  <div class="eiw-subtabs">
+    <div class="eiw-subtab eiw-active-hypo" id="eiw-natab-hypo" onclick="event.stopPropagation(); eiwSwitchNa('hypo')">Hyponatremia</div>
+    <div class="eiw-subtab" id="eiw-natab-hyper" onclick="event.stopPropagation(); eiwSwitchNa('hyper')">Hypernatremia</div>
+  </div>
+
+  <!-- HYPONATREMIA PANEL (default/first) -->
+  <div class="eiw-subpanel eiw-visible" id="eiw-na-panel-hypo">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">Max 8–10 mEq/L rise per 24h</div>
+      <div class="eiw-chip">High-risk: max 4–6 mEq/L/24h</div>
+      <div class="eiw-chip">SIADH vs CSW vs DI → volume status</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Assess volume status first</b> — the key branch point
+            <div class="eiw-dose">Euvolemic → SIADH · Hypovolemic → CSW or extrarenal loss · Hypervolemic → CHF, cirrhosis, nephrotic syndrome</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>SIADH vs CSW</b> — both euvolemic-looking hyponatremia post-neurosurgery
+            <div class="eiw-dose">SIADH → euvolemic, restrict fluids · CSW → hypovolemic, low CVP → replace salt + volume, never restrict</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>Severe/symptomatic</b> (seizure, severe confusion, coma)
+            <div class="eiw-dose">3% hypertonic saline bolus — aim +4–6 mEq/L over a few hours, then reassess</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Correction limit — do not exceed</b>
+            <div class="eiw-dose">Normal risk: 10–12 mEq/L/24h, 18 mEq/L/48h max</div>
+            <div class="eiw-dose" style="margin-top:5px;">High risk (liver disease, alcohol use disorder, hypokalemia, malnourished): max 8 mEq/L/24h, target 4–6 mEq/L/day</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>If overcorrecting</b> — treat as emergency
+            <div class="eiw-dose">Stop hypertonic saline, consider desmopressin + free water (relowering strategy) to prevent ODS</div>
+          </div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">In hypovolemic hyponatremia, volume replacement itself can suppress ADH and cause unintentionally rapid correction — monitor closely, not just the infusion rate</div>
+          <div class="eiw-pearl-item">Fluid restriction in CSW can worsen hypovolemia and precipitate cerebral vasospasm — confirm volume status before restricting</div>
+          <div class="eiw-pearl-item">Overcorrection is a medical emergency — treat it as urgently as the original hyponatremia</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: European Hyponatraemia Guideline · US/Expert Panel Hyponatremia Guideline 2013 · CJASN 2024</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HYPERNATREMIA PANEL -->
+  <div class="eiw-subpanel" id="eiw-na-panel-hyper">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">Water deficit = TBW × [(Na/140) − 1]</div>
+      <div class="eiw-chip">Max correction 8–10 mEq/L/24h</div>
+      <div class="eiw-chip">DDAVP if Central DI confirmed</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Assess volume status</b>
+            <div class="eiw-dose">Hypovolemic → extrarenal/renal loss · Euvolemic → DI, insensible loss · Hypervolemic → iatrogenic saline, mineralocorticoid excess</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>Check urine osmolality</b>
+            <div class="eiw-dose">&gt;800 → appropriate ADH response · 300–800 → partial DI/osmotic diuresis · &lt;300 → DI</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>If DI suspected</b> — DDAVP trial
+            <div class="eiw-dose">Urine osm ↑&gt;50% → Central DI · No response → Nephrogenic DI</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Treat Central DI — Desmopressin (DDAVP)</b>
+            <div class="eiw-dose">IV/SC (preferred): 1–4 mcg, repeat as required based on urine output response</div>
+            <div class="eiw-dose" style="margin-top:5px;">Post-brain death / severe: 4–8 mcg IV every 6–12h</div>
+            <div class="eiw-dose" style="margin-top:5px;">Intranasal (once stable, not acute ICU): 10–20 mcg divided BID</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>Calculate free water deficit</b>
+            <div class="eiw-dose">Water deficit (L) = TBW × [(Na current / 140) − 1]; TBW = wt(kg) × 0.6 (M) / 0.5 (F)</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">6</div>
+          <div class="eiw-step-text"><b>Correct slowly</b>
+            <div class="eiw-dose">Max 8–10 mEq/L per 24h (chronic) — faster only if acute onset &lt;48h</div>
+          </div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">Central DI classically post-neurosurgery/TBI/SAH — same population as SIADH/CSW, don't confuse direction of Na<span class="eiw-ion">⁺</span> change</div>
+          <div class="eiw-pearl-item">Major DDAVP complication is water intoxication/hyponatremia — restrict free water intake alongside dosing, monitor Na<span class="eiw-ion">⁺</span> closely</div>
+          <div class="eiw-pearl-item">Over-rapid correction risks cerebral edema — same caution as under-correcting hyponatremia risks ODS, just opposite direction</div>
+          <div class="eiw-pearl-item">Recheck Na<span class="eiw-ion">⁺</span> every 4–6h during active correction</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: Standard ICU electrolyte workup protocols · Desmopressin ICU dosing (Wellington ICU Drug Manual)</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /card0 -->
+<!-- CARD: starts collapsed like a senior would see it -->
+<div class="eiw-card" id="eiw-card1">
+  <div class="eiw-card-header" onclick="document.getElementById('eiw-card1').classList.toggle('eiw-open')">
+    <div class="eiw-card-title-group">
+      <div class="eiw-card-icon" id="eiw-k-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">K<span class="eiw-ion">⁺</span></div>
+      <div>
+        <div class="eiw-card-title">Potassium (K<span class="eiw-ion">⁺</span>)</div>
+        <div class="eiw-card-subtitle" id="eiw-k-subtitle">Hypokalemia · NHS SPS 2025</div>
+      </div>
+    </div>
+    <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+
+  <!-- Hypo/Hyper switch -->
+  <div class="eiw-subtabs">
+    <div class="eiw-subtab eiw-active-hypo" id="eiw-tab-hypo" onclick="event.stopPropagation(); eiwSwitchK('hypo')">Hypokalemia</div>
+    <div class="eiw-subtab" id="eiw-tab-hyper" onclick="event.stopPropagation(); eiwSwitchK('hyper')">Hyperkalemia</div>
+  </div>
+
+  <div class="eiw-subpanel" id="eiw-panel-hyper">
+  <!-- visible even collapsed: fast confirm chips -->
+  <div class="eiw-quick-strip">
+    <div class="eiw-chip eiw-danger">K<span class="eiw-ion">⁺</span> ≥6.0 → urgent ECG</div>
+    <div class="eiw-chip">Ca gluconate 10% 10mL IV</div>
+    <div class="eiw-chip">Insulin 10U + Dex 25g</div>
+    <div class="eiw-chip eiw-danger">Refractory + acidosis → RRT</div>
+  </div>
+
+  <div class="eiw-card-body">
+    <div class="eiw-card-body-inner">
+
+      <div class="eiw-step">
+        <div class="eiw-step-num">1</div>
+        <div class="eiw-step-text"><b>Stabilize myocardium</b> if ECG changes or K<span class="eiw-ion">⁺</span> ≥6.5
+          <div class="eiw-dose">10% Calcium gluconate 10mL IV over 5–10 min (peripheral line)</div>
+          <div class="eiw-dose" style="margin-top:5px;">Calcium chloride if central line + rapid/potent effect needed — use 1/3 the gluconate dose</div>
+        </div>
+      </div>
+
+      <div class="eiw-step">
+        <div class="eiw-step-num">2</div>
+        <div class="eiw-step-text"><b>Shift K<span class="eiw-ion">⁺</span> intracellularly</b>
+          <div class="eiw-dose">Regular (short-acting) insulin 10U IV bolus + Dextrose 25g IV over 15–30 min</div>
+        </div>
+      </div>
+
+      <div class="eiw-step">
+        <div class="eiw-step-num">3</div>
+        <div class="eiw-step-text"><b>Adjunct shift</b>
+          <div class="eiw-dose">Salbutamol nebulized 10–20mg</div>
+        </div>
+      </div>
+
+      <div class="eiw-step">
+        <div class="eiw-step-num">4</div>
+        <div class="eiw-step-text"><b>Remove K<span class="eiw-ion">⁺</span></b> — binders (SZC/patiromer), loop diuretic if volume allows</div>
+      </div>
+
+      <div class="eiw-step">
+        <div class="eiw-step-num">5</div>
+        <div class="eiw-step-text"><b>RRT / Dialysis</b> if refractory to medical Rx
+          <div class="eiw-dose">Indications: persistent K<span class="eiw-ion">⁺</span> &gt;6.5 despite Rx · concurrent severe metabolic acidosis (pH &lt;7.1–7.2) · AKI/oliguric CKD · fluid overload · ECG changes not resolving · hyperkalaemic cardiac arrest</div>
+        </div>
+      </div>
+
+      <div class="eiw-divider-label">If Hyperkalaemic Cardiac Arrest</div>
+      <div class="eiw-pearls" style="background:var(--sp-danger-bg); border-color:var(--sp-danger-border);">
+        <div class="eiw-pearls-title" style="color:var(--sp-danger-text);">⚠ Arrest-Specific Protocol</div>
+        <div class="eiw-pearl-item" style="color:var(--text);">Calcium + Insulin/Dextrose as above, given as rapid IV push</div>
+        <div class="eiw-pearl-item" style="color:var(--text);">Consider Sodium bicarbonate if severe concurrent acidosis</div>
+        <div class="eiw-pearl-item" style="color:var(--text);">Continue standard ALS/CPR — do not delay compressions for K<span class="eiw-ion">⁺</span> measures</div>
+        <div class="eiw-pearl-item" style="color:var(--text);">Urgent RRT during resuscitation if refractory — involve renal team early</div>
+      </div>
+
+      <div class="eiw-divider-label">Pearls</div>
+      <div class="eiw-pearls">
+        <div class="eiw-pearls-title">⚠ Watch Out</div>
+        <div class="eiw-pearl-item">Recheck glucose at 1h and 4h post insulin-dextrose — rebound hypoglycemia is the most missed complication</div>
+        <div class="eiw-pearl-item">Hemolyzed sample / severe leukocytosis-thrombocytosis → suspect pseudohyperkalemia before treating</div>
+        <div class="eiw-pearl-item">In CKD on RAASi: consider K<span class="eiw-ion">⁺</span> binder first — don't reflexively stop ACEi/ARB (KDIGO 2024)</div>
+        <div class="eiw-pearl-item">Don't wait for a "magic K<span class="eiw-ion">⁺</span> number" alone — combined refractory hyperkalaemia + severe metabolic acidosis on ABG is itself an independent RRT trigger, even if K<span class="eiw-ion">⁺</span> is borderline</div>
+      </div>
+
+      <div class="eiw-ref-tag">REF: UKKA Hyperkalaemia Guideline 2023 · KDIGO 2024 CKD · RRT for Critically Unwell Adults Guideline</div>
+    </div>
+  </div>
+  </div><!-- /panel-hyper -->
+
+  <div class="eiw-subpanel eiw-visible" id="eiw-panel-hypo">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">K<span class="eiw-ion">⁺</span> &lt;2.5 or symptomatic → cardiac monitor</div>
+      <div class="eiw-chip">Oral 24–36mmol up to 3–4×/day</div>
+      <div class="eiw-chip">IV max 2–3 mmol/kg/24h</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Classify severity</b>
+            <div class="eiw-dose">Mild 3.0–3.4 · Moderate 2.5–2.9 · Severe &lt;2.5 mmol/L</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>Oral route preferred</b> if mild-moderate & asymptomatic
+            <div class="eiw-dose">24–36 mmol PO, up to 3–4 times/day, with food</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>IV route</b> if severe, symptomatic, cannot tolerate oral, or arrhythmia
+            <div class="eiw-dose">Initial 20–40 mmol/L IV infusion, via infusion pump</div>
+            <div class="eiw-dose" style="margin-top:5px;">Max 2–3 mmol/kg/24h — never IV push, never flush the line after</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Monitor</b> — ECG if K<span class="eiw-ion">⁺</span> &lt;3.0 or IV rate &gt;10mmol/hr; recheck K<span class="eiw-ion">⁺</span> after 24h</div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>Always check & correct Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span></b> — hypokalemia is refractory to correction until magnesium is replaced</div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">A 1 mmol/L drop in serum K<span class="eiw-ion">⁺</span> can reflect a total body deficit of 200–400 mmol — serum level underestimates true deficit</div>
+          <div class="eiw-pearl-item">Peripheral IV KCl >40mmol/L risks phlebitis/extravasation — use central line for higher concentrations</div>
+          <div class="eiw-pearl-item">Correct hypokalemia before/alongside hyperglycemia (DKA) management — insulin will drop K<span class="eiw-ion">⁺</span> further</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: NHS SPS Acute Hypokalaemia Guideline · RCH Clinical Practice Guidelines</div>
+      </div>
+    </div>
+  </div><!-- /panel-hypo -->
+</div><!-- /card1 -->
+<!-- ===== CALCIUM CARD ===== -->
+<div class="eiw-card" id="eiw-card0b">
+  <div class="eiw-card-header" onclick="document.getElementById('eiw-card0b').classList.toggle('eiw-open')">
+    <div class="eiw-card-title-group">
+      <div class="eiw-card-icon" id="eiw-ca-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span></div>
+      <div>
+        <div class="eiw-card-title">Calcium (Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>)</div>
+        <div class="eiw-card-subtitle" id="eiw-ca-subtitle">Hypocalcemia · Emergency Mx</div>
+      </div>
+    </div>
+    <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+
+  <div class="eiw-subtabs">
+    <div class="eiw-subtab eiw-active-hypo" id="eiw-catab-hypo" onclick="event.stopPropagation(); eiwSwitchCa('hypo')">Hypocalcemia</div>
+    <div class="eiw-subtab" id="eiw-catab-hyper" onclick="event.stopPropagation(); eiwSwitchCa('hyper')">Hypercalcemia</div>
+  </div>
+
+  <!-- HYPOCALCEMIA PANEL (default) -->
+  <div class="eiw-subpanel eiw-visible" id="eiw-ca-panel-hypo">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">Symptomatic → Ca gluconate 10–20mL IV over 10min</div>
+      <div class="eiw-chip">Check & correct Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> first</div>
+      <div class="eiw-chip">Central line preferred, ECG monitor</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Confirm true hypocalcemia</b>
+            <div class="eiw-dose">Use ionized Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> if available; corrected Ca = measured Ca + [0.8 × (4 − albumin g/dL)]</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>Severe/symptomatic</b> (seizure, tetany, laryngospasm, arrhythmia) — treat as emergency
+            <div class="eiw-dose">10% Calcium gluconate 10–20mL in 50–100mL D5W IV over 10 min, with continuous ECG</div>
+            <div class="eiw-dose" style="margin-top:5px;">Repeat every 10–60 min until symptoms resolve</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>Moderate–severe (iCa &lt;1.0 mmol/L)</b>, non-emergent
+            <div class="eiw-dose">Calcium gluconate 2–4g IV infused at 1g/hour — normalizes iCa in ~95% of critically ill patients</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Mild (iCa 1.0–1.12 mmol/L)</b>
+            <div class="eiw-dose">Calcium gluconate 1–2g IV over 1–2h, or oral calcium if asymptomatic</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>Always correct Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> first/alongside</b> — hypocalcemia won't correct until magnesium is replaced
+            <div class="eiw-dose">Magnesium sulfate 1–2g IV bolus before/with calcium if symptomatic</div>
+          </div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">Never mix calcium with phosphate or bicarbonate-containing solutions — precipitates</div>
+          <div class="eiw-pearl-item">Rapid administration risks hypotension, bradycardia, arrhythmia, cardiac arrest — always give slow with ECG on</div>
+          <div class="eiw-pearl-item">Prefer central line — peripheral extravasation of calcium causes tissue necrosis</div>
+          <div class="eiw-pearl-item">Caution in patients on digoxin — calcium potentiates digoxin cardiotoxicity</div>
+          <div class="eiw-pearl-item">Recheck ionized Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> every 4–6h during active treatment; levels plateau ~10h post-infusion</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: NCBI StatPearls Calcium Gluconate · GGC Medicines Hypocalcaemia Guideline · JPEN 2005 (critically ill dosing)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HYPERCALCEMIA PANEL -->
+  <div class="eiw-subpanel" id="eiw-ca-panel-hyper">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">Ca &gt;3.5mmol/L (14mg/dL) → severe, urgent Rx</div>
+      <div class="eiw-chip">IV fluids first, then bisphosphonate</div>
+      <div class="eiw-chip">Zoledronic acid 4mg IV (CrCl ≥30)</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Volume resuscitation first</b> — cornerstone of initial Mx
+            <div class="eiw-dose">IV isotonic saline to restore volume and promote renal Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> excretion; avoid diuretics until volume replete</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>Calcitonin</b> — fast onset, bridges until bisphosphonate works
+            <div class="eiw-dose">4–8 units/kg SC every 8–12h; effect wanes by 48–72h (tachyphylaxis) — limit duration</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>Bisphosphonate</b> — start early, works over days
+            <div class="eiw-dose">Zoledronic acid 4mg IV over 15–60min if CrCl ≥30 mL/min (preferred, more effective than pamidronate)</div>
+            <div class="eiw-dose" style="margin-top:5px;">CrCl &lt;30: consider denosumab 120mg SC instead</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Severe HCM (Ca &gt;3.5 mmol/L)</b>
+            <div class="eiw-dose">Combination: Calcitonin + IV bisphosphonate or denosumab together (Endocrine Society 2023)</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>Refractory to bisphosphonate</b>
+            <div class="eiw-dose">Denosumab 120mg SC — also preferred first-line if renally impaired</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">6</div>
+          <div class="eiw-step-text"><b>Dialysis</b> — if severe + renal failure or refractory to above, or life-threatening/cardiac symptoms</div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">Bisphosphonate max effect takes up to 7 days — don't expect immediate correction, calcitonin bridges the gap</div>
+          <div class="eiw-pearl-item">Zoledronic acid is renally cleared — dose-adjust or avoid if severe renal impairment; denosumab preferred in CKD</div>
+          <div class="eiw-pearl-item">Treat the underlying cause (malignancy, hyperparathyroidism) — antiresorptive therapy alone doesn't address root cause</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: Endocrine Society Hypercalcemia of Malignancy Guideline 2023 · Society for Endocrinology Emergency Guidance · EMCrit IBCC</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /card0b -->
+
+<!-- ===== MAGNESIUM CARD ===== -->
+<div class="eiw-card" id="eiw-card0c">
+  <div class="eiw-card-header" onclick="document.getElementById('eiw-card0c').classList.toggle('eiw-open')">
+    <div class="eiw-card-title-group">
+      <div class="eiw-card-icon" id="eiw-mg-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span></div>
+      <div>
+        <div class="eiw-card-title">Magnesium (Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>)</div>
+        <div class="eiw-card-subtitle" id="eiw-mg-subtitle">Hypomagnesemia · Emergency Mx</div>
+      </div>
+    </div>
+    <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+
+  <div class="eiw-subtabs">
+    <div class="eiw-subtab eiw-active-hypo" id="eiw-mgtab-hypo" onclick="event.stopPropagation(); eiwSwitchMg('hypo')">Hypomagnesemia</div>
+    <div class="eiw-subtab" id="eiw-mgtab-hyper" onclick="event.stopPropagation(); eiwSwitchMg('hyper')">Hypermagnesemia</div>
+  </div>
+
+  <!-- HYPOMAGNESEMIA PANEL (default) -->
+  <div class="eiw-subpanel eiw-visible" id="eiw-mg-panel-hypo">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">Severe/symptomatic → MgSO4 IV</div>
+      <div class="eiw-chip">1g/hour infusion (standard)</div>
+      <div class="eiw-chip">Always check if K<span class="eiw-ion">⁺</span>/Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> refractory</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Severe / symptomatic</b> (seizure, torsades, arrhythmia, severe deficiency)
+            <div class="eiw-dose">Magnesium sulfate IV — 1 gram/hour infusion (4 mmol/hr), standard regimen</div>
+            <div class="eiw-dose" style="margin-top:5px;">Torsades de pointes: 1–2g IV push over 5–10 min, regardless of Mg level</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>Moderate deficiency</b>
+            <div class="eiw-dose">1g magnesium sulfate IM every 6h × 4 doses (total 32.5 mEq/24h)</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>Mild / maintenance</b> — oral route
+            <div class="eiw-dose">Magnesium oxide 400mg PO BID, or Mg citrate 30mL BID via enteral tube</div>
+            <div class="eiw-dose" style="margin-top:5px;">Up to 24 mmol Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>/day in divided doses — take with food, diarrhea-limited</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Renal impairment (eGFR &lt;30)</b>
+            <div class="eiw-dose">Reduce dose by 25–50% to avoid rebound hypermagnesemia; monitor closely</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>Always check when K<span class="eiw-ion">⁺</span>/Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> won't correct</b> — Mg deficiency blunts PTH secretion and causes renal K<span class="eiw-ion">⁺</span> wasting, making both refractory until Mg is replaced</div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">Alcohol use disorder classically causes combined hypomagnesemia + hypophosphatemia + hypokalemia + hypocalcemia — check all four together</div>
+          <div class="eiw-pearl-item">During IV replacement, monitor for iatrogenic hypermagnesemia: watch for respiratory depression, areflexia</div>
+          <div class="eiw-pearl-item">Torsades treatment dose is fixed (1–2g push) — don't wait for lab confirmation of low Mg in an unstable arrhythmia</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: EMCrit IBCC Hypomagnesemia · RCHT Hypomagnesaemia Guideline 2024 · Medscape Hypomagnesemia Management</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HYPERMAGNESEMIA PANEL -->
+  <div class="eiw-subpanel" id="eiw-mg-panel-hyper">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">Symptomatic → Ca gluconate 10% 15–30mL IV</div>
+      <div class="eiw-chip">Stop all Mg sources</div>
+      <div class="eiw-chip">Renal failure → dialysis</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Stop all magnesium sources immediately</b> — IV Mg, Mg-containing laxatives/antacids, supplements</div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>Asymptomatic + normal renal function</b>
+            <div class="eiw-dose">Usually resolves on its own — no specific treatment needed, monitor</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>Symptomatic (hyporeflexia, hypotension, resp. depression, cardiac arrest)</b> — antagonize immediately
+            <div class="eiw-dose">Calcium gluconate 10% 15–30mL IV over 2–5 min, OR calcium chloride 10% 5–10mL IV over 2–5 min</div>
+            <div class="eiw-dose" style="margin-top:5px;">Calcium does NOT lower serum Mg — it only antagonizes cardiac/neuromuscular toxicity temporarily</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Increase excretion</b> — if renal function adequate
+            <div class="eiw-dose">IV isotonic saline + loop diuretic (furosemide) to promote renal Mg excretion; maintain volume status</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>Renal failure or severe/refractory toxicity</b>
+            <div class="eiw-dose">Hemodialysis — definitive therapy, can reduce Mg by up to ~50% over 3–4h</div>
+          </div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">Symptoms rarely appear until Mg &gt;4 mEq/L — don't wait for symptoms in known renal failure patients on Mg-containing meds</div>
+          <div class="eiw-pearl-item">Classic scenario: pre-eclampsia/eclampsia patient on MgSO4 infusion — watch DTRs (loss of patellar reflex is an early warning sign before respiratory depression)</div>
+          <div class="eiw-pearl-item">Dialysis can drop calcium too, worsening symptoms — monitor Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> alongside Mg during/after dialysis</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: NCBI StatPearls Hypermagnesemia · Merck Manual Hypermagnesemia · AHA Class IIb (cardiac arrest w/ hypermagnesemia)</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /card0c -->
+
+<!-- ===== PHOSPHATE CARD ===== -->
+<div class="eiw-card" id="eiw-card0d">
+  <div class="eiw-card-header" onclick="document.getElementById('eiw-card0d').classList.toggle('eiw-open')">
+    <div class="eiw-card-title-group">
+      <div class="eiw-card-icon" id="eiw-po4-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion">³</span><span class="eiw-ion">⁻</span></div>
+      <div>
+        <div class="eiw-card-title">Phosphate (PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion">³</span><span class="eiw-ion">⁻</span>)</div>
+        <div class="eiw-card-subtitle" id="eiw-po4-subtitle">Hypophosphatemia · Emergency Mx</div>
+      </div>
+    </div>
+    <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M6 9l6 6 6-6"/>
+    </svg>
+  </div>
+
+  <div class="eiw-subtabs">
+    <div class="eiw-subtab eiw-active-hypo" id="eiw-po4tab-hypo" onclick="event.stopPropagation(); eiwSwitchPO4('hypo')">Hypophosphatemia</div>
+    <div class="eiw-subtab" id="eiw-po4tab-hyper" onclick="event.stopPropagation(); eiwSwitchPO4('hyper')">Hyperphosphatemia</div>
+  </div>
+
+  <!-- HYPOPHOSPHATEMIA PANEL (default) -->
+  <div class="eiw-subpanel eiw-visible" id="eiw-po4-panel-hypo">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">&lt;1.0 mg/dL (0.3 mmol/L) → IV replace</div>
+      <div class="eiw-chip">Refeeding: &lt;1.5 mg/dL (0.5 mmol/L)</div>
+      <div class="eiw-chip">Also replace K<span class="eiw-ion">⁺</span> + Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> together</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Classify & decide route</b>
+            <div class="eiw-dose">Mild-moderate (2.0–2.4 mg/dL) & GI functional → oral preferred</div>
+            <div class="eiw-dose" style="margin-top:5px;">Severe (&lt;1.0 mg/dL) or symptomatic or non-functional GI → IV</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>IV replacement</b>
+            <div class="eiw-dose">K-Phosphate (has 22 mEq K<span class="eiw-ion">⁺</span>) or Na-Phosphate (has 22 mEq Na<span class="eiw-ion">⁺</span>) — 15 mmol IV over 2–6h</div>
+            <div class="eiw-dose" style="margin-top:5px;">Choose K-Phos if concurrent hypokalemia, Na-Phos if hyperkalemic/renal-cautious</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>Refeeding syndrome — recognize early</b>
+            <div class="eiw-dose">Phosphate &lt;1.5 mg/dL (&lt;0.5 mmol/L) within days of starting nutrition = refeeding syndrome, not just hypophosphatemia</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Refeeding — aggressive combined correction</b>
+            <div class="eiw-dose">Target K<span class="eiw-ion">⁺</span> &gt;4 mmol/L, Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> &gt;2 mg/dL alongside phosphate — replace all three together, don't treat phosphate in isolation</div>
+            <div class="eiw-dose" style="margin-top:5px;">Thiamine 100mg IV daily before/with refeeding in at-risk patients</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>High-risk for refeeding</b> — consider prophylactic phosphate
+            <div class="eiw-dose">8 mmol PO TID × 3 days in high-risk patients before/during nutrition initiation</div>
+          </div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">Respiratory muscle weakness from hypophosphatemia can prolong ventilator weaning — correct before extubation attempts in borderline cases</div>
+          <div class="eiw-pearl-item">DKA-related hypophosphatemia during insulin therapy is usually mild and self-limiting — routine replacement has not shown benefit</div>
+          <div class="eiw-pearl-item">No reliable formula predicts total deficit — treat and recheck levels serially rather than calculating a fixed dose</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: EMCrit IBCC Refeeding Syndrome · UCSF Hospitalist Handbook · ASPEN Refeeding Syndrome Consensus</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HYPERPHOSPHATEMIA PANEL -->
+  <div class="eiw-subpanel" id="eiw-po4-panel-hyper">
+    <div class="eiw-quick-strip">
+      <div class="eiw-chip eiw-danger">TLS classic cause → check K<span class="eiw-ion">⁺</span>, Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>, uric acid together</div>
+      <div class="eiw-chip">Oral binders + hydration first</div>
+      <div class="eiw-chip">Refractory/renal failure → dialysis</div>
+    </div>
+
+    <div class="eiw-card-body">
+      <div class="eiw-card-body-inner">
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">1</div>
+          <div class="eiw-step-text"><b>Restrict phosphate intake/sources</b> — dietary, IV solutions, phosphate-containing meds</div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">2</div>
+          <div class="eiw-step-text"><b>Aggressive IV hydration</b> — cornerstone of acute Mx (esp. tumor lysis syndrome)
+            <div class="eiw-dose">Promotes renal phosphate excretion; avoid bicarbonate-containing fluids</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">3</div>
+          <div class="eiw-step-text"><b>Oral phosphate binders</b>
+            <div class="eiw-dose">Non-calcium binders (sevelamer) preferred — calcium-based binders risk worsening calcium-phosphate deposition</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">4</div>
+          <div class="eiw-step-text"><b>Don't rush to correct concurrent hypocalcemia</b>
+            <div class="eiw-dose">Only correct if neuromuscular irritability present (Chvostek/Trousseau) — premature calcium correction risks calcium-phosphate precipitation in tissues</div>
+          </div>
+        </div>
+
+        <div class="eiw-step">
+          <div class="eiw-step-num">5</div>
+          <div class="eiw-step-text"><b>Refractory / renal failure / severe TLS</b>
+            <div class="eiw-dose">Hemodialysis — definitive therapy when hydration + binders fail to control levels; may need repeat sessions (rebound is common)</div>
+          </div>
+        </div>
+
+        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls">
+          <div class="eiw-pearls-title">⚠ Watch Out</div>
+          <div class="eiw-pearl-item">Tumor lysis syndrome = hyperphosphatemia + hyperkalemia + hyperuricemia + secondary hypocalcemia together — treat as a package, not isolated phosphate</div>
+          <div class="eiw-pearl-item">Calcium × phosphate product &gt;60 mg<span class="eiw-ion">²</span>/dL<span class="eiw-ion">²</span> sharply raises risk of metastatic calcification in kidney/heart — a key trigger to escalate care</div>
+          <div class="eiw-pearl-item">Post-dialysis rebound hyperphosphatemia is common in TLS — recheck levels and consider CVVH to maintain control if recurring</div>
+        </div>
+
+        <div class="eiw-ref-tag">REF: StatPearls Tumor Lysis Syndrome · Karger KBPR TLS Management · Medscape Hyperphosphatemia Management</div>
+      </div>
+    </div>
+  </div>
+</div><!-- /card0d -->
+  </div>
+ </div>
+ </div>
+ <script>
+
+function eiwSwitchK(which){
+  const panelHyper = document.getElementById('eiw-panel-hyper');
+  const panelHypo = document.getElementById('eiw-panel-hypo');
+  const tabHyper = document.getElementById('eiw-tab-hyper');
+  const tabHypo = document.getElementById('eiw-tab-hypo');
+  const icon = document.getElementById('eiw-k-icon');
+  const subtitle = document.getElementById('eiw-k-subtitle');
+
+  if(which === 'hyper'){
+    panelHyper.classList.add('eiw-visible');
+    panelHypo.classList.remove('eiw-visible');
+    tabHyper.classList.add('eiw-active-hyper');
+    tabHypo.classList.remove('eiw-active-hypo');
+    icon.style.background = 'var(--sp-danger-bg)';
+    icon.style.borderColor = 'var(--sp-danger-border)';
+    icon.style.color = 'var(--sp-danger-text)';
+    subtitle.textContent = 'Hyperkalemia · UKKA 2023';
+  } else {
+    panelHypo.classList.add('eiw-visible');
+    panelHyper.classList.remove('eiw-visible');
+    tabHypo.classList.add('eiw-active-hypo');
+    tabHyper.classList.remove('eiw-active-hyper');
+    icon.style.background = 'var(--accent-dim)';
+    icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
+    icon.style.color = 'var(--accent)';
+    subtitle.textContent = 'Hypokalemia · NHS SPS 2025';
+  }
+}
+
+function eiwSwitchNa(which){
+  const panelHyper = document.getElementById('eiw-na-panel-hyper');
+  const panelHypo = document.getElementById('eiw-na-panel-hypo');
+  const tabHyper = document.getElementById('eiw-natab-hyper');
+  const tabHypo = document.getElementById('eiw-natab-hypo');
+  const icon = document.getElementById('eiw-na-icon');
+  const subtitle = document.getElementById('eiw-na-subtitle');
+
+  if(which === 'hyper'){
+    panelHyper.classList.add('eiw-visible');
+    panelHypo.classList.remove('eiw-visible');
+    tabHyper.classList.add('eiw-active-hyper');
+    tabHypo.classList.remove('eiw-active-hypo');
+    icon.style.background = 'var(--sp-danger-bg)';
+    icon.style.borderColor = 'var(--sp-danger-border)';
+    icon.style.color = 'var(--sp-danger-text)';
+    subtitle.textContent = 'Hypernatremia · Quick Workup';
+  } else {
+    panelHypo.classList.add('eiw-visible');
+    panelHyper.classList.remove('eiw-visible');
+    tabHypo.classList.add('eiw-active-hypo');
+    tabHyper.classList.remove('eiw-active-hyper');
+    icon.style.background = 'var(--accent-dim)';
+    icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
+    icon.style.color = 'var(--accent)';
+    subtitle.textContent = 'Hyponatremia · Correction Protocol';
+  }
+}
+
+function eiwSwitchCa(which){
+  const panelHyper = document.getElementById('eiw-ca-panel-hyper');
+  const panelHypo = document.getElementById('eiw-ca-panel-hypo');
+  const tabHyper = document.getElementById('eiw-catab-hyper');
+  const tabHypo = document.getElementById('eiw-catab-hypo');
+  const icon = document.getElementById('eiw-ca-icon');
+  const subtitle = document.getElementById('eiw-ca-subtitle');
+
+  if(which === 'hyper'){
+    panelHyper.classList.add('eiw-visible');
+    panelHypo.classList.remove('eiw-visible');
+    tabHyper.classList.add('eiw-active-hyper');
+    tabHypo.classList.remove('eiw-active-hypo');
+    icon.style.background = 'var(--sp-danger-bg)';
+    icon.style.borderColor = 'var(--sp-danger-border)';
+    icon.style.color = 'var(--sp-danger-text)';
+    subtitle.textContent = 'Hypercalcemia · Endocrine Society 2023';
+  } else {
+    panelHypo.classList.add('eiw-visible');
+    panelHyper.classList.remove('eiw-visible');
+    tabHypo.classList.add('eiw-active-hypo');
+    tabHyper.classList.remove('eiw-active-hyper');
+    icon.style.background = 'var(--accent-dim)';
+    icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
+    icon.style.color = 'var(--accent)';
+    subtitle.textContent = 'Hypocalcemia · Emergency Mx';
+  }
+}
+
+function eiwSwitchMg(which){
+  const panelHyper = document.getElementById('eiw-mg-panel-hyper');
+  const panelHypo = document.getElementById('eiw-mg-panel-hypo');
+  const tabHyper = document.getElementById('eiw-mgtab-hyper');
+  const tabHypo = document.getElementById('eiw-mgtab-hypo');
+  const icon = document.getElementById('eiw-mg-icon');
+  const subtitle = document.getElementById('eiw-mg-subtitle');
+
+  if(which === 'hyper'){
+    panelHyper.classList.add('eiw-visible');
+    panelHypo.classList.remove('eiw-visible');
+    tabHyper.classList.add('eiw-active-hyper');
+    tabHypo.classList.remove('eiw-active-hypo');
+    icon.style.background = 'var(--sp-danger-bg)';
+    icon.style.borderColor = 'var(--sp-danger-border)';
+    icon.style.color = 'var(--sp-danger-text)';
+    subtitle.textContent = 'Hypermagnesemia · Emergency Mx';
+  } else {
+    panelHypo.classList.add('eiw-visible');
+    panelHyper.classList.remove('eiw-visible');
+    tabHypo.classList.add('eiw-active-hypo');
+    tabHyper.classList.remove('eiw-active-hyper');
+    icon.style.background = 'var(--accent-dim)';
+    icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
+    icon.style.color = 'var(--accent)';
+    subtitle.textContent = 'Hypomagnesemia · Emergency Mx';
+  }
+}
+
+function eiwSwitchPO4(which){
+  const panelHyper = document.getElementById('eiw-po4-panel-hyper');
+  const panelHypo = document.getElementById('eiw-po4-panel-hypo');
+  const tabHyper = document.getElementById('eiw-po4tab-hyper');
+  const tabHypo = document.getElementById('eiw-po4tab-hypo');
+  const icon = document.getElementById('eiw-po4-icon');
+  const subtitle = document.getElementById('eiw-po4-subtitle');
+
+  if(which === 'hyper'){
+    panelHyper.classList.add('eiw-visible');
+    panelHypo.classList.remove('eiw-visible');
+    tabHyper.classList.add('eiw-active-hyper');
+    tabHypo.classList.remove('eiw-active-hypo');
+    icon.style.background = 'var(--sp-danger-bg)';
+    icon.style.borderColor = 'var(--sp-danger-border)';
+    icon.style.color = 'var(--sp-danger-text)';
+    subtitle.textContent = 'Hyperphosphatemia · Emergency Mx';
+  } else {
+    panelHypo.classList.add('eiw-visible');
+    panelHyper.classList.remove('eiw-visible');
+    tabHypo.classList.add('eiw-active-hypo');
+    tabHyper.classList.remove('eiw-active-hyper');
+    icon.style.background = 'var(--accent-dim)';
+    icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
+    icon.style.color = 'var(--accent)';
+    subtitle.textContent = 'Hypophosphatemia · Emergency Mx';
+  }
+}
+ </script>
 
  <!-- ═══════════════════════════════════════════════════ CRITICAL CBC ═══ -->
  <div class="calc-card" id="calccard-cbc">
@@ -11999,6 +13014,55 @@ function calcSIADH() {
  const una  = parseFloat(document.getElementById('csw-una').value)   || 80;
  const uosm = parseFloat(document.getElementById('csw-uosm').value)  || 600;
 
+ const scoreBox  = document.getElementById('siadh-score-box');
+ const scoreRows = document.getElementById('siadh-score-rows');
+ const resBox = document.getElementById('siadh-result-box');
+ const diag   = document.getElementById('siadh-diagnosis');
+ const conf   = document.getElementById('siadh-confidence');
+ const mgmt   = document.getElementById('siadh-management');
+
+ // ── Hypernatraemic branch: SIADH/CSW scoring below is for hyponatraemia and
+ // does not apply here — route to Cranial DI assessment instead ──
+ if (sna > 145) {
+  scoreBox.style.display = 'none';
+  resBox.style.display = 'block';
+  const diluteUrine = uosm < sosm || uosm < 300;
+  const color = '#a855f7';
+  resBox.style.border = '1px solid ' + color + '50';
+  resBox.style.background = color + '14';
+  diag.style.color = color;
+  conf.style.color = 'var(--text-muted)';
+  mgmt.style.color = 'var(--text)';
+  if (diluteUrine) {
+   diag.textContent = '💧 Likely Cranial DI';
+   conf.textContent = 'Hypernatraemia (Na ' + sna + ') with inappropriately dilute urine (Osm ' + uosm + ' < serum Osm ' + sosm + ') — classic Cranial DI pattern, assuming adequate free water access has been excluded as the cause.';
+   mgmt.innerHTML = '• <strong>Desmopressin (DDAVP)</strong> trial — urine osm rises &gt;50% confirms Cranial DI (vs nephrogenic, which won\'t respond)<br>• Replace free water deficit gradually — <strong>max Na correction 8–10 mmol/L per 24hr</strong> (cerebral oedema risk)<br>• Identify cause: post-neurosurgery/TBI (often triphasic response), pituitary tumour, sarcoidosis, idiopathic<br>• Strict fluid balance + hourly urine output while diagnosis is confirmed<br>• Rule out osmotic diuresis (glucose, urea, mannitol) and nephrogenic DI (lithium, hypercalcaemia, hypokalaemia)';
+  } else {
+   diag.innerHTML = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Hypernatraemia — DI Uncertain';
+   conf.textContent = 'Na ' + sna + ' elevated, but urine Osm (' + uosm + ') is not clearly inappropriate for the serum Osm (' + sosm + ') given here — DI less certain from these numbers alone.';
+   mgmt.innerHTML = '• Consider other causes of hypernatraemia: reduced water intake, GI/insensible losses, osmotic diuresis<br>• If polyuria is present despite this, still consider partial DI — water deprivation test or desmopressin trial can clarify<br>• Correct free water deficit gradually (max 8–10 mmol/L per 24hr)<br>• Reassess urine osm once volume status/intake is optimised';
+  }
+  return;
+ }
+
+ // ── Normonatraemic branch (Na 135–145): SIADH/CSW scoring assumes
+ // hyponatraemia and Cranial DI assumes hypernatraemia — neither cleanly
+ // applies here, so avoid forcing a diagnosis and flag it instead ──
+ if (sna >= 135) {
+  scoreBox.style.display = 'none';
+  resBox.style.display = 'block';
+  const color = '#94a3b8';
+  resBox.style.border = '1px solid ' + color + '50';
+  resBox.style.background = color + '14';
+  diag.style.color = color;
+  conf.style.color = 'var(--text-muted)';
+  mgmt.style.color = 'var(--text)';
+  diag.textContent = 'ℹ️ Serum Na⁺ Normal';
+  conf.textContent = 'Na ' + sna + ' is within normal range — SIADH/CSW scoring assumes hyponatraemia and does not apply here.';
+  mgmt.innerHTML = '• If <strong>polyuria</strong> is present despite normal Na, consider <strong>partial/early Cranial DI</strong> — recheck Na and urine Osm trend, or trial desmopressin<br>• If Na is trending down, re-run this tool once it crosses into the hyponatraemic range for SIADH/CSW differentiation<br>• Otherwise, look for other causes of the presenting picture (osmotic diuresis, diuretic effect, post-obstructive diuresis, recovering ATN)';
+  return;
+ }
+
  // score: positive → SIADH, negative → CSW
  let score = 0;
  const rows = [];
@@ -12070,8 +13134,6 @@ function calcSIADH() {
  }
 
  // Render parameter rows
- const scoreBox  = document.getElementById('siadh-score-box');
- const scoreRows = document.getElementById('siadh-score-rows');
  scoreBox.style.display = 'block';
  scoreRows.innerHTML = rows.map(r => {
   const col  = r.pts > 0 ? '#06b6d4' : r.pts < 0 ? '#f97316' : 'var(--text-faint)';
@@ -12084,10 +13146,6 @@ function calcSIADH() {
  }).join('');
 
  // Determine diagnosis
- const resBox = document.getElementById('siadh-result-box');
- const diag   = document.getElementById('siadh-diagnosis');
- const conf   = document.getElementById('siadh-confidence');
- const mgmt   = document.getElementById('siadh-management');
  resBox.style.display = 'block';
 
  let dx, color, confidence, management;
@@ -12096,7 +13154,7 @@ function calcSIADH() {
   confidence = 'Strong evidence for SIADH (Score: +' + score + ')';
   management = '• <strong>Fluid restrict:</strong> 500–1000 ml/day (below daily urine output)<br>• Treat underlying cause (drugs, CNS, pulmonary, malignancy)<br>• <strong>Avoid isotonic saline</strong> — worsens hypoNa in euvolaemic SIADH<br>• Chronic/mild: consider demeclocycline or tolvaptan<br>• Severe symptomatic (&lt;120 + Sx): 3% NaCl — target ≤5 mmol/L rise in 1hr, max 10 mmol/L per 24hr';
  } else if (score >= 2) {
-  dx = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Probable SIADH'; color = 'var(--accent)';
+  dx = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Probable SIADH'; color = '#3b82f6';
   confidence = 'Moderate evidence for SIADH (Score: +' + score + ') — clinical correlation essential';
   management = '• Cautious fluid restriction while re-examining volume status<br>• Repeat labs 6–12hr<br>• <strong>Do NOT give IV saline</strong> until volume status confirmed normal/expanded<br>• Treat underlying cause — review all medications';
  } else if (score <= -3) {
@@ -12116,7 +13174,7 @@ function calcSIADH() {
  resBox.style.border    = '1px solid ' + color + '50';
  resBox.style.background = color + '14';
  diag.style.color        = color;
- diag.textContent        = dx;
+ diag.innerHTML          = dx;
  conf.style.color        = 'var(--text-muted)';
  conf.textContent        = confidence;
  mgmt.style.color        = 'var(--text)';
@@ -14317,7 +15375,7 @@ function calcGOLD() {
 
   let grade, color, desc;
   if (fev1 >= 80) { grade = 'GOLD 1'; desc = 'Mild'; color = '#10b981'; }
-  else if (fev1 >= 50) { grade = 'GOLD 2'; desc = 'Moderate'; color = 'var(--accent)'; }
+  else if (fev1 >= 50) { grade = 'GOLD 2'; desc = 'Moderate'; color = '#3b82f6'; }
   else if (fev1 >= 30) { grade = 'GOLD 3'; desc = 'Severe'; color = '#f97316'; }
   else { grade = 'GOLD 4'; desc = 'Very Severe'; color = '#ef4444'; }
 
@@ -14795,7 +15853,7 @@ var SPECIAL_LAYOUT = [
     'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-unitconv', 'calccard-abg', 'calccard-ventcalc'
   ] },
   { slot: 'specialcat-correction-body', cards: [
-    'calccard-nacl', 'calccard-fwd', 'calccard-bicarb', 'calccard-kdeficit', 'calccard-insulin', 'calccard-heparin'
+    'calccard-bicarb', 'calccard-kdeficit', 'calccard-nacl', 'calccard-fwd', 'calccard-insulin', 'calccard-heparin', 'calccard-eiw'
   ] },
   { slot: 'specialcat-assessment-body', cards: [
     'calccard-shock', 'calccard-siadh', 'calccard-dka', 'calccard-cbc', 'calccard-ida', 'calccard-hemolysis', 'calccard-thyroid', 'calccard-dengue'
