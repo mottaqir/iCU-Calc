@@ -234,10 +234,10 @@ body:not([data-theme="light"]) .tab-btn.active {
 }
 /* Per-category tint outlines — always-on faint border, thickened (not
    filled) when that tab is the active one. */
-.tab-btn-bolus    { border-color: rgba(16,185,129,0.45); }
-.tab-btn-infusion { border-color: rgba(6,182,212,0.5); }
-.tab-btn-special  { border-color: rgba(12,58,74,0.7); }
-.tab-btn-defib    { border-color: rgba(239,68,68,0.45); }
+.tab-btn-bolus    { border-color: rgba(45,110,50,0.6); }
+.tab-btn-infusion { border-color: rgba(195,150,30,0.6); }
+.tab-btn-special  { border-color: rgba(45,140,160,0.55); }
+.tab-btn-defib    { border-color: rgba(130,28,28,0.65); }
 .tab-btn.active {
   color: var(--text);
   font-weight: 900; border-width: 2px; border-color: transparent; padding: 7px 5px;
@@ -249,10 +249,10 @@ body:not([data-theme="light"]) .tab-btn.active {
 }
 @property --tab-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 @keyframes tabGradSpin { to { --tab-angle: 360deg; } }
-.tab-btn-bolus.active    { --tabc: #10b981; }
-.tab-btn-infusion.active { --tabc: #0891b2; }
-.tab-btn-special.active  { --tabc: #0c3a4a; }
-.tab-btn-defib.active    { --tabc: #ef4444; }
+.tab-btn-bolus.active    { --tabc: #2d6e32; }
+.tab-btn-infusion.active { --tabc: #c3961e; }
+.tab-btn-special.active  { --tabc: #2d8ca0; }
+.tab-btn-defib.active    { --tabc: #821c1c; }
 .tab-btn:hover:not(.active) { color: var(--text); filter: brightness(1.3); }
 
 /* Tab contents */
@@ -17120,16 +17120,17 @@ function navRestoreState() {
     var raw = localStorage.getItem(NAV_STATE_KEY);
     state = raw ? JSON.parse(raw) : null;
   } catch (e) { state = null; }
-  if (!state) return;
 
-  if (state.tab) {
-    var btns = document.querySelectorAll('.tab-btn');
-    var tabMap = { bolus: 0, infusion: 1, special: 2, defib: 3 };
-    var idx = tabMap[state.tab];
-    var tabEl = document.getElementById('tab-' + state.tab);
-    if (idx !== undefined && btns[idx] && tabEl && !tabEl.classList.contains('active')) {
-      showTab(state.tab, btns[idx]);
-    }
+  // Fresh install (nothing saved yet) — land on Special Calc rather than
+  // the Bolus tab that's active by default in the raw markup.
+  var tabToShow = state && state.tab ? state.tab : 'special';
+
+  var btns = document.querySelectorAll('.tab-btn');
+  var tabMap = { bolus: 0, infusion: 1, special: 2, defib: 3 };
+  var idx = tabMap[tabToShow];
+  var tabEl = document.getElementById('tab-' + tabToShow);
+  if (idx !== undefined && btns[idx] && tabEl && !tabEl.classList.contains('active')) {
+    showTab(tabToShow, btns[idx]);
   }
 }
 
@@ -17164,7 +17165,7 @@ window.addEventListener('load', function () { setTimeout(function () { gsBuildIn
 // BACK_DOUBLE_MS) exit the app instead of stepping back.
 (function () {
   var BACK_STACK = [];          // undo functions, most-recently-opened last
-  var BACK_DOUBLE_MS = 400;     // max gap between presses to count as "rapid"
+  var BACK_DOUBLE_MS = 200;     // max gap between presses to count as "rapid"
   var lastPopTime = 0;
   var suppressPush = false;     // true while we are undoing (avoid re-recording it)
 
@@ -17278,6 +17279,16 @@ window.addEventListener('load', function () { setTimeout(function () { gsBuildIn
 
   armTrap();
 })();
+
+// ═══ PWA: request persistent storage (best-effort — protects the cache
+// from automatic eviction under phone storage pressure; it can't override
+// a user's explicit "Clear browsing data" in Chrome, but if the app is
+// actually *installed* — opened from the home-screen icon, not a bookmark
+// — Android already keeps its storage separate from Chrome's, so
+// "Clear browsing data" doesn't reach it either way). ═══
+if (navigator.storage && navigator.storage.persist) {
+  navigator.storage.persist().catch(function () {});
+}
 
 // ═══ PWA: register service worker + auto-update ═══
 if ('serviceWorker' in navigator) {
