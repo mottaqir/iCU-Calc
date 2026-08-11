@@ -12384,7 +12384,7 @@ function rdacBuildDropdown() {
  var panel = document.getElementById('rdacDropPanel');
  if (!panel || panel.dataset.built) return;
  panel.dataset.built = '1';
- var html = '<div class="rdac-dd-searchrow"><input type="text" id="rdacSearchInput" class="rdac-dd-search" placeholder="Search antibiotic…" oninput="rdacFilterDropdown(this.value)" onclick="event.stopPropagation()"></div>';
+ var html = '<div class="rdac-dd-searchrow"><input type="text" id="rdacSearchInput" class="rdac-dd-search" placeholder="Search antibiotic…" oninput="rdacFilterDropdown(this.value)" onfocus="rdacFitPanelToKeyboard()" onclick="event.stopPropagation()"></div>';
  html += '<div id="rdacDdOptsWrap">';
  rdacMainDropdownList.forEach(function(d) {
   html += '<div class="rdac-dd-opt" data-id="'+d.id+'" data-name="'+d.name.toLowerCase()+'" onclick="rdacSelectDrug(\''+d.id+'\')">'+d.name
@@ -12395,6 +12395,32 @@ function rdacBuildDropdown() {
  panel.innerHTML = html;
 }
 
+// Keep the dropdown panel fully above the on-screen keyboard: scroll the
+// search box into view first, then cap the panel's height to whatever
+// visible space is actually left below it (recomputed live if the
+// keyboard's own height changes, e.g. switching between number/text pads).
+function rdacFitPanelToKeyboard() {
+ var wrap = document.getElementById('rdacDdWrap');
+ var panel = document.getElementById('rdacDropPanel');
+ if (!wrap || !panel) return;
+ var reposition = function() {
+  wrap.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  requestAnimationFrame(function() {
+   var vh = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+   var rect = wrap.getBoundingClientRect();
+   var available = vh - rect.bottom - 12;
+   panel.style.maxHeight = Math.max(140, available) + 'px';
+  });
+ };
+ reposition();
+ if (window.visualViewport && !wrap.dataset.vvBound) {
+  wrap.dataset.vvBound = '1';
+  window.visualViewport.addEventListener('resize', function() {
+   if (wrap.classList.contains('open')) reposition();
+  });
+ }
+}
+
 function rdacOpenSearch(e) {
  e.stopPropagation();
  rdacBuildDropdown();
@@ -12403,6 +12429,7 @@ function rdacOpenSearch(e) {
  setTimeout(function() {
   var inp = document.getElementById('rdacSearchInput');
   if (inp) inp.focus();
+  rdacFitPanelToKeyboard();
  }, 20);
 }
 
@@ -17014,16 +17041,41 @@ function gsSearch(q) {
     gsCurrentMatches = [];
     return;
   }
-  // Title matches rank first (strongest, most precise signal); body/keyword
-  // matches (a term mentioned inside the card but not in its title) fill any
-  // remaining slots after that, so a specific card name never gets pushed
-  // out of the top 10 by a looser body-text match.
+  // Word-prefix matching: each query word must match the beginning of a word
+  // (at a word boundary), not as a substring in the middle of a word.
+  // E.g., "hepa" matches "heparin" and "Unfractionate Heparin" (both titles),
+  // but not partial substrings like "arin" or "nfract".
+  var queryWords = q.split(/\s+/).filter(function (w) { return w.length > 0; });
+  if (queryWords.length === 0) {
+    gsRenderIdle();
+    gsCurrentMatches = [];
+    return;
+  }
+  
   var titleMatches = [];
   var bodyMatches = [];
+  
   gsIndex.forEach(function (item) {
-    if (item.title.toLowerCase().indexOf(q) !== -1) { titleMatches.push(item); return; }
-    if (item.keywords && item.keywords.indexOf(q) !== -1) bodyMatches.push(item);
+    var titleLower = item.title.toLowerCase();
+    var keywordsLower = item.keywords ? item.keywords : '';
+    
+    // Check if all query words match as word prefixes (word boundaries)
+    var allWordsInTitle = queryWords.every(function (word) {
+      var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp('\\b' + escaped).test(titleLower);
+    });
+    var allWordsInKeywords = queryWords.every(function (word) {
+      var escaped = word.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      return new RegExp('\\b' + escaped).test(keywordsLower);
+    });
+    
+    if (allWordsInTitle) {
+      titleMatches.push(item);
+    } else if (allWordsInKeywords) {
+      bodyMatches.push(item);
+    }
   });
+  
   var matches = titleMatches.concat(bodyMatches).slice(0, 10);
   gsCurrentMatches = matches;
   if (matches.length === 0) {
