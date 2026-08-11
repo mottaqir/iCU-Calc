@@ -134,7 +134,15 @@ body:not([data-theme="light"]) .menu-tab-btn.active-tab {
 }
 
 *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+html {
+  /* Disable the browser's native pull-to-refresh gesture. It's replaced by
+     the silent background update flow in service-worker.js + the SW
+     registration script below, so a manual pull-down no longer reloads
+     the page (which used to race the SW and could tear the layout). */
+  overscroll-behavior-y: none;
+}
 body {
+  overscroll-behavior-y: none;
   background: var(--bg);
   color: var(--text);
   font-family: var(--sans);
@@ -741,10 +749,31 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
   color: var(--text); padding: 4px 6px;
   font-size: 13px; text-align: center;
 }
+/* Scoped 2-column slider layout (currently used only in APACHE II card) */
+.field-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 10px; align-items: start; }
+.field-grid-2 .field-row { margin-bottom: 10px; }
+.field-grid-2 .field-inputs input[type=number] { width: 48px; padding: 4px 3px; font-size: 12px; }
+/* APACHE II card: sections A/B/C already carry their own 2px L/R inset —
+   cancel the generic per-row 2px so it doesn't stack into 4px. */
+#calccard-apache div:has(> .field-inputs) { padding-left: 0 !important; padding-right: 0 !important; }
+/* Live per-parameter point badge (merged into one tappable box with the
+   chevron) that reveals the full scoring-threshold reference text below
+   it (hidden by default). */
+.ap-ref-btn { display: inline-flex; align-items: center; gap: 4px; margin-left: 6px; padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; font-family: var(--mono); cursor: pointer; vertical-align: middle; }
+.ap-ref-btn svg { display: block; flex-shrink: 0; transition: transform .15s ease; }
+.ap-ref-btn.open svg { transform: rotate(180deg); }
+.ap-score-static { display: inline-block; margin-left: 6px; padding: 2px 7px; border-radius: 4px; font-size: 10.5px; font-weight: 700; font-family: var(--mono); vertical-align: middle; }
+.ap-ref-text { display: none; margin-top: 4px; color: var(--text-fainter); font-size: 10px; text-align: justify; }
+/* Point-badge simplification: drop the coloured badge box, keep only the
+   chevron, floated to the right edge of the label row. */
+#calccard-apache .ap-ref-btn { background: transparent !important; border: none !important; padding: 2px !important; margin-left: 0 !important; float: right; position: relative; top: 3px; }
+#calccard-apache .ap-ref-btn span[id^="ap-score-"] { display: none; }
+#calccard-apache .ap-ref-text { clear: both; }
+#calccard-apache .ap-score-static { display: none; }
 
 /* ── Calc Result ── */
 .calc-result {
-  background: var(--surface2); border: 1px solid var(--border-strong);
+  background: transparent; border: 1px solid var(--border-strong);
   border-radius: 4px; padding: 10px 14px; margin-top: 8px;
 }
 .calc-result .cr-main { font-family: var(--numfont); font-size: 17px; font-weight: 700; margin-bottom: 4px; }
@@ -2991,7 +3020,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
   <div class="calc-body" style="display:none">
 
-   <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+   <div style="background:var(--surface-deep);border-radius:4px;padding:8px 2px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
     <strong style="color:var(--text-strong)">Purpose:</strong> The Full Outline of UnResponsiveness (FOUR) Score assesses level of consciousness without a verbal component — making it usable in intubated, aphasic, or facially injured patients where GCS's verbal score cannot be scored. Also captures brainstem reflexes and respiratory pattern, which GCS does not.
    </div>
 
@@ -3142,7 +3171,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <!-- Result -->
-   <div id="news2-result-box" style="background:var(--surface-deep);border:1px solid #f9731640;border-radius: 4px;padding:10px 14px">
+   <div id="news2-result-box" style="background:var(--surface-deep);border:1px solid #f9731640;border-radius: 4px;padding:10px 2px">
     <div style="display:flex;justify-content:space-between;align-items:center">
      <div>
       <div style="font-size:10px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.4px">NEWS2 Total</div>
@@ -3172,12 +3201,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- Helper macro: single row param -->
    <!-- SECTION A: Physiological -->
-   <div style="background:#ef444408;border-radius:4px;padding:10px 10px 2px;margin-bottom:10px">
+   <div style="border-radius:4px;padding:10px 2px 2px;margin-bottom:10px">
    <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:8px;border-left:3px solid #ef4444">A — Acute Physiology (12 Parameters)</div>
 
+   <!-- Temp / MAP / HR / RR — 2-col grid -->
+   <div class="field-grid-2">
    <!-- Temperature -->
    <div class="field-row">
-    <div class="field-label">Temperature °C <span style="color:var(--text-fainter);font-size:10px">4=≥41 · 3=39–40.9 · 1=38.5–38.9 · 0=36–38.4 · 1=34–35.9 · 2=32–33.9 · 3=30–31.9 · 4=≤29.9</span></div>
+    <div class="field-label">Temperature °C <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-temp')" aria-label="Show scoring reference"><span id="ap-score-temp">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-temp">4=≥41 · 3=39–40.9 · 1=38.5–38.9 · 0=36–38.4 · 1=34–35.9 · 2=32–33.9 · 3=30–31.9 · 4=≤29.9</span></div>
     <div class="field-inputs">
      <input type="range" min="28" max="42" step="0.1" value="37" id="ap-temp" oninput="syncField('ap-temp',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="28" max="42" step="0.1" value="37" id="ap-temp-n" oninput="syncField('ap-temp',this.value);calcAPACHE()">
@@ -3186,7 +3217,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- MAP -->
    <div class="field-row">
-    <div class="field-label">Mean Arterial Pressure mmHg <span style="color:var(--text-fainter);font-size:10px">4=≥160 · 3=130–159 · 2=110–129 · 0=70–109 · 2=50–69 · 4=≤49</span></div>
+    <div class="field-label">MAP mmHg <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-map')" aria-label="Show scoring reference"><span id="ap-score-map">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-map">4=≥160 · 3=130–159 · 2=110–129 · 0=70–109 · 2=50–69 · 4=≤49</span></div>
     <div class="field-inputs">
      <input type="range" min="40" max="180" step="1" value="90" id="ap-map" oninput="syncField('ap-map',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="40" max="180" value="90" id="ap-map-n" oninput="syncField('ap-map',this.value);calcAPACHE()">
@@ -3195,7 +3226,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- HR -->
    <div class="field-row">
-    <div class="field-label">Heart Rate bpm <span style="color:var(--text-fainter);font-size:10px">4=≥180 · 3=140–179 · 2=110–139 · 0=70–109 · 2=55–69 · 3=40–54 · 4=≤39</span></div>
+    <div class="field-label">Heart Rate bpm <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-hr')" aria-label="Show scoring reference"><span id="ap-score-hr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-hr">4=≥180 · 3=140–179 · 2=110–139 · 0=70–109 · 2=55–69 · 3=40–54 · 4=≤39</span></div>
     <div class="field-inputs">
      <input type="range" min="30" max="200" step="1" value="80" id="ap-hr" oninput="syncField('ap-hr',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="30" max="200" value="80" id="ap-hr-n" oninput="syncField('ap-hr',this.value);calcAPACHE()">
@@ -3204,39 +3235,47 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- RR -->
    <div class="field-row">
-    <div class="field-label">Respiratory Rate /min <span style="color:var(--text-fainter);font-size:10px">4=≥50 · 3=35–49 · 1=25–34 · 0=12–24 · 1=10–11 · 2=6–9 · 4=≤5</span></div>
+    <div class="field-label">Respiratory Rate /min <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-rr')" aria-label="Show scoring reference"><span id="ap-score-rr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-rr">4=≥50 · 3=35–49 · 1=25–34 · 0=12–24 · 1=10–11 · 2=6–9 · 4=≤5</span></div>
     <div class="field-inputs">
      <input type="range" min="4" max="60" step="1" value="16" id="ap-rr" oninput="syncField('ap-rr',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="4" max="60" value="16" id="ap-rr-n" oninput="syncField('ap-rr',this.value);calcAPACHE()">
     </div>
    </div>
-
-   <!-- Oxygenation -->
-   <div style="margin-bottom:10px">
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Oxygenation Method</div>
-    <div style="display:flex;gap:6px;margin-bottom:6px">
-     <button onclick="setApacheO2('pf')" id="ap-o2-pf" style="flex:1;padding:5px 0;border-radius: 4px;border:1px solid #ef4444;background:#ef444422;color:#ef4444;font-size:10.5px;font-weight:700;cursor:pointer">A-aDO₂ / P/F<br><span style="font-weight:400;font-size:9px">If FiO₂ ≥ 0.5</span></button>
-     <button onclick="setApacheO2('pao2')" id="ap-o2-pao2" style="flex:1;padding:5px 0;border-radius: 4px;border:1px solid var(--border-strong);background:transparent;color:var(--text-faint);font-size:10.5px;font-weight:600;cursor:pointer">PaO₂<br><span style="font-size:9px">If FiO₂ &lt; 0.5</span></button>
-    </div>
-    <div id="ap-pf-row" class="field-row" style="margin-bottom:0">
-     <div class="field-label">A-aDO₂ (mmHg) <span style="color:var(--text-fainter);font-size:10px">4=≥500 · 3=350–499 · 2=200–349 · 0=&lt;200</span></div>
-     <div class="field-inputs">
-      <input type="range" min="0" max="600" step="5" value="100" id="ap-aado2" oninput="syncField('ap-aado2',this.value);calcAPACHE()" style="accent-color:#ef4444">
-      <input type="number" min="0" max="600" value="100" id="ap-aado2-n" oninput="syncField('ap-aado2',this.value);calcAPACHE()">
-     </div>
-    </div>
-    <div id="ap-pao2-row" class="field-row" style="margin-bottom:0;display:none">
-     <div class="field-label">PaO₂ (mmHg) <span style="color:var(--text-fainter);font-size:10px">4=&lt;55 · 3=55–60 · 1=61–70 · 0=&gt;70</span></div>
-     <div class="field-inputs">
-      <input type="range" min="40" max="120" step="1" value="90" id="ap-pao2" oninput="syncField('ap-pao2',this.value);calcAPACHE()" style="accent-color:#ef4444">
-      <input type="number" min="40" max="120" value="90" id="ap-pao2-n" oninput="syncField('ap-pao2',this.value);calcAPACHE()">
-     </div>
-    </div>
    </div>
 
+   <!-- Oxygenation — label shares the heading row so box & slider start level -->
+   <div style="margin-bottom:10px">
+    <div class="field-grid-2" style="margin-bottom:4px">
+     <span style="font-size:11px;color:var(--text-muted)">Oxygenation Method</span>
+     <span id="ap-pf-label" class="field-label" style="margin:0">A-aDO₂ (mmHg) <button type="button" id="ap-refbtn-aado2" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-aado2')" aria-label="Show scoring reference"><span id="ap-score-aado2">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button></span>
+     <span id="ap-pao2-label" class="field-label" style="margin:0;display:none">PaO₂ (mmHg) <button type="button" id="ap-refbtn-pao2" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-pao2')" aria-label="Show scoring reference"><span id="ap-score-pao2">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button></span>
+    </div>
+    <div class="field-grid-2" style="align-items:center">
+     <div style="display:flex;align-items:stretch;border:1px solid #ef444455;border-radius:4px;overflow:hidden">
+      <button onclick="setApacheO2('pf')" id="ap-o2-pf" style="flex:1;padding:6px 4px;border:none;background:#ef444422;color:#ef4444;font-size:10.5px;font-weight:700;cursor:pointer">A-aDO₂ / P/F<br><span style="font-weight:400;font-size:9px">If FiO₂ ≥ 0.5</span></button>
+      <div style="display:flex;align-items:center;padding:0 3px;color:var(--text-faint);font-size:12px">/</div>
+      <button onclick="setApacheO2('pao2')" id="ap-o2-pao2" style="flex:1;padding:6px 4px;border:none;background:transparent;color:var(--text-faint);font-size:10.5px;font-weight:600;cursor:pointer">PaO₂<br><span style="font-size:9px">If FiO₂ &lt; 0.5</span></button>
+     </div>
+     <div>
+      <div id="ap-pf-row" class="field-inputs">
+       <input type="range" min="0" max="600" step="5" value="100" id="ap-aado2" oninput="syncField('ap-aado2',this.value);calcAPACHE()" style="accent-color:#ef4444">
+       <input type="number" min="0" max="600" value="100" id="ap-aado2-n" oninput="syncField('ap-aado2',this.value);calcAPACHE()">
+      </div>
+      <div id="ap-pao2-row" class="field-inputs" style="display:none">
+       <input type="range" min="40" max="120" step="1" value="90" id="ap-pao2" oninput="syncField('ap-pao2',this.value);calcAPACHE()" style="accent-color:#ef4444">
+       <input type="number" min="40" max="120" value="90" id="ap-pao2-n" oninput="syncField('ap-pao2',this.value);calcAPACHE()">
+      </div>
+     </div>
+    </div>
+    <span class="ap-ref-text" id="ap-ref-aado2">4=≥500 · 3=350–499 · 2=200–349 · 0=&lt;200</span>
+    <span class="ap-ref-text" id="ap-ref-pao2" style="display:none">4=&lt;55 · 3=55–60 · 1=61–70 · 0=&gt;70</span>
+   </div>
+
+   <!-- pH / Na — 2-col grid -->
+   <div class="field-grid-2">
    <!-- pH -->
    <div class="field-row">
-    <div class="field-label">Arterial pH <span style="color:var(--text-fainter);font-size:10px">4=≥7.7 · 3=7.6–7.69 · 1=7.5–7.59 · 0=7.33–7.49 · 2=7.25–7.32 · 3=7.15–7.24 · 4=&lt;7.15</span></div>
+    <div class="field-label">Arterial pH <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-ph')" aria-label="Show scoring reference"><span id="ap-score-ph">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-ph">4=≥7.7 · 3=7.6–7.69 · 1=7.5–7.59 · 0=7.33–7.49 · 2=7.25–7.32 · 3=7.15–7.24 · 4=&lt;7.15</span></div>
     <div class="field-inputs">
      <input type="range" min="7.0" max="7.8" step="0.01" value="7.40" id="ap-ph" oninput="syncField('ap-ph',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="7.0" max="7.8" step="0.01" value="7.40" id="ap-ph-n" oninput="syncField('ap-ph',this.value);calcAPACHE()">
@@ -3245,72 +3284,86 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- Na -->
    <div class="field-row">
-    <div class="field-label">Serum Na⁺ (mmol/L) <span style="color:var(--text-fainter);font-size:10px">4=≥180 · 3=160–179 · 2=155–159 · 1=150–154 · 0=130–149 · 2=120–129 · 3=111–119 · 4=≤110</span></div>
+    <div class="field-label">Serum Na⁺ (mmol/L) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-na')" aria-label="Show scoring reference"><span id="ap-score-na">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-na">4=≥180 · 3=160–179 · 2=155–159 · 1=150–154 · 0=130–149 · 2=120–129 · 3=111–119 · 4=≤110</span></div>
     <div class="field-inputs">
      <input type="range" min="100" max="190" step="1" value="138" id="ap-na" oninput="syncField('ap-na',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="100" max="190" value="138" id="ap-na-n" oninput="syncField('ap-na',this.value);calcAPACHE()">
     </div>
    </div>
+   </div>
 
+   <!-- ARF / Creatinine — 2-col grid -->
+   <div class="field-grid-2" style="align-items:start">
+   <!-- ARF -->
+   <div style="padding:0 0 8px">
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:7px">Acute Renal Failure?</div>
+    <div style="display:flex;justify-content:space-between">
+     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-arf" value="1" onchange="calcAPACHE()" style="accent-color:#ef4444"> Yes (×2)</label>
+     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-arf" value="0" onchange="calcAPACHE()" checked style="accent-color:#ef4444"> No (×1)</label>
+    </div>
+   </div>
+
+   <!-- Creatinine -->
+   <div class="field-row">
+    <div class="field-label">S. Creatinine (mg/dL) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-cr')" aria-label="Show scoring reference"><span id="ap-score-cr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-cr">4=≥3.5 · 3=2–3.4 · 1=1.5–1.9 · 0=0.6–1.4 · 2=&lt;0.6</span></div>
+    <div class="field-inputs">
+     <input type="range" min="0.2" max="5" step="0.1" value="1.0" id="ap-cr" oninput="syncField('ap-cr',this.value);calcAPACHE()" style="accent-color:#ef4444">
+     <input type="number" min="0.2" max="5" step="0.1" value="1.0" id="ap-cr-n" oninput="syncField('ap-cr',this.value);calcAPACHE()">
+    </div>
+   </div>
+   </div>
+
+   <!-- K / WBC — 2-col grid -->
+   <div class="field-grid-2">
    <!-- K -->
    <div class="field-row">
-    <div class="field-label">Serum K⁺ (mmol/L) <span style="color:var(--text-fainter);font-size:10px">4=≥7 · 3=6–6.9 · 1=5.5–5.9 · 0=3.5–5.4 · 1=3–3.4 · 2=2.5–2.9 · 4=&lt;2.5</span></div>
+    <div class="field-label">Serum K⁺ (mmol/L) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-k')" aria-label="Show scoring reference"><span id="ap-score-k">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-k">4=≥7 · 3=6–6.9 · 1=5.5–5.9 · 0=3.5–5.4 · 1=3–3.4 · 2=2.5–2.9 · 4=&lt;2.5</span></div>
     <div class="field-inputs">
      <input type="range" min="1.5" max="8" step="0.1" value="4.0" id="ap-k" oninput="syncField('ap-k',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="1.5" max="8" step="0.1" value="4.0" id="ap-k-n" oninput="syncField('ap-k',this.value);calcAPACHE()">
     </div>
    </div>
 
-   <!-- Creatinine -->
-   <div style="margin-bottom:6px">
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Acute Renal Failure?</div>
-    <div style="display:flex;gap:8px">
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-arf" value="1" onchange="calcAPACHE()" style="accent-color:#ef4444"> Yes (×2)</label>
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-arf" value="0" onchange="calcAPACHE()" checked style="accent-color:#ef4444"> No (×1)</label>
+   <!-- WBC -->
+   <div class="field-row">
+    <div class="field-label">WBC (×10³/mm³) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-wbc')" aria-label="Show scoring reference"><span id="ap-score-wbc">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-wbc">4=≥40 · 2=20–39.9 · 1=15–19.9 · 0=3–14.9 · 2=1–2.9 · 4=&lt;1</span></div>
+    <div class="field-inputs">
+     <input type="range" min="0.5" max="50" step="0.5" value="8" id="ap-wbc" oninput="syncField('ap-wbc',this.value);calcAPACHE()" style="accent-color:#ef4444">
+     <input type="number" min="0.5" max="50" step="0.5" value="8" id="ap-wbc-n" oninput="syncField('ap-wbc',this.value);calcAPACHE()">
     </div>
    </div>
-   <div class="field-row">
-    <div class="field-label">Serum Creatinine (mg/dL) <span style="color:var(--text-fainter);font-size:10px">4=≥3.5 · 3=2–3.4 · 1=1.5–1.9 · 0=0.6–1.4 · 2=&lt;0.6</span></div>
-    <div class="field-inputs">
-     <input type="range" min="0.2" max="5" step="0.1" value="1.0" id="ap-cr" oninput="syncField('ap-cr',this.value);calcAPACHE()" style="accent-color:#ef4444">
-     <input type="number" min="0.2" max="5" step="0.1" value="1.0" id="ap-cr-n" oninput="syncField('ap-cr',this.value);calcAPACHE()">
-    </div>
    </div>
 
+
+
+   <!-- Haematocrit / GCS — 2-col grid -->
+   <div class="field-grid-2">
    <!-- Haematocrit -->
    <div class="field-row">
-    <div class="field-label">Haematocrit % <span style="color:var(--text-fainter);font-size:10px">4=≥60 · 2=50–59.9 · 1=46–49.9 · 0=30–45.9 · 2=20–29.9 · 4=&lt;20</span></div>
+    <div class="field-label">Haematocrit % <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-hct')" aria-label="Show scoring reference"><span id="ap-score-hct">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-hct">4=≥60 · 2=50–59.9 · 1=46–49.9 · 0=30–45.9 · 2=20–29.9 · 4=&lt;20</span></div>
     <div class="field-inputs">
      <input type="range" min="10" max="70" step="1" value="38" id="ap-hct" oninput="syncField('ap-hct',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="10" max="70" value="38" id="ap-hct-n" oninput="syncField('ap-hct',this.value);calcAPACHE()">
     </div>
    </div>
 
-   <!-- WBC -->
-   <div class="field-row">
-    <div class="field-label">WBC (×10³/mm³) <span style="color:var(--text-fainter);font-size:10px">4=≥40 · 2=20–39.9 · 1=15–19.9 · 0=3–14.9 · 2=1–2.9 · 4=&lt;1</span></div>
-    <div class="field-inputs">
-     <input type="range" min="0.5" max="50" step="0.5" value="8" id="ap-wbc" oninput="syncField('ap-wbc',this.value);calcAPACHE()" style="accent-color:#ef4444">
-     <input type="number" min="0.5" max="50" step="0.5" value="8" id="ap-wbc-n" oninput="syncField('ap-wbc',this.value);calcAPACHE()">
-    </div>
-   </div>
-
    <!-- GCS for APACHE -->
    <div class="field-row">
-    <div class="field-label">GCS Score <span style="color:var(--text-fainter);font-size:10px">APACHE uses (15 − GCS) as score</span></div>
+    <div class="field-label">GCS Score <span class="ap-score-static" id="ap-score-gcs" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455">0</span> <span style="color:var(--text-fainter);font-size:10px;white-space:nowrap">(15−GCS)</span></div>
     <div class="field-inputs">
      <input type="range" min="3" max="15" step="1" value="15" id="ap-gcs" oninput="syncField('ap-gcs',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="3" max="15" value="15" id="ap-gcs-n" oninput="syncField('ap-gcs',this.value);calcAPACHE()">
     </div>
    </div>
+   </div>
 
    </div>
 
    <!-- SECTION B: Age -->
-   <div style="background:#f59e0b08;border-radius:4px;padding:10px 10px 10px;margin-bottom:10px">
+   <div style="border-radius:4px;padding:10px 2px 10px;margin-bottom:10px">
    <div style="font-size:10px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:8px;border-left:3px solid #f59e0b">B — Age Points</div>
    <div class="field-row" style="margin-bottom:0">
-    <div class="field-label">Age (years) <span style="color:var(--text-fainter);font-size:10px">0=&lt;44 · 2=45–54 · 3=55–64 · 5=65–74 · 6=≥75</span></div>
+    <div class="field-label">Age (years) <button type="button" class="ap-ref-btn" style="background:#f59e0b18;color:#f59e0b;border:1px solid #f59e0b55" onclick="toggleApRef(this,'ap-ref-age')" aria-label="Show scoring reference"><span id="ap-score-age">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-age">0=&lt;44 · 2=45–54 · 3=55–64 · 5=65–74 · 6=≥75</span></div>
     <div class="field-inputs">
      <input type="range" min="18" max="90" step="1" value="50" id="ap-age" oninput="syncField('ap-age',this.value);calcAPACHE()" style="accent-color:#f59e0b">
      <input type="number" min="18" max="90" value="50" id="ap-age-n" oninput="syncField('ap-age',this.value);calcAPACHE()">
@@ -3319,7 +3372,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <!-- SECTION C: Chronic Health -->
-   <div style="background:#10b98108;border-radius:4px;padding:10px 10px 10px;margin-bottom:10px">
+   <div style="border-radius:4px;padding:10px 2px 10px;margin-bottom:10px">
    <div style="font-size:10px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:8px;border-left:3px solid #10b981">C — Chronic Health Points</div>
    <div style="margin-bottom:0">
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Severe organ insufficiency or immunocompromised?<br><span style="font-size:10px;color:var(--text-fainter)">(Liver cirrhosis · Portal HTN · NYHA IV · Severe COPD · Chronic dialysis · Immunosuppressed)</span></div>
@@ -3468,7 +3521,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
   <div class="calc-body" style="display:none">
 
-   <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+   <div style="background:var(--surface-deep);border-radius:4px;padding:8px 2px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
     <strong style="color:var(--text-strong)">Purpose:</strong> Grades severity of liver cirrhosis from 5 clinical/lab parameters — estimates prognosis and peri-operative risk.
    </div>
 
@@ -3637,11 +3690,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <button onclick="setCaUnit('us')" id="ca-unit-us" style="flex:1;padding:5px 0;border-radius: 4px;border:1px solid var(--border-strong);background:transparent;color:var(--text-faint);font-size:10.5px;font-weight:600;cursor:pointer">mg/dL · g/dL</button>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div id="ca-label" style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Serum Ca²⁺ (mmol/L)</div>
     <div class="field-inputs"><input type="range" min="1.5" max="3.5" step="0.05" value="2.0" id="ca-val" oninput="syncField('ca-val',this.value);calcCa()" style="accent-color:var(--accent)"><input type="number" min="1.5" max="3.5" step="0.05" value="2.0" id="ca-val-n" oninput="syncField('ca-val',this.value);calcCa()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div id="alb-label" style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Serum Albumin (g/L)</div>
     <div class="field-inputs"><input type="range" min="10" max="50" step="1" value="25" id="alb-val" oninput="syncField('alb-val',this.value);calcCa()" style="accent-color:var(--accent)"><input type="number" min="10" max="50" step="1" value="25" id="alb-val-n" oninput="syncField('alb-val',this.value);calcCa()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
@@ -3665,15 +3718,15 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-crcl')"><span class="calc-title-dot"></span><span>Creatinine Clearance / CrCl <span style="color:var(--text-faint);font-weight:400">(Cockcroft-Gault)</span></span><button type="button" class="calc-pin" data-cid="calccard-crcl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-crcl', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Age (years)</div>
     <div class="field-inputs"><input type="range" min="18" max="95" step="1" value="50" id="crcl-age" oninput="syncField('crcl-age',this.value);calcCrCl()" style="accent-color:#10b981"><input type="number" min="18" max="95" value="50" id="crcl-age-n" oninput="syncField('crcl-age',this.value);calcCrCl()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Weight (kg)</div>
     <div class="field-inputs"><input type="range" min="0.5" max="150" step="0.5" value="60" id="crcl-wt" oninput="syncGlobalWeight(this.value)" style="accent-color:#10b981"><input type="number" min="0.5" max="150" value="60" id="crcl-wt-n" oninput="syncGlobalWeight(this.value)" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">S. Creatinine (mg/dL)</div>
     <div class="field-inputs"><input type="range" min="0.4" max="15" step="0.1" value="1.0" id="crcl-cr" oninput="syncField('crcl-cr',this.value);calcCrCl()" style="accent-color:#10b981"><input type="number" min="0.4" max="15" step="0.1" value="1.0" id="crcl-cr-n" oninput="syncField('crcl-cr',this.value);calcCrCl()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
@@ -3884,11 +3937,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-map')"><span class="calc-title-dot"></span><span>MAP <span style="color:var(--text-faint);font-weight:400">(Mean Arterial Pressure)</span></span><button type="button" class="calc-pin" data-cid="calccard-map" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-map', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Systolic BP (mmHg)</div>
     <div class="field-inputs"><input type="range" min="60" max="220" step="1" value="120" id="map-sbp" oninput="syncField('map-sbp',this.value);calcMAP()" style="accent-color:#f59e0b"><input type="number" min="60" max="220" value="120" id="map-sbp-n" oninput="syncField('map-sbp',this.value);calcMAP()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Diastolic BP (mmHg)</div>
     <div class="field-inputs"><input type="range" min="30" max="140" step="1" value="80" id="map-dbp" oninput="syncField('map-dbp',this.value);calcMAP()" style="accent-color:#f59e0b"><input type="number" min="30" max="140" value="80" id="map-dbp-n" oninput="syncField('map-dbp',this.value);calcMAP()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
@@ -3925,7 +3978,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-title" onclick="toggleCalc('calccard-fwd')"><span class="calc-title-dot"></span><span>Free Water Deficit <span style="color:var(--text-faint);font-weight:400">(Hypernatraemia)</span></span><button type="button" class="calc-pin" data-cid="calccard-fwd" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-fwd', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Weight (kg)</div>
     <div class="field-inputs"><input type="range" min="0.5" max="150" step="0.5" value="60" id="fwd-wt" oninput="syncGlobalWeight(this.value)" style="accent-color:#0ea5e9"><input type="number" min="0.5" max="150" value="60" id="fwd-wt-n" oninput="syncGlobalWeight(this.value)" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
@@ -3936,11 +3989,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="fwd-sex" value="female" onchange="calcFWD()" style="accent-color:#0ea5e9"> Female</label>
     </div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Current Na⁺ (mEq/L)</div>
     <div class="field-inputs"><input type="range" min="130" max="200" step="1" value="160" id="fwd-na" oninput="syncField('fwd-na',this.value);calcFWD()" style="accent-color:#0ea5e9"><input type="number" min="130" max="200" value="160" id="fwd-na-n" oninput="syncField('fwd-na',this.value);calcFWD()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Target Na⁺ (mEq/L)</div>
     <div class="field-inputs"><input type="range" min="130" max="150" step="1" value="140" id="fwd-target" oninput="syncField('fwd-target',this.value);calcFWD()" style="accent-color:#0ea5e9"><input type="number" min="130" max="150" value="140" id="fwd-target-n" oninput="syncField('fwd-target',this.value);calcFWD()" style="width:52px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
@@ -4313,7 +4366,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-body" style="display:none">
 
   <!-- P/F calculator -->
-  <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 8px;margin-bottom:8px">
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
    <div style="font-size:10px;font-weight:700;color:var(--accent);margin-bottom:8px">📊 P/F Ratio Calculator</div>
    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
     <div>
@@ -4777,19 +4830,19 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
   <!-- Required fields -->
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:6px">
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Serum Na⁺ (mmol/L)</div>
     <div class="field-inputs"><input type="range" min="100" max="170" step="1" value="122" id="csw-sna" oninput="syncField('csw-sna',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="100" max="170" value="122" id="csw-sna-n" oninput="syncField('csw-sna',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Serum Osm (mOsm/kg)</div>
     <div class="field-inputs"><input type="range" min="240" max="295" step="1" value="268" id="csw-sosm" oninput="syncField('csw-sosm',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="240" max="295" value="268" id="csw-sosm-n" oninput="syncField('csw-sosm',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Urine Na⁺ (mmol/L)</div>
     <div class="field-inputs"><input type="range" min="10" max="200" step="5" value="80" id="csw-una" oninput="syncField('csw-una',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="10" max="200" value="80" id="csw-una-n" oninput="syncField('csw-una',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Urine Osm (mOsm/kg)</div>
     <div class="field-inputs"><input type="range" min="100" max="1200" step="10" value="600" id="csw-uosm" oninput="syncField('csw-uosm',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="100" max="1200" value="600" id="csw-uosm-n" oninput="syncField('csw-uosm',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
    </div>
@@ -4802,11 +4855,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </button>
    <div id="optional-fields" style="display:none;margin-top:5px">
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
-     <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px;border:1px dashed var(--border-accent)">
+     <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px;border:1px dashed var(--border-accent)">
       <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Serum Uric Acid (mg/dL)</div>
       <div class="field-inputs"><input type="range" min="1" max="10" step="0.5" value="3.5" id="csw-ua" oninput="syncField('csw-ua',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="1" max="10" step="0.5" value="3.5" id="csw-ua-n" oninput="syncField('csw-ua',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
      </div>
-     <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px;border:1px dashed var(--border-accent)">
+     <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px;border:1px dashed var(--border-accent)">
       <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">BUN / Creatinine Ratio</div>
       <div class="field-inputs"><input type="range" min="5" max="30" step="1" value="10" id="csw-bun" oninput="syncField('csw-bun',this.value);calcSIADH()" style="accent-color:var(--accent)"><input type="number" min="5" max="30" step="1" value="10" id="csw-bun-n" oninput="syncField('csw-bun',this.value);calcSIADH()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:3px;font-size:12px;text-align:center"></div>
      </div>
@@ -4888,7 +4941,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
 
    <!-- Glucose -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Blood Glucose (mmol/L)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="2" max="60" step="0.5" value="18" id="dka-gluc" oninput="syncField('dka-gluc',this.value);calcDKA()" style="flex:1;accent-color:#f59e0b">
@@ -4897,7 +4950,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <!-- pH -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Arterial pH</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="6.80" max="7.50" step="0.01" value="7.25" id="dka-ph" oninput="syncField('dka-ph',this.value);calcDKA()" style="flex:1;accent-color:#f59e0b">
@@ -4906,7 +4959,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <!-- HCO3 -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Bicarbonate (mEq/L)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="2" max="30" step="0.5" value="12" id="dka-hco3" oninput="syncField('dka-hco3',this.value);calcDKA()" style="flex:1;accent-color:#f59e0b">
@@ -4915,7 +4968,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <!-- Anion Gap -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Anion Gap (mEq/L) <span style="font-weight:400">Na−(Cl+HCO₃)</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="4" max="40" step="1" value="18" id="dka-ag" oninput="syncField('dka-ag',this.value);calcDKA()" style="flex:1;accent-color:#f59e0b">
@@ -4924,7 +4977,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <!-- Osmolality -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Eff. Osmolality (mOsm/kg) <span style="font-weight:400">2Na+Glu/18</span></div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="260" max="420" step="1" value="300" id="dka-osm" oninput="syncField('dka-osm',this.value);calcDKA()" style="flex:1;accent-color:#f59e0b">
@@ -4946,7 +4999,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
 
   <!-- Mental status -->
-  <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px;margin-bottom:8px">
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px;margin-bottom:8px">
    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px">Mental Status</div>
    <div style="display:flex;gap:5px;flex-wrap:wrap">
     <button onclick="dkaSetAMS('alert',this)" id="dka-ams-alert" class="ins-sens-btn ins-sens-active" style="font-size:10px;padding:4px 4px;flex:1">Alert</button>
@@ -4957,7 +5010,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
 
   <!-- SGLT2i / Pregnancy flag -->
-  <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 8px;margin-bottom:8px">
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:6px 2px;margin-bottom:8px">
    <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.4px">Clinical Context (check all that apply)</div>
    <div style="display:flex;flex-direction:column;gap:4px">
     <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text);cursor:pointer">
@@ -5282,7 +5335,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div class="ins-scale-row ins-scale-critical"><span>&gt; 22.0</span><span>10 units + call</span><span>12 units + call</span><span>14 units + call</span></div>
    </div>
 
-   <div id="ins-scale-highlight" style="background:var(--surface-deep);border-radius: 4px;padding:10px 12px;border:1px solid #06b6d440;margin-bottom:8px">
+   <div id="ins-scale-highlight" style="background:var(--surface-deep);border-radius: 4px;padding:10px 2px;border:1px solid #06b6d440;margin-bottom:8px">
     <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px">Enter CBG above (S/C Dosing tab) to see highlighted recommendation</div>
    </div>
 
@@ -5420,10 +5473,16 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   #calccard-eiw .eiw-card{
     background:transparent;
     border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);
-    border-radius:14px;
+    border-radius:4px;
     margin-bottom:14px;
     overflow:hidden;
   }
+  /* per-electrolyte outline colors */
+  #calccard-eiw #eiw-card0{  border-color: color-mix(in srgb, #3b82f6 40%, transparent); } /* Na — blue */
+  #calccard-eiw #eiw-card1{  border-color: color-mix(in srgb, #8b5cf6 40%, transparent); } /* K — violet */
+  #calccard-eiw #eiw-card0b{ border-color: color-mix(in srgb, #f59e0b 40%, transparent); } /* Ca — amber */
+  #calccard-eiw #eiw-card0c{ border-color: color-mix(in srgb, #10b981 40%, transparent); } /* Mg — green */
+  #calccard-eiw #eiw-card0d{ border-color: color-mix(in srgb, #06b6d4 40%, transparent); } /* PO4 — cyan */
 
   /* ===== COLLAPSED STATE (senior view) ===== */
   #calccard-eiw .eiw-card-header{
@@ -5432,8 +5491,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   }
   #calccard-eiw .eiw-card-title-group{ display:flex; align-items:center; gap:10px; }
   #calccard-eiw .eiw-card-icon{
-    min-width:40px; height:36px; padding:0 10px; border-radius:9px;
-    background:var(--sp-danger-bg); border:1px solid var(--sp-danger-border);
+    min-width:40px; height:36px; padding:0 10px; border-radius:4px;
+    background:color-mix(in srgb, var(--sp-danger-bg) 35%, transparent); border:1px solid var(--sp-danger-border);
     display:flex; align-items:center; justify-content:center;
     font-size:14px; font-weight:600; color:var(--sp-danger-text); flex-shrink:0;
     white-space:nowrap;
@@ -5456,9 +5515,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     padding-left:14px; position:relative;
     background:transparent; border:none;
     color:var(--accent);
+    text-align:justify; text-justify:inter-word;
   }
   #calccard-eiw .eiw-chip::before{
-    content:"•"; position:absolute; left:0; color:var(--accent);
+    content:"›"; position:absolute; left:0; top:-0.1em; color:var(--accent);
+    font-weight:700;
   }
   #calccard-eiw .eiw-chip.eiw-danger{ color:var(--sp-danger-text); }
   #calccard-eiw .eiw-chip.eiw-danger::before{ color:var(--sp-danger-text); }
@@ -5467,18 +5528,21 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   #calccard-eiw .eiw-card-body{
     max-height:0; overflow:hidden;
     transition:max-height 0.3s ease;
-    border-top:1px solid var(--border);
   }
   #calccard-eiw .eiw-card.eiw-open .eiw-card-body{ max-height:2600px; }
   #calccard-eiw .eiw-card-body-inner{ padding:16px; }
+  #calccard-eiw .eiw-steps-sep{
+    border-top:1px solid var(--border);
+    margin:0 0 16px 0;
+  }
 
   #calccard-eiw .eiw-step{
-    display:flex; gap:10px; margin-bottom:12px;
+    display:flex; gap:8px; margin-bottom:12px; margin-left:-3px;
   }
   #calccard-eiw .eiw-step-num{
-    width:22px; height:22px; border-radius:6px;
-    background:var(--accent-dim); color:var(--accent);
-    font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600;
+    width:19px; height:19px; border-radius:4px;
+    background:color-mix(in srgb, var(--accent-dim) 35%, transparent); color:var(--accent);
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; font-weight:600;
     display:flex; align-items:center; justify-content:center; flex-shrink:0;
     margin-top:1px;
   }
@@ -5486,9 +5550,10 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   #calccard-eiw .eiw-step-text b{ color:var(--text); }
   #calccard-eiw .eiw-dose{
     font-family:'IBM Plex Mono',monospace; font-size:12px;
-    color:var(--accent); background:var(--accent-dim);
-    padding:1px 6px; border-radius:5px; display:inline-block;
+    color:var(--accent); background:transparent;
+    padding:0; display:block;
     margin-top:3px;
+    text-align:justify; text-justify:inter-word;
   }
 
   #calccard-eiw .eiw-divider-label{
@@ -5498,10 +5563,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   }
 
   /* Pearls section - the senior value-add */
+  #calccard-eiw .eiw-pearls-sep{
+    border-top:1px dashed var(--border);
+    margin:16px 0 0 0;
+  }
   #calccard-eiw .eiw-pearls{
-    background:var(--sp-caution-bg);
-    border:1px solid var(--sp-caution-border);
-    border-radius:10px; padding:12px 14px; margin-top:14px;
+    background:transparent;
+    border:none;
+    padding:0; margin-top:14px;
   }
   #calccard-eiw .eiw-pearls-title{
     font-size:11.5px; font-weight:600; color:var(--sp-caution-text);
@@ -5511,6 +5580,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   #calccard-eiw .eiw-pearl-item{
     font-size:12.5px; line-height:1.5; color:var(--text);
     margin-bottom:7px; padding-left:14px; position:relative;
+    text-align:justify; text-justify:inter-word;
   }
   #calccard-eiw .eiw-pearl-item:last-child{ margin-bottom:0; }
   #calccard-eiw .eiw-pearl-item::before{
@@ -5520,6 +5590,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   #calccard-eiw .eiw-ref-tag{
     margin-top:14px; font-size:10px; color:var(--muted);
     font-family:'IBM Plex Mono',monospace;
+    text-align:justify; text-justify:inter-word;
   }
 
   /* Hyper/Hypo tab switch */
@@ -5529,12 +5600,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   }
   #calccard-eiw .eiw-subtab{
     flex:1; text-align:center; padding:8px 0;
-    border-radius:8px; font-size:12.5px; font-weight:600;
-    background:var(--surface2); border:1px solid var(--border);
+    border-radius:4px; font-size:12.5px; font-weight:600;
+    background:color-mix(in srgb, var(--surface2) 40%, transparent); border:1px solid var(--border);
     color:var(--muted); cursor:pointer;
   }
-  #calccard-eiw .eiw-subtab.eiw-active-hyper{ background:var(--sp-danger-bg); border-color:var(--sp-danger-border); color:var(--sp-danger-text); }
-  #calccard-eiw .eiw-subtab.eiw-active-hypo{ background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 40%, transparent); color:var(--accent); }
+  #calccard-eiw .eiw-subtab.eiw-active-hyper{ background:color-mix(in srgb, var(--sp-danger-bg) 35%, transparent); border-color:var(--sp-danger-border); color:var(--sp-danger-text); }
+  #calccard-eiw .eiw-subtab.eiw-active-hypo{ background:color-mix(in srgb, var(--accent-dim) 35%, transparent); border-color:color-mix(in srgb, var(--accent) 40%, transparent); color:var(--accent); }
   #calccard-eiw .eiw-subpanel{ display:none; }
   #calccard-eiw .eiw-subpanel.eiw-visible{ display:block; }
 
@@ -5545,6 +5616,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   }
   #calccard-eiw .eiw-ion.eiw-ion-sub{
     top:0.08em;
+  }
+  #calccard-eiw .eiw-ion.eiw-ion-num{
+    top:0em;
   }
  </style>
  <div class="calc-card" id="calccard-eiw">
@@ -5581,6 +5655,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
@@ -5618,7 +5693,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           </div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">In hypovolemic hyponatremia, volume replacement itself can suppress ADH and cause unintentionally rapid correction — monitor closely, not just the infusion rate</div>
@@ -5641,6 +5716,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
@@ -5686,7 +5762,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           </div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">Central DI classically post-neurosurgery/TBI/SAH — same population as SIADH/CSW, don't confuse direction of Na<span class="eiw-ion">⁺</span> change</div>
@@ -5732,6 +5808,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
   <div class="eiw-card-body">
     <div class="eiw-card-body-inner">
+      <div class="eiw-steps-sep"></div>
 
       <div class="eiw-step">
         <div class="eiw-step-num">1</div>
@@ -5768,7 +5845,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       </div>
 
       <div class="eiw-divider-label">If Hyperkalaemic Cardiac Arrest</div>
-      <div class="eiw-pearls" style="background:var(--sp-danger-bg); border-color:var(--sp-danger-border);">
+      <div class="eiw-pearls">
         <div class="eiw-pearls-title" style="color:var(--sp-danger-text);">⚠ Arrest-Specific Protocol</div>
         <div class="eiw-pearl-item" style="color:var(--text);">Calcium + Insulin/Dextrose as above, given as rapid IV push</div>
         <div class="eiw-pearl-item" style="color:var(--text);">Consider Sodium bicarbonate if severe concurrent acidosis</div>
@@ -5776,7 +5853,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
         <div class="eiw-pearl-item" style="color:var(--text);">Urgent RRT during resuscitation if refractory — involve renal team early</div>
       </div>
 
-      <div class="eiw-divider-label">Pearls</div>
+      <div class="eiw-pearls-sep"></div>
       <div class="eiw-pearls">
         <div class="eiw-pearls-title">⚠ Watch Out</div>
         <div class="eiw-pearl-item">Recheck glucose at 1h and 4h post insulin-dextrose — rebound hypoglycemia is the most missed complication</div>
@@ -5799,6 +5876,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
@@ -5829,10 +5907,10 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
         <div class="eiw-step">
           <div class="eiw-step-num">5</div>
-          <div class="eiw-step-text"><b>Always check & correct Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span></b> — hypokalemia is refractory to correction until magnesium is replaced</div>
+          <div class="eiw-step-text"><b>Always check & correct Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span></b> — hypokalemia is refractory to correction until magnesium is replaced</div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">A 1 mmol/L drop in serum K<span class="eiw-ion">⁺</span> can reflect a total body deficit of 200–400 mmol — serum level underestimates true deficit</div>
@@ -5849,9 +5927,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 <div class="eiw-card" id="eiw-card0b">
   <div class="eiw-card-header" onclick="document.getElementById('eiw-card0b').classList.toggle('eiw-open')">
     <div class="eiw-card-title-group">
-      <div class="eiw-card-icon" id="eiw-ca-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span></div>
+      <div class="eiw-card-icon" id="eiw-ca-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span></div>
       <div>
-        <div class="eiw-card-title">Calcium (Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>)</div>
+        <div class="eiw-card-title">Calcium (Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span>)</div>
         <div class="eiw-card-subtitle" id="eiw-ca-subtitle">Hypocalcemia · Emergency Mx</div>
       </div>
     </div>
@@ -5869,17 +5947,18 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="eiw-subpanel eiw-visible" id="eiw-ca-panel-hypo">
     <div class="eiw-quick-strip">
       <div class="eiw-chip eiw-danger">Symptomatic → Ca gluconate 10–20mL IV over 10min</div>
-      <div class="eiw-chip">Check & correct Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> first</div>
+      <div class="eiw-chip">Check & correct Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> first</div>
       <div class="eiw-chip">Central line preferred, ECG monitor</div>
     </div>
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
           <div class="eiw-step-text"><b>Confirm true hypocalcemia</b>
-            <div class="eiw-dose">Use ionized Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> if available; corrected Ca = measured Ca + [0.8 × (4 − albumin g/dL)]</div>
+            <div class="eiw-dose">Use ionized Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> if available; corrected Ca = measured Ca + [0.8 × (4 − albumin g/dL)]</div>
           </div>
         </div>
 
@@ -5907,19 +5986,19 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
         <div class="eiw-step">
           <div class="eiw-step-num">5</div>
-          <div class="eiw-step-text"><b>Always correct Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> first/alongside</b> — hypocalcemia won't correct until magnesium is replaced
+          <div class="eiw-step-text"><b>Always correct Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> first/alongside</b> — hypocalcemia won't correct until magnesium is replaced
             <div class="eiw-dose">Magnesium sulfate 1–2g IV bolus before/with calcium if symptomatic</div>
           </div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">Never mix calcium with phosphate or bicarbonate-containing solutions — precipitates</div>
           <div class="eiw-pearl-item">Rapid administration risks hypotension, bradycardia, arrhythmia, cardiac arrest — always give slow with ECG on</div>
           <div class="eiw-pearl-item">Prefer central line — peripheral extravasation of calcium causes tissue necrosis</div>
           <div class="eiw-pearl-item">Caution in patients on digoxin — calcium potentiates digoxin cardiotoxicity</div>
-          <div class="eiw-pearl-item">Recheck ionized Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> every 4–6h during active treatment; levels plateau ~10h post-infusion</div>
+          <div class="eiw-pearl-item">Recheck ionized Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> every 4–6h during active treatment; levels plateau ~10h post-infusion</div>
         </div>
 
         <div class="eiw-ref-tag">REF: NCBI StatPearls Calcium Gluconate · GGC Medicines Hypocalcaemia Guideline · JPEN 2005 (critically ill dosing)</div>
@@ -5937,11 +6016,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
           <div class="eiw-step-text"><b>Volume resuscitation first</b> — cornerstone of initial Mx
-            <div class="eiw-dose">IV isotonic saline to restore volume and promote renal Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> excretion; avoid diuretics until volume replete</div>
+            <div class="eiw-dose">IV isotonic saline to restore volume and promote renal Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> excretion; avoid diuretics until volume replete</div>
           </div>
         </div>
 
@@ -5979,7 +6059,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-step-text"><b>Dialysis</b> — if severe + renal failure or refractory to above, or life-threatening/cardiac symptoms</div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">Bisphosphonate max effect takes up to 7 days — don't expect immediate correction, calcitonin bridges the gap</div>
@@ -5997,9 +6077,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 <div class="eiw-card" id="eiw-card0c">
   <div class="eiw-card-header" onclick="document.getElementById('eiw-card0c').classList.toggle('eiw-open')">
     <div class="eiw-card-title-group">
-      <div class="eiw-card-icon" id="eiw-mg-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span></div>
+      <div class="eiw-card-icon" id="eiw-mg-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span></div>
       <div>
-        <div class="eiw-card-title">Magnesium (Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>)</div>
+        <div class="eiw-card-title">Magnesium (Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span>)</div>
         <div class="eiw-card-subtitle" id="eiw-mg-subtitle">Hypomagnesemia · Emergency Mx</div>
       </div>
     </div>
@@ -6018,11 +6098,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div class="eiw-quick-strip">
       <div class="eiw-chip eiw-danger">Severe/symptomatic → MgSO4 IV</div>
       <div class="eiw-chip">1g/hour infusion (standard)</div>
-      <div class="eiw-chip">Always check if K<span class="eiw-ion">⁺</span>/Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> refractory</div>
+      <div class="eiw-chip">Always check if K<span class="eiw-ion">⁺</span>/Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> refractory</div>
     </div>
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
@@ -6043,7 +6124,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-step-num">3</div>
           <div class="eiw-step-text"><b>Mild / maintenance</b> — oral route
             <div class="eiw-dose">Magnesium oxide 400mg PO BID, or Mg citrate 30mL BID via enteral tube</div>
-            <div class="eiw-dose" style="margin-top:5px;">Up to 24 mmol Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>/day in divided doses — take with food, diarrhea-limited</div>
+            <div class="eiw-dose" style="margin-top:5px;">Up to 24 mmol Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span>/day in divided doses — take with food, diarrhea-limited</div>
           </div>
         </div>
 
@@ -6056,10 +6137,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
         <div class="eiw-step">
           <div class="eiw-step-num">5</div>
-          <div class="eiw-step-text"><b>Always check when K<span class="eiw-ion">⁺</span>/Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> won't correct</b> — Mg deficiency blunts PTH secretion and causes renal K<span class="eiw-ion">⁺</span> wasting, making both refractory until Mg is replaced</div>
+          <div class="eiw-step-text"><b>Always check when K<span class="eiw-ion">⁺</span>/Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> won't correct</b>
+            <div class="eiw-dose">Mg deficiency blunts PTH secretion and causes renal K<span class="eiw-ion">⁺</span> wasting, making both refractory until Mg is replaced</div>
+          </div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">Alcohol use disorder classically causes combined hypomagnesemia + hypophosphatemia + hypokalemia + hypocalcemia — check all four together</div>
@@ -6082,6 +6165,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
@@ -6117,12 +6201,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           </div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">Symptoms rarely appear until Mg &gt;4 mEq/L — don't wait for symptoms in known renal failure patients on Mg-containing meds</div>
           <div class="eiw-pearl-item">Classic scenario: pre-eclampsia/eclampsia patient on MgSO4 infusion — watch DTRs (loss of patellar reflex is an early warning sign before respiratory depression)</div>
-          <div class="eiw-pearl-item">Dialysis can drop calcium too, worsening symptoms — monitor Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> alongside Mg during/after dialysis</div>
+          <div class="eiw-pearl-item">Dialysis can drop calcium too, worsening symptoms — monitor Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> alongside Mg during/after dialysis</div>
         </div>
 
         <div class="eiw-ref-tag">REF: NCBI StatPearls Hypermagnesemia · Merck Manual Hypermagnesemia · AHA Class IIb (cardiac arrest w/ hypermagnesemia)</div>
@@ -6135,9 +6219,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 <div class="eiw-card" id="eiw-card0d">
   <div class="eiw-card-header" onclick="document.getElementById('eiw-card0d').classList.toggle('eiw-open')">
     <div class="eiw-card-title-group">
-      <div class="eiw-card-icon" id="eiw-po4-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion">³</span><span class="eiw-ion">⁻</span></div>
+      <div class="eiw-card-icon" id="eiw-po4-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion eiw-ion-num">³</span><span class="eiw-ion">⁻</span></div>
       <div>
-        <div class="eiw-card-title">Phosphate (PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion">³</span><span class="eiw-ion">⁻</span>)</div>
+        <div class="eiw-card-title">Phosphate (PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion eiw-ion-num">³</span><span class="eiw-ion">⁻</span>)</div>
         <div class="eiw-card-subtitle" id="eiw-po4-subtitle">Hypophosphatemia · Emergency Mx</div>
       </div>
     </div>
@@ -6156,11 +6240,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div class="eiw-quick-strip">
       <div class="eiw-chip eiw-danger">&lt;1.0 mg/dL (0.3 mmol/L) → IV replace</div>
       <div class="eiw-chip">Refeeding: &lt;1.5 mg/dL (0.5 mmol/L)</div>
-      <div class="eiw-chip">Also replace K<span class="eiw-ion">⁺</span> + Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> together</div>
+      <div class="eiw-chip">Also replace K<span class="eiw-ion">⁺</span> + Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> together</div>
     </div>
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
@@ -6188,7 +6273,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
         <div class="eiw-step">
           <div class="eiw-step-num">4</div>
           <div class="eiw-step-text"><b>Refeeding — aggressive combined correction</b>
-            <div class="eiw-dose">Target K<span class="eiw-ion">⁺</span> &gt;4 mmol/L, Mg<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span> &gt;2 mg/dL alongside phosphate — replace all three together, don't treat phosphate in isolation</div>
+            <div class="eiw-dose">Target K<span class="eiw-ion">⁺</span> &gt;4 mmol/L, Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> &gt;2 mg/dL alongside phosphate — replace all three together, don't treat phosphate in isolation</div>
             <div class="eiw-dose" style="margin-top:5px;">Thiamine 100mg IV daily before/with refeeding in at-risk patients</div>
           </div>
         </div>
@@ -6200,7 +6285,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           </div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">Respiratory muscle weakness from hypophosphatemia can prolong ventilator weaning — correct before extubation attempts in borderline cases</div>
@@ -6216,13 +6301,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <!-- HYPERPHOSPHATEMIA PANEL -->
   <div class="eiw-subpanel" id="eiw-po4-panel-hyper">
     <div class="eiw-quick-strip">
-      <div class="eiw-chip eiw-danger">TLS classic cause → check K<span class="eiw-ion">⁺</span>, Ca<span class="eiw-ion">²</span><span class="eiw-ion">⁺</span>, uric acid together</div>
+      <div class="eiw-chip eiw-danger">TLS classic cause → check K<span class="eiw-ion">⁺</span>, Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span>, uric acid together</div>
       <div class="eiw-chip">Oral binders + hydration first</div>
       <div class="eiw-chip">Refractory/renal failure → dialysis</div>
     </div>
 
     <div class="eiw-card-body">
       <div class="eiw-card-body-inner">
+        <div class="eiw-steps-sep"></div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
@@ -6257,11 +6343,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           </div>
         </div>
 
-        <div class="eiw-divider-label">Pearls</div>
+        <div class="eiw-pearls-sep"></div>
         <div class="eiw-pearls">
           <div class="eiw-pearls-title">⚠ Watch Out</div>
           <div class="eiw-pearl-item">Tumor lysis syndrome = hyperphosphatemia + hyperkalemia + hyperuricemia + secondary hypocalcemia together — treat as a package, not isolated phosphate</div>
-          <div class="eiw-pearl-item">Calcium × phosphate product &gt;60 mg<span class="eiw-ion">²</span>/dL<span class="eiw-ion">²</span> sharply raises risk of metastatic calcification in kidney/heart — a key trigger to escalate care</div>
+          <div class="eiw-pearl-item">Calcium × phosphate product &gt;60 mg<span class="eiw-ion eiw-ion-num">²</span>/dL<span class="eiw-ion eiw-ion-num">²</span> sharply raises risk of metastatic calcification in kidney/heart — a key trigger to escalate care</div>
           <div class="eiw-pearl-item">Post-dialysis rebound hyperphosphatemia is common in TLS — recheck levels and consider CVVH to maintain control if recurring</div>
         </div>
 
@@ -6441,7 +6527,7 @@ function eiwSwitchPO4(which){
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
 
    <!-- Haemoglobin -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Hb (g/dL)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="3" max="20" step="0.1" value="12" id="cbc-hb" oninput="syncField('cbc-hb',this.value);calcCBC()" style="flex:1;accent-color:#ef4444">
@@ -6450,7 +6536,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <!-- Haematocrit -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Haematocrit (%)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="10" max="65" step="0.5" value="36" id="cbc-hct" oninput="syncField('cbc-hct',this.value);calcCBC()" style="flex:1;accent-color:#ef4444">
@@ -6459,7 +6545,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <!-- WBC -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">WBC (×10³/µL)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="0.5" max="50" step="0.1" value="8" id="cbc-wbc" oninput="syncField('cbc-wbc',this.value);calcCBC()" style="flex:1;accent-color:#f59e0b">
@@ -6468,7 +6554,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <!-- Platelets -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Platelets (×10³/µL)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="5" max="800" step="5" value="180" id="cbc-plt" oninput="syncField('cbc-plt',this.value);calcCBC()" style="flex:1;accent-color:var(--accent)">
@@ -6477,7 +6563,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <!-- MCV -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">MCV (fL)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="50" max="130" step="1" value="85" id="cbc-mcv" oninput="syncField('cbc-mcv',this.value);calcCBC()" style="flex:1;accent-color:var(--accent)">
@@ -6486,7 +6572,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <!-- MCH -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">MCH (pg)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="15" max="45" step="0.5" value="28" id="cbc-mch" oninput="syncField('cbc-mch',this.value);calcCBC()" style="flex:1;accent-color:var(--accent)">
@@ -6495,7 +6581,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <!-- Neutrophils % -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Neutrophils (%)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="0" max="100" step="1" value="65" id="cbc-neut" oninput="syncField('cbc-neut',this.value);calcCBC()" style="flex:1;accent-color:#f59e0b">
@@ -6504,7 +6590,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <!-- Lymphocytes % -->
-   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 6px">
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Lymphocytes (%)</div>
     <div style="display:flex;gap:4px;align-items:center">
      <input type="range" min="0" max="80" step="1" value="25" id="cbc-lymph" oninput="syncField('cbc-lymph',this.value);calcCBC()" style="flex:1;accent-color:#10b981">
@@ -6515,7 +6601,7 @@ function eiwSwitchPO4(which){
   </div><!-- /grid -->
 
   <!-- Calculated indices -->
-  <div id="cbc-indices-box" style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:8px">
+  <div id="cbc-indices-box" style="background:var(--surface-deep);border-radius: 4px;padding:7px 2px;margin-bottom:8px">
    <div style="font-size:9.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">Calculated Indices</div>
    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px">
     <div style="text-align:center">
@@ -6549,7 +6635,7 @@ function eiwSwitchPO4(which){
   </div>
 
   <!-- Quick reference -->
-  <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px">
+  <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
    <div style="font-size:9.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px">Normal Reference Ranges (Adult)</div>
    <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;font-size:10px">
     <div style="padding:3px 0;border-bottom:1px solid var(--border)"><span style="color:#ef4444;font-weight:600">Hb</span> <span style="color:var(--text-faint)">M: 13.5–17.5 | F: 12–16 g/dL</span></div>
@@ -8461,21 +8547,21 @@ function eiwSwitchPO4(which){
        <div class="gl-collapse-body" id="glc-anc-body">
        <div class="gl-formula"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">ANC = WBC × (%Neut + %Bands) ÷ 100</div></div>
        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 2px">
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">WBC (/μL)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="500" max="40000" step="100" value="4500" id="glcbc-anc-wbc" oninput="syncField('glcbc-anc-wbc',this.value);glcbcCalcANC()" style="flex:1;accent-color:#f59e0b">
           <input type="number" min="500" max="40000" step="100" value="4500" id="glcbc-anc-wbc-n" oninput="syncField('glcbc-anc-wbc',this.value);glcbcCalcANC()" style="width:56px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius:4px;color:var(--text);padding:3px;font-size:11px;font-weight:700;text-align:center">
          </div>
         </div>
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">% Neutrophils</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="0" max="100" step="1" value="40" id="glcbc-anc-neut" oninput="syncField('glcbc-anc-neut',this.value);glcbcCalcANC()" style="flex:1;accent-color:#f59e0b">
           <input type="number" min="0" max="100" step="1" value="40" id="glcbc-anc-neut-n" oninput="syncField('glcbc-anc-neut',this.value);glcbcCalcANC()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius:4px;color:var(--text);padding:3px;font-size:11px;font-weight:700;text-align:center">
          </div>
         </div>
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px;grid-column:1 / -1">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px;grid-column:1 / -1">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">% Bands</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="0" max="30" step="1" value="5" id="glcbc-anc-band" oninput="syncField('glcbc-anc-band',this.value);glcbcCalcANC()" style="flex:1;accent-color:#f59e0b">
@@ -8499,14 +8585,14 @@ function eiwSwitchPO4(which){
        <div class="gl-collapse-body" id="glc-retic-body" style="display:none">
        <div class="gl-formula"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">Corrected Retic = Retic% × (Hct ÷ 45)</div><div class="gl-formula-note">RPI = Corrected Retic ÷ Maturation Factor</div></div>
        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 2px">
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Retic (%)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="0" max="20" step="0.1" value="1.5" id="glcbc-retic-pct" oninput="syncField('glcbc-retic-pct',this.value);glcbcCalcRetic()" style="flex:1;accent-color:var(--accent)">
           <input type="number" min="0" max="20" step="0.1" value="1.5" id="glcbc-retic-pct-n" oninput="syncField('glcbc-retic-pct',this.value);glcbcCalcRetic()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius:4px;color:var(--text);padding:3px;font-size:11px;font-weight:700;text-align:center">
          </div>
         </div>
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Patient Hct (%)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="5" max="55" step="0.5" value="30" id="glcbc-retic-hct" oninput="syncField('glcbc-retic-hct',this.value);glcbcCalcRetic()" style="flex:1;accent-color:var(--accent)">
@@ -8531,14 +8617,14 @@ function eiwSwitchPO4(which){
        <div class="gl-collapse-body" id="glc-mentzer-body" style="display:none">
        <div class="gl-formula gl-amber"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">Mentzer = MCV ÷ RBC count (millions/μL)</div><div class="gl-formula-note">&gt;13 → IDA more likely · &lt;13 → Thalassaemia trait more likely. Unreliable if both coexist.</div></div>
        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 2px">
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">MCV (fL)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="50" max="120" step="1" value="75" id="glcbc-mentzer-mcv" oninput="syncField('glcbc-mentzer-mcv',this.value);glcbcCalcMentzer()" style="flex:1;accent-color:var(--accent)">
           <input type="number" min="50" max="120" step="1" value="75" id="glcbc-mentzer-mcv-n" oninput="syncField('glcbc-mentzer-mcv',this.value);glcbcCalcMentzer()" style="width:50px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius:4px;color:var(--text);padding:3px;font-size:11px;font-weight:700;text-align:center">
          </div>
         </div>
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">RBC (×10⁶/μL)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="2" max="7" step="0.1" value="4.5" id="glcbc-mentzer-rbc" oninput="syncField('glcbc-mentzer-rbc',this.value);glcbcCalcMentzer()" style="flex:1;accent-color:var(--accent)">
@@ -8562,14 +8648,14 @@ function eiwSwitchPO4(which){
        <div class="gl-collapse-body" id="glc-nlr-body" style="display:none">
        <div class="gl-formula"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">NLR = ANC ÷ ALC</div><div class="gl-formula-note">Sepsis severity &amp; prognostic marker — widely used in ICU</div></div>
        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 2px">
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Neutrophil (/μL)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="0" max="40000" step="100" value="6000" id="glcbc-nlr-n" oninput="syncField('glcbc-nlr-n',this.value);glcbcCalcNLR()" style="flex:1;accent-color:#f59e0b">
           <input type="number" min="0" max="40000" step="100" value="6000" id="glcbc-nlr-n-n" oninput="syncField('glcbc-nlr-n',this.value);glcbcCalcNLR()" style="width:56px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius:4px;color:var(--text);padding:3px;font-size:11px;font-weight:700;text-align:center">
          </div>
         </div>
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Lymphocyte (/μL)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="0" max="8000" step="50" value="1500" id="glcbc-nlr-l" oninput="syncField('glcbc-nlr-l',this.value);glcbcCalcNLR()" style="flex:1;accent-color:#10b981">
@@ -8594,14 +8680,14 @@ function eiwSwitchPO4(which){
        <div class="gl-collapse-body" id="glc-cwbc-body" style="display:none">
        <div class="gl-formula"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">Corrected WBC = (WBC × 100) ÷ (100 + nRBC/100 WBC)</div><div class="gl-formula-note">Corrects for nucleated RBCs miscounted as WBCs by automated counters</div></div>
        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 2px">
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">Uncorrected WBC (/μL)</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="500" max="50000" step="100" value="12000" id="glcbc-cwbc-wbc" oninput="syncField('glcbc-cwbc-wbc',this.value);glcbcCalcCWBC()" style="flex:1;accent-color:#f59e0b">
           <input type="number" min="500" max="50000" step="100" value="12000" id="glcbc-cwbc-wbc-n" oninput="syncField('glcbc-cwbc-wbc',this.value);glcbcCalcCWBC()" style="width:56px;background:var(--surface-input);border:1px solid var(--border-strong);border-radius:4px;color:var(--text);padding:3px;font-size:11px;font-weight:700;text-align:center">
          </div>
         </div>
-        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 6px">
+        <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">nRBC / 100 WBC</div>
          <div style="display:flex;gap:4px;align-items:center">
           <input type="range" min="0" max="100" step="1" value="5" id="glcbc-cwbc-nrbc" oninput="syncField('glcbc-cwbc-nrbc',this.value);glcbcCalcCWBC()" style="flex:1;accent-color:var(--accent)">
@@ -13881,7 +13967,7 @@ function calcCBC() {
  const overallColor = criticals.length > 0 ? '#ef4444' : hasAbnormal ? '#f59e0b' : '#10b981';
  const overallLabel = criticals.length > 0 ? '🚨 CRITICAL VALUES DETECTED' : hasAbnormal ? '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ABNORMAL — Review Required' : '✅ CBC Within Normal Limits';
 
- summaryEl.textContent = overallLabel;
+ summaryEl.innerHTML = overallLabel;
  summaryEl.style.color = overallColor;
  findingsEl.innerHTML  = findings.join('<br>');
  if (resultBox) resultBox.style.borderColor = overallColor + '50';
@@ -14537,7 +14623,7 @@ function dengueWarnCheck(el) {
   resEl.style.background = '#ef444422';
   resEl.style.border     = '1px solid #ef4444';
   resEl.style.color      = '#ef4444';
-  resEl.textContent      = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ' + checked + ' warning sign' + (checked > 1 ? 's' : '') + ' present — Hospital admission required';
+  resEl.innerHTML        = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ' + checked + ' warning sign' + (checked > 1 ? 's' : '') + ' present — Hospital admission required';
  }
 }
 
@@ -14662,25 +14748,42 @@ function calcInsDosingAll() {
 // ─────────────────────── APACHE II ───────────────────────
 var apacheO2Mode = 'pf';
 
+function toggleApRef(btn, id) {
+ const el = document.getElementById(id);
+ if (!el) return;
+ const opening = el.style.display !== 'block';
+ el.style.display = opening ? 'block' : 'none';
+ btn.classList.toggle('open', opening);
+}
+
 function setApacheO2(mode) {
  apacheO2Mode = mode;
  const pfRow   = document.getElementById('ap-pf-row');
  const pao2Row = document.getElementById('ap-pao2-row');
+ const pfLabel   = document.getElementById('ap-pf-label');
+ const pao2Label = document.getElementById('ap-pao2-label');
  const btnPF   = document.getElementById('ap-o2-pf');
  const btnPaO2 = document.getElementById('ap-o2-pao2');
- const activeS  = 'flex:1;padding:5px 0;border-radius: 4px;border:1px solid #ef4444;background:#ef444422;color:#ef4444;font-size:10.5px;font-weight:700;cursor:pointer';
- const inactiveS = 'flex:1;padding:5px 0;border-radius: 4px;border:1px solid var(--border-strong);background:transparent;color:var(--text-faint);font-size:10.5px;font-weight:600;cursor:pointer';
+ const activeS  = 'flex:1;padding:8px 4px;border:none;background:#ef444422;color:#ef4444;font-size:10.5px;font-weight:700;cursor:pointer';
+ const inactiveS = 'flex:1;padding:8px 4px;border:none;background:transparent;color:var(--text-faint);font-size:10.5px;font-weight:600;cursor:pointer';
  if (mode === 'pf') {
   if (pfRow)   pfRow.style.display   = '';
   if (pao2Row) pao2Row.style.display = 'none';
+  if (pfLabel)   pfLabel.style.display   = '';
+  if (pao2Label) pao2Label.style.display = 'none';
   if (btnPF)   btnPF.style.cssText   = activeS;
   if (btnPaO2) btnPaO2.style.cssText = inactiveS;
  } else {
   if (pfRow)   pfRow.style.display   = 'none';
   if (pao2Row) pao2Row.style.display = '';
+  if (pfLabel)   pfLabel.style.display   = 'none';
+  if (pao2Label) pao2Label.style.display = '';
   if (btnPF)   btnPF.style.cssText   = inactiveS;
   if (btnPaO2) btnPaO2.style.cssText = activeS;
  }
+ // collapse any open O2 reference text + reset its chevron when switching mode
+ ['ap-ref-aado2','ap-ref-pao2'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+ ['ap-refbtn-aado2','ap-refbtn-pao2'].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('open'); });
  calcAPACHE();
 }
 
@@ -14818,6 +14921,22 @@ function calcAPACHE() {
 
  const physTotal = tS + mapS + hrS + rrS + o2S + phS + naS + kS + crS + hctS + wbcS + gcsS;
 
+ // Live per-parameter point badges
+ const setBadge = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+ setBadge('ap-score-temp', tS);
+ setBadge('ap-score-map', mapS);
+ setBadge('ap-score-hr', hrS);
+ setBadge('ap-score-rr', rrS);
+ setBadge('ap-score-aado2', o2S);
+ setBadge('ap-score-pao2', o2S);
+ setBadge('ap-score-ph', phS);
+ setBadge('ap-score-na', naS);
+ setBadge('ap-score-k', kS);
+ setBadge('ap-score-cr', crS);
+ setBadge('ap-score-hct', hctS);
+ setBadge('ap-score-wbc', wbcS);
+ setBadge('ap-score-gcs', gcsS);
+
  // ── B: Age ──
  const age = parseFloat(document.getElementById('ap-age')?.value) || 50;
  let ageS = 0;
@@ -14826,6 +14945,7 @@ function calcAPACHE() {
  else if (age >= 55) ageS = 3;
  else if (age >= 45) ageS = 2;
  else                ageS = 0;
+ { const el = document.getElementById('ap-score-age'); if (el) el.textContent = ageS; }
 
  // ── C: Chronic ──
  const chronicS = parseInt(document.querySelector('input[name="ap-chronic"]:checked')?.value || 0);
@@ -14850,7 +14970,7 @@ function calcAPACHE() {
  if (totalEl) totalEl.textContent = total;
  if (mortEl)  { mortEl.textContent = mort; mortEl.style.color = color; }
  if (bkEl)    bkEl.textContent = 'Physiology: ' + physTotal + ' · Age: ' + ageS + ' · Chronic: ' + chronicS;
- if (intEl)   { intEl.textContent = interp; intEl.style.color = color; }
+ if (intEl)   { intEl.innerHTML = interp; intEl.style.color = color; }
  if (boxEl)   boxEl.style.borderColor = color + '60';
 }
 
@@ -17034,6 +17154,130 @@ function gsClose() {
 }
 
 window.addEventListener('load', function () { setTimeout(function () { gsBuildIndex(); gsLoadRecent(); }, 150); });
+
+// ═══════════════ Back button / back gesture handling ═══════════════
+// A single back press (or edge-swipe gesture) never exits the app — it
+// steps back through the last in-app "screen" that was opened (a calc
+// card, a tab switch, the menu, or global search), one step per press,
+// same as the user pressing an on-screen back/close control themselves.
+// Two RAPID back presses/gestures in quick succession (within
+// BACK_DOUBLE_MS) exit the app instead of stepping back.
+(function () {
+  var BACK_STACK = [];          // undo functions, most-recently-opened last
+  var BACK_DOUBLE_MS = 400;     // max gap between presses to count as "rapid"
+  var lastPopTime = 0;
+  var suppressPush = false;     // true while we are undoing (avoid re-recording it)
+
+  function armTrap() {
+    try { history.pushState({ backTrap: true }, '', location.href); } catch (e) {}
+  }
+  function recordBack(undoFn) {
+    if (!suppressPush) BACK_STACK.push(undoFn);
+  }
+
+  // ── toggleCalc: record only when a card is being OPENED ──
+  var _toggleCalc = window.toggleCalc;
+  window.toggleCalc = function (id) {
+    var card = document.getElementById(id);
+    var body = card ? card.querySelector('.calc-body') : null;
+    var wasOpen = !!(body && body.style.display !== 'none');
+    _toggleCalc(id);
+    if (!wasOpen) {
+      recordBack(function () {
+        var b = card && card.querySelector('.calc-body');
+        if (b && b.style.display !== 'none') { _toggleCalc(id); return true; }
+        return false;
+      });
+    }
+  };
+
+  // ── toggleDefibECG: same open/close pattern, used for the AFib/Flutter/
+  //    VT/VF/WCT expand sections in the Defib tab ──
+  var _toggleDefibECG = window.toggleDefibECG;
+  window.toggleDefibECG = function (id) {
+    var el = document.getElementById(id);
+    var wasOpen = !!(el && el.classList.contains('open'));
+    _toggleDefibECG(id);
+    if (!wasOpen) {
+      recordBack(function () {
+        var e2 = document.getElementById(id);
+        if (e2 && e2.classList.contains('open')) { _toggleDefibECG(id); return true; }
+        return false;
+      });
+    }
+  };
+
+  // ── showTab: record the previously active tab ──
+  var _showTab = window.showTab;
+  window.showTab = function (name, btn) {
+    var prevEl = document.querySelector('.tab-content.active');
+    var prevName = prevEl ? prevEl.id.replace('tab-', '') : null;
+    if (prevName && prevName !== name) {
+      recordBack(function () {
+        var tabEl = document.getElementById('tab-' + prevName);
+        if (tabEl && !tabEl.classList.contains('active')) {
+          var btns = document.querySelectorAll('.tab-btn');
+          var tabMap = { bolus: 0, infusion: 1, special: 2, defib: 3 };
+          var idx = tabMap[prevName];
+          if (idx !== undefined && btns[idx]) { _showTab(prevName, btns[idx]); return true; }
+        }
+        return false;
+      });
+    }
+    _showTab(name, btn);
+  };
+
+  // ── Hamburger menu ──
+  var _openMenu = window.openMenu;
+  window.openMenu = function () {
+    _openMenu();
+    recordBack(function () {
+      var panel = document.getElementById('menuPanel');
+      if (panel && panel.classList.contains('open')) { closeMenu(); return true; }
+      return false;
+    });
+  };
+
+  // ── Global search ──
+  var _gsOpen = window.gsOpen;
+  window.gsOpen = function () {
+    _gsOpen();
+    recordBack(function () {
+      var ov = document.getElementById('gsOverlay');
+      if (ov && ov.classList.contains('gs-active')) { gsClose(); return true; }
+      return false;
+    });
+  };
+
+  // ── The actual back press / gesture ──
+  window.addEventListener('popstate', function () {
+    var now = Date.now();
+    var rapid = (now - lastPopTime) < BACK_DOUBLE_MS;
+    lastPopTime = now;
+
+    if (rapid) {
+      // Second rapid press: exit instead of stepping back further. Works
+      // as an installed PWA/TWA (the standalone window closes); inside an
+      // ordinary browser tab, where script-initiated window.close() is
+      // restricted, the tab's own back/exit takes over on the next press.
+      try { window.close(); } catch (e) {}
+      return;
+    }
+
+    suppressPush = true;
+    while (BACK_STACK.length) {
+      var undo = BACK_STACK.pop();
+      var did = false;
+      try { did = undo(); } catch (e) { did = true; }
+      if (did) break;
+    }
+    suppressPush = false;
+
+    armTrap(); // stay captured for the next single press
+  });
+
+  armTrap();
+})();
 
 // ═══ PWA: register service worker + auto-update ═══
 if ('serviceWorker' in navigator) {
