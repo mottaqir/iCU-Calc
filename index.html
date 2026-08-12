@@ -904,10 +904,11 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
 }
 .rdac-dd.open .rdac-dd-chevron { transform: rotate(180deg); }
 .rdac-dd-panel {
-  display: none; position: absolute; top: calc(100% + 5px); left: 0; right: 0;
+  display: none; position: absolute; top: calc(100% + 5px); bottom: auto; left: 0; right: 0;
   max-height: 260px; overflow-y: auto; z-index: 40;
   background: var(--surface-deep); border: 1px solid var(--border-strong);
   border-radius: 4px; box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+  transition: top 0.15s ease, bottom 0.15s ease;
 }
 .rdac-dd.open .rdac-dd-panel { display: block; }
 .rdac-dd-searchrow { position: sticky; top: 0; background: var(--surface-deep); padding: 7px; border-bottom: 1px solid var(--border-strong); z-index: 1; }
@@ -929,6 +930,11 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
 .rdac-dd-opt.rdac-match {
   font-weight: 800; color: #eaf2ff;
   text-shadow: 0 0 10px rgba(59,130,246,0.95), 0 0 3px rgba(59,130,246,0.95);
+}
+.rdac-dd-tag {
+  font-family: var(--mono); font-size: 8.5px; font-weight: 700; letter-spacing: 0.3px;
+  color: var(--accent); background: var(--accent-dim); padding: 1px 6px;
+  border-radius: 20px; margin-left: 2px; text-transform: uppercase; white-space: nowrap;
 }
 .rdac-dose-box {
   padding: 10px 12px;
@@ -1300,6 +1306,7 @@ ul.vent-facts code{
   font-size: 9.5px; font-weight: 800; display: flex; align-items: center; justify-content: center;
   flex-shrink: 0; margin-top: 1px;
 }
+[data-theme="light"] .gl-step-num { color: #fff; }
 .gl-step-title { font-size: 11.5px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
 .gl-step-body { font-size: 10.5px; color: var(--muted); }
 
@@ -2158,6 +2165,15 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   100% { box-shadow: 0 0 0 0 rgba(88,166,255,0); }
 }
 .gs-highlight { animation: gsGlowPulse 1.1s ease-out 2; }
+.gs-word-highlight {
+  font-weight: 800; color: #eaf2ff;
+  animation: gsTextGlowPulse 1.1s ease-out 2;
+}
+@keyframes gsTextGlowPulse {
+  0%   { text-shadow: 0 0 0 rgba(59,130,246,0); }
+  50%  { text-shadow: 0 0 10px rgba(59,130,246,0.95), 0 0 3px rgba(59,130,246,0.95); }
+  100% { text-shadow: 0 0 0 rgba(59,130,246,0); }
+}
 
 /* ── Sepsis Guideline 2026 (SCCM/ESICM) (nested inside At a Glance) ── */
 .sep-strength {
@@ -9086,7 +9102,7 @@ function eiwSwitchPO4(which){
        </tr>`;
        g.drugs.forEach(d=>{
          html += `<tr>
-           <td class="abx-drug">${d.name}</td>
+           <td class="abx-drug"><span class="abx-drug-name">${d.name}</span></td>
            <td class="abx-cls">${d.cls}</td>
            <td class="abx-center">${abxDotsHtml(d.dots[0])}</td>
            <td class="abx-center">${abxDotsHtml(d.dots[1])}</td>
@@ -9158,7 +9174,7 @@ function eiwSwitchPO4(which){
        </tr>`;
        g.drugs.forEach(d=>{
          html += `<tr>
-           <td class="abx-drug">${d.name}${d.note?`<br><span style="font-weight:400;color:var(--muted);font-size:9.5px;">${d.note}</span>`:''}</td>
+           <td class="abx-drug"><span class="abx-drug-name">${d.name}</span>${d.note?`<br><span style="font-weight:400;color:var(--muted);font-size:9.5px;">${d.note}</span>`:''}</td>
            <td>${d.n}</td>
            <td>${d.m}</td>
            <td>${d.s}</td>
@@ -12388,7 +12404,7 @@ function rdacBuildDropdown() {
  html += '<div id="rdacDdOptsWrap">';
  rdacMainDropdownList.forEach(function(d) {
   html += '<div class="rdac-dd-opt" data-id="'+d.id+'" data-name="'+d.name.toLowerCase()+'" onclick="rdacSelectDrug(\''+d.id+'\')">'+d.name
-        + (d.type === 'note' ? '<span class="rdac-dd-tag">guided</span>' : '') + '</div>';
+        + (d.type === 'note' ? ' <span class="rdac-dd-tag">guided</span>' : '') + '</div>';
  });
  html += '<div id="rdacSearchEmpty" style="display:none;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">No match — full list shown below</div>';
  html += '</div>';
@@ -12421,6 +12437,28 @@ function rdacFitPanelToKeyboard() {
  }
 }
 
+function rdacAdjustDropdownPosition() {
+  var wrap = document.getElementById('rdacDdWrap');
+  var panel = document.getElementById('rdacDropPanel');
+  if (!wrap || !panel || !wrap.classList.contains('open')) return;
+  
+  setTimeout(function() {
+    var wrapRect = wrap.getBoundingClientRect();
+    var panelRect = panel.getBoundingClientRect();
+    var viewportHeight = window.innerHeight;
+    var buffer = 10;
+    
+    // If panel bottom extends past viewport (with buffer), flip to top
+    if (panelRect.bottom > viewportHeight - buffer) {
+      panel.style.top = 'auto';
+      panel.style.bottom = 'calc(100% + 5px)';
+    } else {
+      panel.style.top = 'calc(100% + 5px)';
+      panel.style.bottom = 'auto';
+    }
+  }, 0);
+}
+
 function rdacOpenSearch(e) {
  e.stopPropagation();
  rdacBuildDropdown();
@@ -12430,6 +12468,7 @@ function rdacOpenSearch(e) {
   var inp = document.getElementById('rdacSearchInput');
   if (inp) inp.focus();
   rdacFitPanelToKeyboard();
+  rdacAdjustDropdownPosition();
  }, 20);
 }
 
@@ -12451,6 +12490,7 @@ function rdacFilterDropdown(q) {
    panel.scrollTo({ top: Math.max(0, target), behavior: 'smooth' });
   });
  }
+ rdacAdjustDropdownPosition();
 }
 
 function rdacToggleDropdown(e) {
@@ -12459,7 +12499,10 @@ function rdacToggleDropdown(e) {
  var wrap = document.getElementById('rdacDdWrap');
  var wasOpen = wrap.classList.contains('open');
  rdacCloseDropdown();
- if (!wasOpen) wrap.classList.add('open');
+ if (!wasOpen) {
+  wrap.classList.add('open');
+  rdacAdjustDropdownPosition();
+ }
 }
 function rdacCloseDropdown() {
  var wrap = document.getElementById('rdacDdWrap');
@@ -16913,7 +16956,7 @@ function gsBuildIndex() {
     var tabEl = row.closest('.tab-content');
     var tabName = tabEl ? tabEl.id.replace('tab-', '') : null;
     if (!tabName) return;
-    gsIndex.push({ title: nameEl.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName), sub: gsGetTitle(card) });
+    gsIndex.push({ title: nameEl.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName), sub: gsGetTitle(card), highlightTarget: nameEl });
   });
   // Granular: individual lab parameters inside ICU Unit Converter
   document.querySelectorAll('.ucv-row .ucv-param').forEach(function (paramEl) {
@@ -16926,7 +16969,7 @@ function gsBuildIndex() {
     var clone = paramEl.cloneNode(true);
     var normEl = clone.querySelector('.ucv-normal');
     if (normEl) normEl.remove();
-    gsIndex.push({ title: clone.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName), sub: 'Unit Converter' });
+    gsIndex.push({ title: clone.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName), sub: 'Unit Converter', highlightTarget: paramEl });
   });
   // Granular: individual drugs/options inside Status Epilepticus (each lives in
   // its own inner gl-tab — e.g. Lorazepam is only visible on the "5-20" tab —
@@ -16944,7 +16987,7 @@ function gsBuildIndex() {
     clone.querySelectorAll('em').forEach(function (x) { x.remove(); });
     gsIndex.push({
       title: clone.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName),
-      sub: gsGetTitle(card), tabBtn: gsFindTabBtn(card, 'se', panelName)
+      sub: gsGetTitle(card), tabBtn: gsFindTabBtn(card, 'se', panelName), highlightTarget: nameEl
     });
   });
   // Granular: individual organisms inside the Antibiotic Coverage card
@@ -16958,7 +17001,7 @@ function gsBuildIndex() {
     if (!tabName) return;
     gsIndex.push({
       title: nameEl.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName),
-      sub: gsGetTitle(card), tabBtn: gsFindTabBtn(card, 'abx', 'lookup')
+      sub: gsGetTitle(card), tabBtn: gsFindTabBtn(card, 'abx', 'lookup'), highlightTarget: nameEl
     });
   });
   // Granular: individual diseases inside Haematology at a Glance (CBC card's
@@ -16978,6 +17021,34 @@ function gsBuildIndex() {
       sub: 'Haematology at a Glance', tabBtn: gsFindTabBtn(card, 'cbc', 'haem'),
       preAction: diseaseId ? function () { hgSetDisease(diseaseId); } : null,
       scrollTarget: document.getElementById('hg-rows')
+    });
+  });
+  // Granular: individual drugs inside the Antibiotic Coverage card's Spectrum
+  // table (lives on the "Spectrum" inner tab).
+  document.querySelectorAll('#abx-spectrumTable .abx-drug-name').forEach(function (nameEl) {
+    var row = nameEl.closest('tr');
+    var card = nameEl.closest('.gl-sub-card');
+    if (!row || !card) return;
+    var tabEl = row.closest('.tab-content');
+    var tabName = tabEl ? tabEl.id.replace('tab-', '') : null;
+    if (!tabName) return;
+    gsIndex.push({
+      title: nameEl.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName),
+      sub: gsGetTitle(card), tabBtn: gsFindTabBtn(card, 'abx', 'spectrum'), highlightTarget: nameEl
+    });
+  });
+  // Granular: individual drugs inside the Antibiotic Coverage card's Renal
+  // Dosing table (lives on the "Renal Dosing" inner tab).
+  document.querySelectorAll('#abx-renalTable .abx-drug-name').forEach(function (nameEl) {
+    var row = nameEl.closest('tr');
+    var card = nameEl.closest('.gl-sub-card');
+    if (!row || !card) return;
+    var tabEl = row.closest('.tab-content');
+    var tabName = tabEl ? tabEl.id.replace('tab-', '') : null;
+    if (!tabName) return;
+    gsIndex.push({
+      title: nameEl.textContent.trim(), el: row, tab: tabName, tag: gsTagFor(tabName),
+      sub: gsGetTitle(card), tabBtn: gsFindTabBtn(card, 'abx', 'renal'), highlightTarget: nameEl
     });
   });
 }
@@ -17076,7 +17147,25 @@ function gsSearch(q) {
     }
   });
   
-  var matches = titleMatches.concat(bodyMatches).slice(0, 10);
+  var combined = titleMatches.concat(bodyMatches);
+  // De-duplicate by DOM containment: when a specific match (e.g. a single drug
+  // row, or a card nested inside a broader category) and one of its own
+  // ancestors both match the same query, showing both is redundant — the
+  // ancestor's "match" is really just because the specific item's text lives
+  // inside it. Keep only the most specific (innermost) match in any such
+  // ancestor/descendant pair, so a broad category never crowds out — or
+  // duplicates — the exact card/row that actually matched.
+  var withEls = combined.map(function (m) {
+    return { item: m, el: m.el || (m.id ? document.getElementById(m.id) : null) };
+  });
+  var deduped = withEls.filter(function (r, idx) {
+    if (!r.el) return true;
+    return !withEls.some(function (other, j) {
+      return j !== idx && other.el && r.el !== other.el && r.el.contains(other.el);
+    });
+  }).map(function (r) { return r.item; });
+  
+  var matches = deduped.slice(0, 10);
   gsCurrentMatches = matches;
   if (matches.length === 0) {
     results.innerHTML = '<div class="gs-empty">No matches found</div>';
@@ -17127,9 +17216,16 @@ function gsNavigateToItem(item) {
     if (item.preAction) item.preAction();
     var scrollTarget = item.scrollTarget || target;
     scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    // For granular matches (a specific drug/parameter inside a row), only the
+    // matched text itself glows — not its whole row — so the highlight reads
+    // as "this is the word you searched for", not "this whole line changed".
+    // Card-level matches (no specific inner text element) still glow as a
+    // block, since there's no narrower target to point to.
+    var highlightEl = item.highlightTarget || scrollTarget;
+    var highlightClass = item.highlightTarget ? 'gs-word-highlight' : 'gs-highlight';
     setTimeout(function () {
-      scrollTarget.classList.add('gs-highlight');
-      setTimeout(function () { scrollTarget.classList.remove('gs-highlight'); }, 2300);
+      highlightEl.classList.add(highlightClass);
+      setTimeout(function () { highlightEl.classList.remove(highlightClass); }, 2300);
     }, 320);
   }, 130);
 }
