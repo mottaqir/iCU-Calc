@@ -11764,10 +11764,40 @@ function toggleDefibECG(id) { document.getElementById(id).classList.toggle('open
 
 function toggleAHT(id) { document.getElementById(id).classList.toggle('open'); }
 
+// Single shared clock driving every tab capsule's shine sweep. Reading a
+// mid-animation custom-property value back out via getComputedStyle proved
+// unreliable on mobile Chrome/WebView (it silently stopped advancing after
+// the first switch), so instead of trying to "read" the outgoing tab's
+// current angle, every tab's shine is computed from the same elapsed-time
+// formula. Whichever tab is active always shows exactly what this shared
+// clock says *right now*, so handing off between tabs is automatically
+// continuous — no capture/carry step needed.
+var TAB_SHINE_PERIOD_MS = 3200;
+var __tabShineEpoch = (window.performance && performance.now) ? performance.now() : Date.now();
+function currentShineAngleDeg() {
+  var now = (window.performance && performance.now) ? performance.now() : Date.now();
+  var elapsed = (now - __tabShineEpoch) % TAB_SHINE_PERIOD_MS;
+  return (elapsed / TAB_SHINE_PERIOD_MS) * 360;
+}
+
 function showTab(name, btn) {
  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
  document.getElementById('tab-' + name).classList.add('active');
+ // A negative animation-delay makes the browser act as though the animation
+ // had already been running for that long — it jumps straight into that
+ // point of the (always full-speed, always 0→360) cycle and keeps advancing
+ // normally from there. This is what actually gives seamless continuity:
+ // earlier we tried overriding the *starting value* of --tab-angle instead,
+ // but that turns every cycle into a shorter sweep toward a fixed 360deg
+ // endpoint — uneven speed, plus a visible backward snap every loop back to
+ // that starting value. Negative delay has neither problem.
+ btn.style.animationDelay = (-((currentShineAngleDeg() / 360) * TAB_SHINE_PERIOD_MS)) + 'ms';
+ // Force a reflow before re-adding .active: without this, removing and
+ // re-adding the same animated class in one synchronous tick gets coalesced
+ // by the browser (it never sees a real "stop"), so the delay we just set
+ // is ignored and the shine stops advancing.
+ void btn.offsetWidth;
  btn.classList.add('active');
  document.body.setAttribute('data-active-tab', name);
  if (name === 'bolus') renderBolus();
