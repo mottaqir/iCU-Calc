@@ -804,14 +804,21 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
    the row, just a title-badge — same "title badge, no content outline" treatment as
    the At a Glance sub-items — so every card in Special Calc looks consistent. */
 .ucv-sub-card { border: none; background: transparent; overflow: visible; margin-bottom: 5px; }
-/* Unit Converter: flat layout, no extra indent nesting — same minimal 2px
-   side padding convention used for calccard-syringe / calccard-glance. */
-#calccard-unitconv > .calc-body { padding-left: 2px; padding-right: 2px; }
-/* ...but the sub-headers themselves stay indented to align with where the
-   "Unit Converter" title text starts (2px card padding + 35px = 37px, matching
-   14px title padding + 15px chevron + 8px gap). Only the header row shifts —
-   the content below (.ucv-sub-body) is untouched and stays flush left. */
-#calccard-unitconv .ucv-sub-header { margin-left: 35px; }
+/* Unit Converter: sub-card left edge/width match the card's own title text,
+   set live by alignSubCardWidth('calccard-unitconv') (see script) once it
+   measures the title's actual rendered position — same treatment as
+   Ventilator Calculator, so both "Special Calc" cards read consistently.
+   This static rule is a fallback only, in effect briefly before that JS
+   runs on load (37px ≈ 14px title padding + 15px chevron + 8px gap, the
+   same math the title itself uses to position its own text). */
+#calccard-unitconv > .calc-body { padding-left: 37px; padding-right: 8px; }
+/* Sub-headers no longer get their own extra indent — the whole .calc-body
+   above is already offset to match the title, so header and content
+   (.ucv-sub-body) share the same left edge, exactly like Ventilator
+   Calculator's sub-cards. (Previously only the header itself was pushed
+   35px further right than its own content sat underneath it — a leftover
+   from when the body used a flat 2px side padding instead of matching the
+   title.) */
 .ucv-sub-header {
   display: flex; justify-content: space-between; align-items: center;
   padding: 6px 0; cursor: pointer;
@@ -823,10 +830,11 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
   color: var(--text-strong); padding: 4px 10px; border-radius: 3px;
   border: 1px solid var(--border); background: var(--surface2);
 }
-/* Unit Converter sub-category headers: no badge box — just the label text with
-   a short left accent tick sized to the text line itself (not the full row). */
+/* Unit Converter sub-category headers: no badge box, no accent tick — flush
+   plain text (matching the emoji+label) so the heading's left edge lines up
+   exactly with the content below it and with the card's own title. */
 #calccard-unitconv .ucv-sub-header > span:first-child {
-  padding: 0 0 0 8px; border-radius: 0; border: none; background: transparent;
+  padding: 0; border-radius: 0; border: none; background: transparent;
   line-height: 1; display: inline-block;
 }
 .ucv-sub-chevron { font-size: 9px; color: var(--muted); transition: transform .2s; }
@@ -863,6 +871,10 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
   font-weight: 400; text-align: center; width: 100%; min-width: 0;
 }
 .ucv-input:focus { outline: none; border-color: var(--accent); }
+/* Unit Converter: bold the entered values, matching Ventilator Calculator's
+   input styling (.vc-field input) so both cards' number fields read with
+   the same visual weight. */
+#calccard-unitconv .ucv-input { font-weight: 700; }
 .ucv-arrow { font-size: 14px; color: var(--muted); text-align: center; padding: 0 2px; }
 .ucv-clear { background: transparent; border: none; color: var(--faint); font-size: 13px; cursor: pointer; padding: 2px 4px; }
 
@@ -4642,8 +4654,20 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <style>
   #calccard-ventcalc .vc-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
   #calccard-ventcalc .vc-grid.vc-grid-3 { grid-template-columns:1fr 1fr 1fr; }
-  #calccard-ventcalc .vc-field { border-radius:4px; padding:6px 8px; }
-  #calccard-ventcalc .vc-field label { display:block; font-size:9.5px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.4px; margin-bottom:3px; }
+  /* No left/right padding: the label sits directly above the input, and
+     the input itself is the visual "box" (it already has its own border).
+     Padding here used to sit between the input's border and the field's
+     own edge, insetting every input row a further ~24px from the grid's
+     true right edge — visibly narrower than the flush vc-result box below
+     it, even though both share the same container. Zeroing it lets the
+     input's border land exactly on the grid column edge, flush with
+     vc-result. Kept as its own rule (not just deleted) so the reasoning
+     doesn't get lost if this needs revisiting later. */
+  #calccard-ventcalc .vc-field { border-radius:4px; padding:0; }
+  #calccard-ventcalc .vc-field label {
+   display:block; font-size:9.5px; color:var(--text-faint); text-transform:uppercase;
+   letter-spacing:0.4px; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
   #calccard-ventcalc .vc-field input, #calccard-ventcalc .vc-field select {
    width:100%; border-radius:4px;
    color:var(--text); padding:5px 6px; font-size:13px; font-weight:700; text-align:center; font-family:var(--heading);
@@ -4654,15 +4678,17 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   #calccard-ventcalc .vc-field select { background:var(--surface); border:1px solid var(--muted); }
   #calccard-ventcalc .vc-field input  { background:transparent; border:1px solid var(--border-strong); }
   #calccard-ventcalc .vc-field input:focus, #calccard-ventcalc .vc-field select:focus { outline:none; border-color:var(--accent); }
-  /* Sub-header: match Unit Converter's flat treatment — no title-badge box,
-     header row indented to align with the card title text. */
-  #calccard-ventcalc .ucv-sub-header { margin-left: 35px; }
+  /* Sub-header: match Unit Converter's flat treatment — no title-badge box.
+     Unlike Unit Converter, this card's own .calc-body padding-left (37px,
+     set below) already lands sub-cards flush with the title text, so no
+     extra per-header margin is needed here — adding one on top would
+     double the indent and eat into the width-matched content area. */
   #calccard-ventcalc .ucv-sub-header > span:first-child {
    padding: 0 0 0 8px; border-radius: 0; border: none; background: transparent;
    line-height: 1; display: inline-block;
   }
   #calccard-ventcalc .vc-formula { font-family:var(--mono); font-size:10.5px; color:var(--muted); margin-bottom:6px; }
-  #calccard-ventcalc .vc-desc { font-size:10.5px; color:var(--text-faint); line-height:1.55; margin-bottom:8px; }
+  #calccard-ventcalc .vc-desc { font-size:10.5px; color:var(--text-faint); line-height:1.55; margin-bottom:8px; text-align:justify; text-justify:inter-word; }
   #calccard-ventcalc .vc-result {
    border-radius:4px; padding:10px 12px; margin:8px 0; text-align:center;
    background:var(--sp-none-bg); border:1px solid var(--sp-none-border);
@@ -4695,10 +4721,58 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   }
   #calccard-ventcalc .vc-strategy-btn.active { background:var(--accent-dim); border-color:var(--accent); color:var(--accent); }
   #calccard-ventcalc .vc-peep-table-wrap { overflow-x:auto; }
-  #calccard-ventcalc .vc-peep-table { width:100%; border-collapse:collapse; font-size:11px; margin-top:2px; }
+  #calccard-ventcalc .vc-peep-table { width:100%; border-collapse:separate; border-spacing:0; font-size:11px; margin-top:2px; }
   #calccard-ventcalc .vc-peep-table th, #calccard-ventcalc .vc-peep-table td { border:1px solid var(--border); padding:5px 4px; text-align:center; white-space:nowrap; }
   #calccard-ventcalc .vc-peep-table th { background:var(--surface2); font-weight:700; color:var(--text-muted); font-size:9.5px; }
+  /* First column (FiO2 / PEEP row labels) stays pinned to the left edge while
+     the value cells scroll underneath it horizontally — sticky needs its own
+     opaque background + a trailing shadow, or scrolling content would show
+     through/behind it. */
+  #calccard-ventcalc .vc-peep-table th:first-child {
+   position:sticky; left:0; z-index:2; background:var(--surface2);
+   box-shadow:2px 0 4px rgba(0,0,0,0.25);
+  }
   #calccard-ventcalc .vc-peep-table td.hl { background:var(--accent-dim); color:var(--accent); font-weight:800; }
+  /* Custom centered FiO2 picker — replaces the native <select> so mobile
+     browsers don't fall back to their own OS picker sheet. */
+  #calccard-ventcalc .vc-peep-dd-trigger {
+   width:100%; display:flex; align-items:center; justify-content:center; gap:6px;
+   background:var(--surface); border:1px solid var(--muted); border-radius:4px;
+   color:var(--text); padding:5px 6px; font-size:13px; font-weight:700; font-family:var(--heading);
+   cursor:pointer;
+  }
+  #calccard-ventcalc .vc-peep-dd-trigger:focus { outline:none; border-color:var(--accent); }
+  #calccard-ventcalc .vc-peep-dd-chevron {
+   width:11px; height:11px; flex-shrink:0; background:var(--muted); transition:transform .15s;
+   -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+   mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+   -webkit-mask-repeat:no-repeat; mask-repeat:no-repeat; -webkit-mask-position:center; mask-position:center;
+   -webkit-mask-size:contain; mask-size:contain;
+  }
+  #calccard-ventcalc .vc-peep-dd-overlay {
+   display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.6);
+   align-items:center; justify-content:center; padding:24px;
+  }
+  #calccard-ventcalc .vc-peep-dd-overlay.open { display:flex; }
+  #calccard-ventcalc .vc-peep-dd-panel {
+   background:var(--surface-deep); border:1px solid var(--border-strong); border-radius:10px;
+   width:100%; max-width:280px; max-height:70vh; overflow-y:auto; box-shadow:0 12px 32px rgba(0,0,0,0.5);
+  }
+  #calccard-ventcalc .vc-peep-dd-option {
+   padding:5px 6px; font-size:13px; font-weight:700; text-align:center; color:var(--text);
+   font-family:var(--heading); border-top:1px solid var(--border); cursor:pointer;
+  }
+  #calccard-ventcalc .vc-peep-dd-option:first-child { border-top:none; }
+  #calccard-ventcalc .vc-peep-dd-option:hover { background:rgba(255,255,255,0.06); }
+  #calccard-ventcalc .vc-peep-dd-option.active { background:var(--accent-dim); color:var(--accent); }
+  /* Fallback only — vcAlignContentWidth() (see script) sets the real
+     left-offset and width directly as inline styles on .calc-body and each
+     .ucv-sub-card once it measures the title's actual rendered position, so
+     these values only apply briefly before that JS runs on load. */
+  #calccard-ventcalc > .calc-body {
+    padding-left: 37px;
+    padding-right: 8px;
+  }
  </style>
  <div class="calc-card" id="calccard-ventcalc">
  <div class="calc-title" onclick="toggleCalc('calccard-ventcalc')"><span class="calc-title-dot"></span><span>Ventilator Calculator <span style="color:var(--text-faint);font-weight:400">— Mechanics, Weaning &amp; Oxygenation</span></span><button type="button" class="calc-pin" data-cid="calccard-ventcalc" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-ventcalc', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
@@ -4796,17 +4870,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      <div class="vc-strategy-btn" id="vc-peep-strat-high" onclick="vcPeepStrategy('high')">Higher PEEP /<br>Lower FiO₂</div>
     </div>
     <div class="vc-field" style="margin-bottom:8px">
-     <label for="vc-peep-fio2">FiO₂</label>
-     <select id="vc-peep-fio2" onchange="vcRenderPeepTable()">
-      <option value="0.3">0.3</option>
-      <option value="0.4">0.4</option>
-      <option value="0.5">0.5</option>
-      <option value="0.6" selected>0.6</option>
-      <option value="0.7">0.7</option>
-      <option value="0.8">0.8</option>
-      <option value="0.9">0.9</option>
-      <option value="1.0">1.0</option>
-     </select>
+     <label for="vc-peep-fio2-trigger">FiO₂</label>
+     <button type="button" class="vc-peep-dd-trigger" id="vc-peep-fio2-trigger" onclick="vcPeepDDOpen()">
+      <span id="vc-peep-fio2-label">0.6</span><span class="vc-peep-dd-chevron"></span>
+     </button>
+    </div>
+    <div class="vc-peep-dd-overlay" id="vc-peep-dd-overlay" onclick="vcPeepDDClose(event)">
+     <div class="vc-peep-dd-panel" id="vc-peep-dd-panel"></div>
     </div>
     <div class="vc-peep-table-wrap"><table class="vc-peep-table" id="vc-peep-table"></table></div>
     <div class="vc-desc" style="margin-top:8px">Approximate values reproduced from the published ARMA/ARDSnet protocol card — verify against your unit's primary protocol before clinical use.</div>
@@ -4819,7 +4889,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div class="ucv-sub-body" style="display:none">
     <div class="vc-formula">RC = Compliance(L/cmH₂O) × Resistance(cmH₂O/L/s)</div>
     <div class="vc-desc">Checks whether expiratory time is adequate — useful in COPD/asthma where air trapping and auto-PEEP are a concern. ~3 time constants ≈ 95% exhalation.</div>
-    <div class="vc-grid">
+    <div class="vc-grid" style="grid-template-columns:1.3fr 1fr">
      <div class="vc-field"><label for="vc-rc-comp">Compliance (mL/cmH₂O)</label><input type="number" step="1" id="vc-rc-comp" oninput="vcCalcRC()" placeholder="45"></div>
      <div class="vc-field"><label for="vc-rc-res">Resistance (cmH₂O/L/s)</label><input type="number" step="0.1" id="vc-rc-res" oninput="vcCalcRC()" placeholder="18"></div>
     </div>
@@ -7570,17 +7640,17 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div style="font-size:10px;color:var(--text-faint);margin-bottom:6px;padding:0 2px">Formula: 2×Na + Glucose(mg/dL)/18 + BUN/2.8</div>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
-     <div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:3px">Na⁺ (mEq/L)</div>
+    <div style="display:grid;grid-template-columns:2fr 2.75fr 2.25fr;gap:6px;margin-bottom:8px">
+     <div style="min-width:0">
+      <div style="font-size:10px;color:var(--text-faint);margin-bottom:3px;white-space:nowrap;text-align:center">Na⁺ (mEq/L)</div>
       <input type="number" id="ucv-osm-na" placeholder="140" min="100" max="180" oninput="ucvCalcOsm()" style="width:100%;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:6px 8px;font-size:13px;font-weight:700;text-align:center">
      </div>
-     <div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:3px">Glucose (mg/dL)</div>
+     <div style="min-width:0">
+      <div style="font-size:10px;color:var(--text-faint);margin-bottom:3px;white-space:nowrap;text-align:center">Glucose (mg/dL)</div>
       <input type="number" id="ucv-osm-gluc" placeholder="90" min="20" max="800" oninput="ucvCalcOsm()" style="width:100%;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:6px 8px;font-size:13px;font-weight:700;text-align:center">
      </div>
-     <div>
-      <div style="font-size:10px;color:var(--text-faint);margin-bottom:3px">BUN (mg/dL)</div>
+     <div style="min-width:0">
+      <div style="font-size:10px;color:var(--text-faint);margin-bottom:3px;white-space:nowrap;text-align:center">BUN (mg/dL)</div>
       <input type="number" id="ucv-osm-bun" placeholder="15" min="0" max="200" oninput="ucvCalcOsm()" style="width:100%;background:var(--surface-input);border:1px solid var(--border-strong);border-radius: 4px;color:var(--text);padding:6px 8px;font-size:13px;font-weight:700;text-align:center">
      </div>
     </div>
@@ -11806,6 +11876,7 @@ function showTab(name, btn) {
  } else if (typeof specialGapModeOff === 'function') {
   specialGapModeOff();
  }
+ if (name === 'special' && typeof alignAllSubCardWidths === 'function') setTimeout(alignAllSubCardWidths, 50);
  if (name === 'defib' && typeof fitEcgTitle === 'function') fitEcgTitle();
  if (typeof fitAllDrugNames === 'function') fitAllDrugNames();
  if (typeof navSaveState === 'function') navSaveState();
@@ -13857,11 +13928,31 @@ function vcFio2Matches(entryFio2, selected) {
   var parts = String(entryFio2).split('\u2013').map(function (p) { return parseFloat(p); });
   return selected >= parts[0] - 0.001 && selected <= parts[1] + 0.001;
 }
+// ─── Custom centered FiO2 picker (replaces native <select>) ───
+var vcPeepFio2Options = ['0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1.0'];
+var vcPeepFio2Val = '0.6';
+function vcPeepDDOpen() {
+  var panel = document.getElementById('vc-peep-dd-panel');
+  if (!panel) return;
+  panel.innerHTML = vcPeepFio2Options.map(function (v) {
+    return '<div class="vc-peep-dd-option' + (v === vcPeepFio2Val ? ' active' : '') + '" onclick="vcPeepDDSelect(\'' + v + '\')">' + v + '</div>';
+  }).join('');
+  document.getElementById('vc-peep-dd-overlay').classList.add('open');
+}
+function vcPeepDDClose(e) {
+  if (e && e.target && e.target.id !== 'vc-peep-dd-overlay') return;
+  document.getElementById('vc-peep-dd-overlay').classList.remove('open');
+}
+function vcPeepDDSelect(v) {
+  vcPeepFio2Val = v;
+  document.getElementById('vc-peep-fio2-label').textContent = v;
+  document.getElementById('vc-peep-dd-overlay').classList.remove('open');
+  vcRenderPeepTable();
+}
 function vcRenderPeepTable() {
-  var fio2El = document.getElementById('vc-peep-fio2');
   var tableEl = document.getElementById('vc-peep-table');
-  if (!fio2El || !tableEl) return;
-  var sel = parseFloat(fio2El.value);
+  if (!tableEl) return;
+  var sel = parseFloat(vcPeepFio2Val);
   var rows = vcPeepTables[vcPeepStrat];
   var fio2Row = '<tr><th style="text-align:left">FiO₂</th>';
   var peepRow = '<tr><th style="text-align:left">PEEP</th>';
@@ -13874,6 +13965,17 @@ function vcRenderPeepTable() {
   fio2Row += '</tr>';
   peepRow += '</tr>';
   tableEl.innerHTML = fio2Row + peepRow;
+}
+
+function vcMatchCompWidth() {
+  var label = document.querySelector('label[for="vc-rc-comp"]');
+  var input = document.getElementById('vc-rc-comp');
+  if (!label || !input) return;
+  var prevDisplay = label.style.display;
+  label.style.display = 'inline-block';
+  var w = label.scrollWidth;
+  label.style.display = prevDisplay;
+  if (w > 0) input.style.width = w + 'px';
 }
 
 function vcCalcRC() {
@@ -14459,6 +14561,7 @@ function ucvToggle(key) {
  const isOpen = body.style.display !== 'none';
  body.style.display = isOpen ? 'none' : '';
  if (chevron) chevron.style.transform = isOpen ? '' : 'rotate(180deg)';
+ if (key === 'vcrc' && !isOpen && typeof vcMatchCompWidth === 'function') vcMatchCompWidth();
 }
 
 var ucvFactors = {
@@ -15915,6 +16018,12 @@ function toggleCalc(id) {
   if (!isOpen && id === 'calccard-gcs' && typeof gcsAlignVerbalToggle === 'function') {
     requestAnimationFrame(gcsAlignVerbalToggle);
   }
+  if (!isOpen && id === 'calccard-ventcalc' && typeof vcAlignContentWidth === 'function') {
+    requestAnimationFrame(vcAlignContentWidth);
+  }
+  if (!isOpen && id === 'calccard-unitconv' && typeof ucvAlignContentWidth === 'function') {
+    requestAnimationFrame(ucvAlignContentWidth);
+  }
 }
 
 /* The Non-intubated/Intubated toggle box under "Verbal Response (V)" is sized
@@ -16419,9 +16528,69 @@ try { hgInit(); } catch(e) {}
   function fitAllDrugNames() {
     document.querySelectorAll('.drug-name').forEach(fitOneDrugName);
   }
+  // Align every calculator sub-card's left edge and width to exactly where a
+  // card's own title text starts and how far its first line runs (e.g. up to
+  // "…Weaning" before it wraps to "& Oxygenation"). Both are measured live
+  // off the real rendered title, not hand-calculated from the title's
+  // padding/icon/gap CSS values — a hard-coded offset kept being slightly
+  // wrong against actual rendering, so this reads the true position/width
+  // directly instead of trying to re-derive it.
+  // Shared by every card that wants its sub-cards flush with its own title
+  // (currently Ventilator Calculator and Unit Converter) rather than
+  // duplicating this per card.
+  function alignSubCardWidth(cardId) {
+    var card = document.getElementById(cardId);
+    if (!card) return;
+    var body = card.querySelector(':scope > .calc-body');
+    var titleTextEl = card.querySelector('.calc-title > span:not(.calc-title-dot)');
+    if (!titleTextEl || !body) return;
+    var range = document.createRange();
+    range.selectNodeContents(titleTextEl);
+    var rects = range.getClientRects();
+    if (rects.length === 0) return;
+    // The title text is split across two inline elements (the muted
+    // "— Mechanics…"/"— Bidirectional…" portion is its own nested <span>),
+    // so getClientRects() returns a separate rect at that element boundary
+    // even when both runs sit on the same visual line — trusting rects[0]
+    // alone only measures the bold lead-in and cuts the box far too narrow.
+    // Instead, group every rect that shares line 1's vertical position and
+    // take their combined left-to-right span as the true first-line width.
+    var lineTop = rects[0].top;
+    var left = Infinity, right = -Infinity;
+    for (var i = 0; i < rects.length; i++) {
+      if (Math.abs(rects[i].top - lineTop) < 2) {
+        left = Math.min(left, rects[i].left);
+        right = Math.max(right, rects[i].right);
+      }
+    }
+    var firstLineWidth = right - left;
+    var cardLeft = card.getBoundingClientRect().left;
+    var textLeftOffset = left - cardLeft;
+    // Sanity floor: legitimate values here should never be this small on any
+    // real device. If measurement ever misfires again, fail open (leave the
+    // previous/default styling) rather than silently collapsing every
+    // calculator into an unusable narrow or misaligned column.
+    // Applied directly on the elements (not via a CSS custom property) so
+    // there's no inheritance/cascade indirection that could silently fail.
+    if (textLeftOffset > 10) body.style.paddingLeft = textLeftOffset + 'px';
+    if (firstLineWidth > 150) {
+      body.querySelectorAll(':scope > .ucv-sub-card').forEach(function (sc) {
+        sc.style.maxWidth = firstLineWidth + 'px';
+      });
+    }
+  }
+  function vcAlignContentWidth() { alignSubCardWidth('calccard-ventcalc'); }
+  function ucvAlignContentWidth() { alignSubCardWidth('calccard-unitconv'); }
+  function alignAllSubCardWidths() {
+    vcAlignContentWidth();
+    ucvAlignContentWidth();
+  }
+  window.addEventListener('load', function () { setTimeout(alignAllSubCardWidths, 150); });
+  window.addEventListener('resize', alignAllSubCardWidths);
   function runWhenReady4() {
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(fitAllDrugNames);
+      document.fonts.ready.then(alignAllSubCardWidths);
     } else {
       fitAllDrugNames();
     }
@@ -16437,6 +16606,17 @@ try { hgInit(); } catch(e) {}
     clearTimeout(_rzTimer4);
     _rzTimer4 = setTimeout(fitAllDrugNames, 150);
   });
+  // Exposed globally: toggleCalc() and the tab-switch handler call these by
+  // name via `typeof ... === 'function'` checks from outside this IIFE, so
+  // without this they'd silently no-op (typeof on an out-of-scope name is
+  // just 'undefined', not an error) — the accordion-open and tab-switch
+  // recalculation triggers would quietly never fire. The window-load/resize/
+  // fonts.ready listeners above already call them directly by reference and
+  // don't need this, but those alone can miss a resize-free layout shift
+  // (e.g. opening the accordion after fonts/layout already settled).
+  window.vcAlignContentWidth = vcAlignContentWidth;
+  window.ucvAlignContentWidth = ucvAlignContentWidth;
+  window.alignAllSubCardWidths = alignAllSubCardWidths;
 })();
 
 /* ══════════ Syringe Pump Dose Calculator (embedded) JS ══════════ */
