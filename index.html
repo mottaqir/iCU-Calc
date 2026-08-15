@@ -279,6 +279,14 @@ body:not([data-theme="light"]) .tab-btn.active {
 }
 #tab-special.active > * { flex-shrink: 0; }
 
+/* Cardio/Defib: identical "everything fits, equal gaps" treatment as Special
+   Calc — see syncDefibGaps() in the script below for the pixel math. */
+#tab-defib.active {
+  display: flex; flex-direction: column; justify-content: flex-start;
+  flex-shrink: 0;
+}
+#tab-defib.active > * { flex-shrink: 0; }
+
 /* ── Formula Banner ── */
 .formula-banner {
   background: transparent; border: none;
@@ -719,6 +727,7 @@ input[type=range]::-moz-range-progress {
 #tab-defib > #calccard-ecgemerg,
 #tab-defib > #calccard-aht,
 #tab-defib > #calccard-af,
+#tab-defib > #calccard-wct,
 #tab-defib > #calccard-svt,
 #tab-defib > #calccard-bls { margin-bottom: 0px; }
 #tab-defib > .calc-card > .calc-title {
@@ -2548,7 +2557,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-header" onclick="toggleCard('nora')">
  <div class="drug-dot" style="background:#ef4444"></div>
  <div style="flex:1"><div class="drug-name">Noradrenaline / Norepinephrine</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
- <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-nora">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#22c55e" id="rate-nora">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="card-wt-row">
@@ -2556,8 +2565,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <input type="range" id="cwt-nora" min="0.5" max="150" step="0.5" value="60" oninput="cwtSync('nora',this.value)" style="accent-color:#60a5fa">
 </div>
  <div class="dose-row">
- <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#ef4444"><span id="dv-nora">0.100</span> mcg/kg/min</span></div>
- <input type="range" id="range-nora" min="0.05" max="1" step="0.025" value="0.1" oninput="calcNora(this.value)" style="accent-color:#ef4444">
+ <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#22c55e"><span id="dv-nora">0.100</span> mcg/kg/min</span></div>
+ <input type="range" id="range-nora" min="0.05" max="1" step="0.025" value="0.1" oninput="calcNora(this.value)" style="accent-color:#22c55e">
  <div class="range-limits"><span>0.05</span><span>1.0</span></div>
  </div>
  <div class="note-box"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Do NOT use NS &mdash; unstable in normal saline</div>
@@ -6476,6 +6485,25 @@ function eiwSwitchK(which){
   }
 }
 
+function wctSwitch(which){
+  const panelMono = document.getElementById('wct-panel-mono');
+  const panelPoly = document.getElementById('wct-panel-poly');
+  const tabMono = document.getElementById('wct-tab-mono');
+  const tabPoly = document.getElementById('wct-tab-poly');
+
+  if(which === 'poly'){
+    panelPoly.classList.add('wct-visible');
+    panelMono.classList.remove('wct-visible');
+    tabPoly.classList.add('wct-active-poly');
+    tabMono.classList.remove('wct-active-mono');
+  } else {
+    panelMono.classList.add('wct-visible');
+    panelPoly.classList.remove('wct-visible');
+    tabMono.classList.add('wct-active-mono');
+    tabPoly.classList.remove('wct-active-poly');
+  }
+}
+
 function eiwSwitchNa(which){
   const panelHyper = document.getElementById('eiw-na-panel-hyper');
   const panelHypo = document.getElementById('eiw-na-panel-hypo');
@@ -10338,7 +10366,7 @@ function eiwSwitchPO4(which){
    <span id="ecgemerg-titlewrap"><span id="ecgemerg-maintext">10 ECG Emergencies </span><span id="ecgemerg-caption" style="color:var(--text-faint);font-weight:400">— Recognize Fast. Treat Faster.</span></span>
    <span class="calc-chevron" id="ecgemerg-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
-  <div class="calc-body" id="ecgemerg-body" style="display:block;padding:0px 6px 3px;">
+  <div class="calc-body" id="ecgemerg-body" style="display:none;padding:0px 6px 3px;">
 
   <style>
    .ecg-card { background:var(--surface); border:1px solid var(--border); border-radius: 4px; margin-bottom:7px; overflow:hidden; }
@@ -10882,12 +10910,158 @@ function eiwSwitchPO4(which){
  </div>
 
 
+ <!-- VT MANAGEMENT PROTOCOL -->
+
+ <style>
+  #calccard-wct .wct-subtabs{
+    display:flex; gap:6px; padding:0 2px 10px 2px;
+  }
+  #calccard-wct .wct-subtab{
+    flex:1; text-align:center; padding:8px 0;
+    border-radius:4px; font-size:12px; font-weight:600;
+    background:color-mix(in srgb, var(--surface2) 40%, transparent); border:1px solid var(--border);
+    color:var(--muted); cursor:pointer;
+  }
+  #calccard-wct .wct-subtab.wct-active-mono{ background:color-mix(in srgb, var(--accent-dim) 35%, transparent); border-color:color-mix(in srgb, var(--accent) 40%, transparent); color:var(--accent); }
+  #calccard-wct .wct-subtab.wct-active-poly{ background:color-mix(in srgb, var(--sp-danger-bg) 35%, transparent); border-color:var(--sp-danger-border); color:var(--sp-danger-text); }
+  #calccard-wct .wct-subpanel{ display:none; }
+  #calccard-wct .wct-subpanel.wct-visible{ display:block; }
+ </style>
+ <div class="calc-card" id="calccard-wct">
+  <div class="calc-title" onclick="toggleCalc('calccard-wct')">
+   <span class="calc-title-dot"></span>
+   <span>Ventricular Tachycardia (VT) Mx Protocol</span>
+   <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+  </div>
+  <div class="calc-body" style="display:none;padding-top:3px;">
+   <!-- ECG OVERVIEW: MONO / POLY SIDE BY SIDE -->
+   <div class="ecg-grid" style="margin-top:2px;margin-bottom:8px;">
+    <div class="ecg-panel">
+     <div class="ecg-label">Monomorphic VT — Wide, Regular, Uniform</div>
+     <svg class="ecg-svg" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+      <rect width="220" height="60" fill="none"/>
+      <line x1="0" y1="30" x2="220" y2="30" stroke="#334155" stroke-width="0.5" stroke-dasharray="2,3"/>
+      <polyline fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linejoin="round"
+       points="0.0,37.67 1.0,41.90 2.0,46.74 3.0,51.33 4.0,54.61 5.0,55.61 6.0,53.87 7.0,49.56 8.0,43.40 9.0,36.41 10.0,29.66 11.0,24.08 12.0,20.43 13.0,19.09 14.0,20.00 15.0,22.63 16.0,26.11 17.0,29.56 18.0,32.33 19.0,34.11 20.0,34.91 21.0,34.94 22.0,34.49 23.0,33.90 24.0,33.49 25.0,33.61 26.0,34.60 27.0,36.75 28.0,40.15 29.0,44.55 30.0,49.27 31.0,53.27 32.0,55.47 33.0,55.10 34.0,52.01 35.0,46.65 36.0,39.94 37.0,32.94 38.0,26.67 39.0,21.98 40.0,19.46 41.0,19.29 42.0,21.15 43.0,24.32 44.0,27.89 45.0,31.06 46.0,33.35 47.0,34.62 48.0,35.00 49.0,34.75 50.0,34.20 51.0,33.65 52.0,33.46 53.0,33.98 54.0,35.52 55.0,38.30 56.0,42.26 57.0,46.93 58.0,51.43 59.0,54.66 60.0,55.63 61.0,53.88 62.0,49.56 63.0,43.40 64.0,36.41 65.0,29.66 66.0,24.08 67.0,20.43 68.0,19.09 69.0,20.00 70.0,22.63 71.0,26.11 72.0,29.56 73.0,32.33 74.0,34.11 75.0,34.91 76.0,34.94 77.0,34.49 78.0,33.90 79.0,33.49 80.0,33.61 81.0,34.60 82.0,36.75 83.0,40.15 84.0,44.55 85.0,49.27 86.0,53.27 87.0,55.47 88.0,55.10 89.0,52.01 90.0,46.65 91.0,39.94 92.0,32.94 93.0,26.67 94.0,21.98 95.0,19.46 96.0,19.29 97.0,21.15 98.0,24.32 99.0,27.89 100.0,31.06 101.0,33.35 102.0,34.62 103.0,35.00 104.0,34.75 105.0,34.20 106.0,33.65 107.0,33.46 108.0,33.98 109.0,35.52 110.0,38.30 111.0,42.26 112.0,46.93 113.0,51.43 114.0,54.66 115.0,55.63 116.0,53.88 117.0,49.56 118.0,43.40 119.0,36.41 120.0,29.66 121.0,24.08 122.0,20.43 123.0,19.09 124.0,20.00 125.0,22.63 126.0,26.11 127.0,29.56 128.0,32.33 129.0,34.11 130.0,34.91 131.0,34.94 132.0,34.49 133.0,33.90 134.0,33.49 135.0,33.61 136.0,34.60 137.0,36.75 138.0,40.15 139.0,44.55 140.0,49.27 141.0,53.27 142.0,55.47 143.0,55.10 144.0,52.01 145.0,46.65 146.0,39.94 147.0,32.94 148.0,26.67 149.0,21.98 150.0,19.46 151.0,19.29 152.0,21.15 153.0,24.32 154.0,27.89 155.0,31.06 156.0,33.35 157.0,34.62 158.0,35.00 159.0,34.75 160.0,34.20 161.0,33.65 162.0,33.46 163.0,33.98 164.0,35.52 165.0,38.30 166.0,42.26 167.0,46.93 168.0,51.43 169.0,54.66 170.0,55.63 171.0,53.88 172.0,49.56 173.0,43.40 174.0,36.41 175.0,29.66 176.0,24.08 177.0,20.43 178.0,19.09 179.0,20.00 180.0,22.63 181.0,26.11 182.0,29.56 183.0,32.33 184.0,34.11 185.0,34.91 186.0,34.94 187.0,34.49 188.0,33.90 189.0,33.49 190.0,33.61 191.0,34.60 192.0,36.75 193.0,40.15 194.0,44.55 195.0,49.27 196.0,53.27 197.0,55.47 198.0,55.10 199.0,52.01 200.0,46.65 201.0,39.94 202.0,32.94 203.0,26.67 204.0,21.98 205.0,19.46 206.0,19.29 207.0,21.15 208.0,24.32 209.0,27.89 210.0,31.06 211.0,33.35 212.0,34.62 213.0,34.98 214.0,34.68 215.0,34.00 216.0,33.16 217.0,32.32 218.0,31.60 219.0,31.03 220.0,30.63"/>
+     </svg>
+    </div>
+    <div class="ecg-panel">
+     <div class="ecg-label">Polymorphic VT — Torsades de Pointes</div>
+     <svg class="ecg-svg" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+      <rect width="220" height="60" fill="none"/>
+      <line x1="0" y1="30" x2="220" y2="30" stroke="#334155" stroke-width="0.5" stroke-dasharray="2,3"/>
+      <polyline fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"
+       points="0.0,30.00 1.0,38.04 2.0,44.43 3.0,43.79 4.0,34.75 5.0,22.87 6.0,13.24 7.0,10.28 8.0,16.77 9.0,29.79 10.0,44.06 11.0,51.45 12.0,48.66 13.0,37.79 14.0,23.25 15.0,12.38 16.0,10.91 17.0,17.70 18.0,30.04 19.0,40.18 20.0,44.24 21.0,41.27 22.0,34.65 23.0,27.38 24.0,24.45 25.0,25.43 26.0,26.14 27.0,30.70 28.0,38.05 29.0,43.73 30.0,43.78 31.0,35.34 32.0,23.42 33.0,13.39 34.0,11.06 35.0,17.60 36.0,30.07 37.0,43.20 38.0,50.65 39.0,48.76 40.0,37.72 41.0,23.17 42.0,12.18 43.0,10.58 44.0,17.79 45.0,29.96 46.0,40.97 47.0,45.35 48.0,42.50 49.0,34.63 50.0,27.13 51.0,23.70 52.0,24.14 53.0,26.16 54.0,30.23 55.0,36.85 56.0,42.43 57.0,42.73 58.0,34.98 59.0,24.11 60.0,13.49 61.0,10.91 62.0,17.40 63.0,30.43 64.0,43.97 65.0,51.31 66.0,48.38 67.0,37.17 68.0,23.16 69.0,12.04 70.0,9.54 71.0,16.76 72.0,29.35 73.0,41.11 74.0,45.98 75.0,43.12 76.0,34.69 77.0,26.65 78.0,22.68 79.0,23.50 80.0,27.26 81.0,30.34 82.0,36.28 83.0,41.26 84.0,40.99 85.0,34.91 86.0,23.97 87.0,14.61 88.0,11.88 89.0,17.85 90.0,30.44 91.0,43.41 92.0,50.64 93.0,48.24 94.0,36.47 95.0,21.91 96.0,11.18 97.0,9.39 98.0,17.19 99.0,29.43 100.0,41.22 101.0,46.93 102.0,43.53 103.0,35.26 104.0,25.87 105.0,21.18 106.0,21.80 107.0,26.26 108.0,30.55 109.0,35.20 110.0,40.63 111.0,40.81 112.0,34.22 113.0,23.68 114.0,14.95 115.0,11.93 116.0,17.89 117.0,30.32 118.0,43.94 119.0,50.63 120.0,47.95 121.0,37.31 122.0,22.97 123.0,12.46 124.0,10.14 125.0,17.34 126.0,30.37 127.0,41.27 128.0,46.59 129.0,43.60 130.0,34.94 131.0,25.33 132.0,20.65 133.0,20.86 134.0,24.69 135.0,29.54 136.0,35.14 137.0,40.09 138.0,41.08 139.0,35.72 140.0,24.91 141.0,15.06 142.0,11.70 143.0,17.99 144.0,29.81 145.0,42.81 146.0,50.17 147.0,48.26 148.0,37.72 149.0,22.86 150.0,11.52 151.0,8.82 152.0,15.96 153.0,29.49 154.0,42.11 155.0,48.36 156.0,44.94 157.0,35.93 158.0,25.34 159.0,19.05 160.0,19.36 161.0,24.38 162.0,30.53 163.0,34.04 164.0,38.58 165.0,38.81 166.0,34.30 167.0,25.04 168.0,16.17 169.0,13.15 170.0,18.24 171.0,30.27 172.0,42.66 173.0,49.57 174.0,47.50 175.0,37.33 176.0,23.38 177.0,11.77 178.0,9.23 179.0,16.87 180.0,30.46 181.0,42.48 182.0,48.07 183.0,45.62 184.0,36.19 185.0,25.98 186.0,19.00 187.0,18.30 188.0,23.29 189.0,30.17 190.0,33.81 191.0,37.12 192.0,38.03 193.0,34.10 194.0,24.65 195.0,16.40 196.0,14.02 197.0,18.73 198.0,30.15 199.0,42.65 200.0,50.22 201.0,48.58 202.0,37.40 203.0,22.78 204.0,10.71 205.0,8.83 206.0,16.04 207.0,29.21 208.0,42.06 209.0,48.46 210.0,45.87 211.0,35.50 212.0,24.86 213.0,17.92 214.0,17.89 215.0,23.58 216.0,29.88 217.0,33.84 218.0,35.92 219.0,36.71 220.0,30.00"/>
+     </svg>
+    </div>
+   </div>
+
+   <!-- STEP 1: PULSE CHECK -->
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">STEP 1 — PULSE CHECK</div>
+    <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
+     <div style="display:flex;align-items:flex-start">
+      <strong style="color:#ef4444;font-weight:600;flex:0 0 auto">No pulse&nbsp;→&nbsp;</strong>
+      <div style="flex:1">Treat as cardiac arrest — pulseless VT / VF algorithm (defibrillation + CPR + Adrenaline)</div>
+     </div>
+     <div style="display:flex;align-items:flex-start;margin-top:6px">
+      <strong style="color:#10b981;font-weight:600;flex:0 0 auto">Pulse present&nbsp;→&nbsp;</strong>
+      <div style="flex:1">Assess stability (Step 2)</div>
+     </div>
+    </div>
+   </div>
+
+   <!-- STEP 2: STABILITY -->
+   <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">STEP 2 — STABLE vs UNSTABLE</div>
+    <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
+     <strong style="color:#ef4444">Unstable</strong> — any of: hypotension &bull; altered mental status / syncope &bull; shock / poor perfusion &bull; ongoing ischemic chest pain &bull; acute pulmonary oedema / heart failure
+     <div style="margin-left:1.2em;margin-top:4px">
+      <strong style="color:var(--text-strong)">→</strong> Synchronized cardioversion immediately
+     </div>
+     <div style="margin-left:1.2em">Sedate if it does not delay shock</div>
+     <div style="margin-left:1.2em">If recurrent → repeat shock + load antiarrhythmic (Amiodarone)</div>
+     <div style="margin-left:1.2em"><span style="color:#f59e0b">Polymorphic VT (irregular) → treat as VF — unsynchronized defibrillation</span></div>
+     <div style="margin-top:10px"><strong style="color:#10b981">Stable</strong> — pulse present, acceptable BP, no shock/syncope/major ischemic symptoms, no pulmonary oedema</div>
+     <div style="margin-left:1.2em;margin-top:4px">
+      <strong style="color:var(--text-strong)">→</strong> Monitor closely &bull; 12-lead ECG &bull; correct reversible causes &bull; antiarrhythmic if sustained (see below)
+     </div>
+     <div style="margin-left:1.2em">If deteriorates at any point → synchronized cardioversion</div>
+    </div>
+   </div>
+
+   <!-- Monomorphic / Polymorphic subtabs -->
+   <div class="wct-subtabs">
+    <div class="wct-subtab wct-active-mono" id="wct-tab-mono" onclick="event.stopPropagation(); wctSwitch('mono')">Monomorphic VT</div>
+    <div class="wct-subtab" id="wct-tab-poly" onclick="event.stopPropagation(); wctSwitch('poly')">Polymorphic VT</div>
+   </div>
+
+   <!-- MONOMORPHIC PANEL -->
+   <div class="wct-subpanel wct-visible" id="wct-panel-mono">
+    <div class="ecg-grid" style="grid-template-columns:1fr;margin-top:2px;margin-bottom:8px;">
+    <div class="ecg-panel">
+     <div class="ecg-label">Monomorphic VT — Wide, Regular, Uniform</div>
+     <svg class="ecg-svg" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+      <rect width="220" height="60" fill="none"/>
+      <line x1="0" y1="30" x2="220" y2="30" stroke="#334155" stroke-width="0.5" stroke-dasharray="2,3"/>
+      <polyline fill="none" stroke="#ef4444" stroke-width="1.5" stroke-linejoin="round"
+       points="0.0,37.67 1.0,41.90 2.0,46.74 3.0,51.33 4.0,54.61 5.0,55.61 6.0,53.87 7.0,49.56 8.0,43.40 9.0,36.41 10.0,29.66 11.0,24.08 12.0,20.43 13.0,19.09 14.0,20.00 15.0,22.63 16.0,26.11 17.0,29.56 18.0,32.33 19.0,34.11 20.0,34.91 21.0,34.94 22.0,34.49 23.0,33.90 24.0,33.49 25.0,33.61 26.0,34.60 27.0,36.75 28.0,40.15 29.0,44.55 30.0,49.27 31.0,53.27 32.0,55.47 33.0,55.10 34.0,52.01 35.0,46.65 36.0,39.94 37.0,32.94 38.0,26.67 39.0,21.98 40.0,19.46 41.0,19.29 42.0,21.15 43.0,24.32 44.0,27.89 45.0,31.06 46.0,33.35 47.0,34.62 48.0,35.00 49.0,34.75 50.0,34.20 51.0,33.65 52.0,33.46 53.0,33.98 54.0,35.52 55.0,38.30 56.0,42.26 57.0,46.93 58.0,51.43 59.0,54.66 60.0,55.63 61.0,53.88 62.0,49.56 63.0,43.40 64.0,36.41 65.0,29.66 66.0,24.08 67.0,20.43 68.0,19.09 69.0,20.00 70.0,22.63 71.0,26.11 72.0,29.56 73.0,32.33 74.0,34.11 75.0,34.91 76.0,34.94 77.0,34.49 78.0,33.90 79.0,33.49 80.0,33.61 81.0,34.60 82.0,36.75 83.0,40.15 84.0,44.55 85.0,49.27 86.0,53.27 87.0,55.47 88.0,55.10 89.0,52.01 90.0,46.65 91.0,39.94 92.0,32.94 93.0,26.67 94.0,21.98 95.0,19.46 96.0,19.29 97.0,21.15 98.0,24.32 99.0,27.89 100.0,31.06 101.0,33.35 102.0,34.62 103.0,35.00 104.0,34.75 105.0,34.20 106.0,33.65 107.0,33.46 108.0,33.98 109.0,35.52 110.0,38.30 111.0,42.26 112.0,46.93 113.0,51.43 114.0,54.66 115.0,55.63 116.0,53.88 117.0,49.56 118.0,43.40 119.0,36.41 120.0,29.66 121.0,24.08 122.0,20.43 123.0,19.09 124.0,20.00 125.0,22.63 126.0,26.11 127.0,29.56 128.0,32.33 129.0,34.11 130.0,34.91 131.0,34.94 132.0,34.49 133.0,33.90 134.0,33.49 135.0,33.61 136.0,34.60 137.0,36.75 138.0,40.15 139.0,44.55 140.0,49.27 141.0,53.27 142.0,55.47 143.0,55.10 144.0,52.01 145.0,46.65 146.0,39.94 147.0,32.94 148.0,26.67 149.0,21.98 150.0,19.46 151.0,19.29 152.0,21.15 153.0,24.32 154.0,27.89 155.0,31.06 156.0,33.35 157.0,34.62 158.0,35.00 159.0,34.75 160.0,34.20 161.0,33.65 162.0,33.46 163.0,33.98 164.0,35.52 165.0,38.30 166.0,42.26 167.0,46.93 168.0,51.43 169.0,54.66 170.0,55.63 171.0,53.88 172.0,49.56 173.0,43.40 174.0,36.41 175.0,29.66 176.0,24.08 177.0,20.43 178.0,19.09 179.0,20.00 180.0,22.63 181.0,26.11 182.0,29.56 183.0,32.33 184.0,34.11 185.0,34.91 186.0,34.94 187.0,34.49 188.0,33.90 189.0,33.49 190.0,33.61 191.0,34.60 192.0,36.75 193.0,40.15 194.0,44.55 195.0,49.27 196.0,53.27 197.0,55.47 198.0,55.10 199.0,52.01 200.0,46.65 201.0,39.94 202.0,32.94 203.0,26.67 204.0,21.98 205.0,19.46 206.0,19.29 207.0,21.15 208.0,24.32 209.0,27.89 210.0,31.06 211.0,33.35 212.0,34.62 213.0,34.98 214.0,34.68 215.0,34.00 216.0,33.16 217.0,32.32 218.0,31.60 219.0,31.03 220.0,30.63"/>
+     </svg>
+    </div>
+    </div>
+    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
+     <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">STABLE MONOMORPHIC VT — DRUG THERAPY</div>
+     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
+      <strong style="color:var(--text-strong)">Amiodarone:</strong> 150mg IV over 10 min (repeat once if needed) → infusion 1mg/min &times; 6h → 0.5mg/min &times; 18h<br>
+      <strong style="color:var(--text-strong)">Alternative:</strong> Procainamide (avoid in structural heart disease / reduced EF) or Sotalol (avoid if prolonged QT)<br>
+      <span style="color:#f59e0b">If refractory or haemodynamic concern develops → elective synchronized cardioversion</span>
+     </div>
+    </div>
+   </div>
+
+   <!-- POLYMORPHIC PANEL -->
+   <div class="wct-subpanel" id="wct-panel-poly">
+    <div class="ecg-grid" style="grid-template-columns:1fr;margin-top:2px;margin-bottom:8px;">
+    <div class="ecg-panel">
+     <div class="ecg-label">Polymorphic VT — Torsades de Pointes</div>
+     <svg class="ecg-svg" viewBox="0 0 220 60" xmlns="http://www.w3.org/2000/svg">
+      <rect width="220" height="60" fill="none"/>
+      <line x1="0" y1="30" x2="220" y2="30" stroke="#334155" stroke-width="0.5" stroke-dasharray="2,3"/>
+      <polyline fill="none" stroke="#f59e0b" stroke-width="1.5" stroke-linejoin="round"
+       points="0.0,30.00 1.0,38.04 2.0,44.43 3.0,43.79 4.0,34.75 5.0,22.87 6.0,13.24 7.0,10.28 8.0,16.77 9.0,29.79 10.0,44.06 11.0,51.45 12.0,48.66 13.0,37.79 14.0,23.25 15.0,12.38 16.0,10.91 17.0,17.70 18.0,30.04 19.0,40.18 20.0,44.24 21.0,41.27 22.0,34.65 23.0,27.38 24.0,24.45 25.0,25.43 26.0,26.14 27.0,30.70 28.0,38.05 29.0,43.73 30.0,43.78 31.0,35.34 32.0,23.42 33.0,13.39 34.0,11.06 35.0,17.60 36.0,30.07 37.0,43.20 38.0,50.65 39.0,48.76 40.0,37.72 41.0,23.17 42.0,12.18 43.0,10.58 44.0,17.79 45.0,29.96 46.0,40.97 47.0,45.35 48.0,42.50 49.0,34.63 50.0,27.13 51.0,23.70 52.0,24.14 53.0,26.16 54.0,30.23 55.0,36.85 56.0,42.43 57.0,42.73 58.0,34.98 59.0,24.11 60.0,13.49 61.0,10.91 62.0,17.40 63.0,30.43 64.0,43.97 65.0,51.31 66.0,48.38 67.0,37.17 68.0,23.16 69.0,12.04 70.0,9.54 71.0,16.76 72.0,29.35 73.0,41.11 74.0,45.98 75.0,43.12 76.0,34.69 77.0,26.65 78.0,22.68 79.0,23.50 80.0,27.26 81.0,30.34 82.0,36.28 83.0,41.26 84.0,40.99 85.0,34.91 86.0,23.97 87.0,14.61 88.0,11.88 89.0,17.85 90.0,30.44 91.0,43.41 92.0,50.64 93.0,48.24 94.0,36.47 95.0,21.91 96.0,11.18 97.0,9.39 98.0,17.19 99.0,29.43 100.0,41.22 101.0,46.93 102.0,43.53 103.0,35.26 104.0,25.87 105.0,21.18 106.0,21.80 107.0,26.26 108.0,30.55 109.0,35.20 110.0,40.63 111.0,40.81 112.0,34.22 113.0,23.68 114.0,14.95 115.0,11.93 116.0,17.89 117.0,30.32 118.0,43.94 119.0,50.63 120.0,47.95 121.0,37.31 122.0,22.97 123.0,12.46 124.0,10.14 125.0,17.34 126.0,30.37 127.0,41.27 128.0,46.59 129.0,43.60 130.0,34.94 131.0,25.33 132.0,20.65 133.0,20.86 134.0,24.69 135.0,29.54 136.0,35.14 137.0,40.09 138.0,41.08 139.0,35.72 140.0,24.91 141.0,15.06 142.0,11.70 143.0,17.99 144.0,29.81 145.0,42.81 146.0,50.17 147.0,48.26 148.0,37.72 149.0,22.86 150.0,11.52 151.0,8.82 152.0,15.96 153.0,29.49 154.0,42.11 155.0,48.36 156.0,44.94 157.0,35.93 158.0,25.34 159.0,19.05 160.0,19.36 161.0,24.38 162.0,30.53 163.0,34.04 164.0,38.58 165.0,38.81 166.0,34.30 167.0,25.04 168.0,16.17 169.0,13.15 170.0,18.24 171.0,30.27 172.0,42.66 173.0,49.57 174.0,47.50 175.0,37.33 176.0,23.38 177.0,11.77 178.0,9.23 179.0,16.87 180.0,30.46 181.0,42.48 182.0,48.07 183.0,45.62 184.0,36.19 185.0,25.98 186.0,19.00 187.0,18.30 188.0,23.29 189.0,30.17 190.0,33.81 191.0,37.12 192.0,38.03 193.0,34.10 194.0,24.65 195.0,16.40 196.0,14.02 197.0,18.73 198.0,30.15 199.0,42.65 200.0,50.22 201.0,48.58 202.0,37.40 203.0,22.78 204.0,10.71 205.0,8.83 206.0,16.04 207.0,29.21 208.0,42.06 209.0,48.46 210.0,45.87 211.0,35.50 212.0,24.86 213.0,17.92 214.0,17.89 215.0,23.58 216.0,29.88 217.0,33.84 218.0,35.92 219.0,36.71 220.0,30.00"/>
+     </svg>
+    </div>
+    </div>
+    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
+     <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">POLYMORPHIC VT — QT-BASED SPLIT</div>
+     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
+      <strong style="color:#ef4444">Prolonged QT (Torsades de Pointes):</strong>
+      <div style="padding-left:1.2em"><strong style="color:var(--text-strong)">Magnesium sulfate 1–2g IV</strong> push, may repeat</div>
+      <div style="padding-left:1.2em">Correct K⁺ / Mg²⁺ &bull; stop all QT-prolonging drugs</div>
+      <div style="padding-left:1.2em">Consider overdrive pacing or Isoproterenol if recurrent</div>
+      <div style="padding-left:1.2em"><span style="color:#f59e0b">Avoid Amiodarone / Procainamide — both prolong QT further</span></div>
+      <div style="margin-top:10px"><strong style="color:#10b981">Normal QT polymorphic VT:</strong></div>
+      <div style="padding-left:1.2em">Treat like monomorphic VT — Amiodarone, β-blockers, correct ischaemia/electrolytes</div>
+      <div style="padding-left:1.2em">Consider ischaemia (most common cause), Brugada pattern, catecholaminergic VT</div>
+      <div style="padding-left:1.2em"><span style="color:#f59e0b">If unstable or pulseless at any point → unsynchronized defibrillation</span></div>
+     </div>
+    </div>
+   </div>
+
+   <div class="note-box">
+    <strong>Reversible triggers to correct in parallel (H's &amp; T's):</strong> Hypoxia &bull; Ischaemia / MI &bull; Hyper/hypokalaemia &bull; Hypomagnesaemia &bull; Acidosis &bull; Drug toxicity &bull; Structural heart disease &bull; Hypovolaemia &bull; Tamponade &bull; Tension pneumothorax<br>
+    <strong>12-lead ECG once stable</strong> — confirm VT vs SVT with aberrancy
+   </div>
+
+  </div>
+ </div>
+
  <!-- CARDIOVERSION -->
 
  <div class="calc-card" id="calccard-svt">
   <div class="calc-title" onclick="toggleCalc('calccard-svt')">
    <span class="calc-title-dot"></span>
-   <span>SVT Management &amp; Adenosine Protocol</span>
+   <span>Supraventricular Tachycardia (SVT) Mx</span>
    <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
   <div class="calc-body" style="display:none;padding-top:3px;">
@@ -11587,7 +11761,7 @@ function calcNora(dose) {
  calcInfusion('nora', dose, 60, window.noradConc, 'mcg/kg/min');
  const d = parseFloat(dose);
  const overUsualMax = d > 0.5;
- const color = overUsualMax ? '#ff0000' : '#ef4444';
+ const color = overUsualMax ? '#eab308' : '#22c55e';
  const slider = document.getElementById('range-nora');
  if (slider) slider.style.accentColor = color;
  const doseValEl = document.getElementById('dv-nora');
@@ -11875,6 +12049,11 @@ function showTab(name, btn) {
   scheduleSpecialCompactFit();
  } else if (typeof specialGapModeOff === 'function') {
   specialGapModeOff();
+ }
+ if (name === 'defib' && typeof scheduleDefibCompactFit === 'function') {
+  scheduleDefibCompactFit();
+ } else if (typeof defibGapModeOff === 'function') {
+  defibGapModeOff();
  }
  if (name === 'special' && typeof alignAllSubCardWidths === 'function') setTimeout(alignAllSubCardWidths, 50);
  if (name === 'defib' && typeof fitEcgTitle === 'function') fitEcgTitle();
@@ -16015,6 +16194,7 @@ function toggleCalc(id) {
   card.classList.toggle('is-expanded', !isOpen);
   if (chevron) chevron.style.transform = isOpen ? 'rotate(-90deg)' : 'rotate(0deg)';
   if (typeof scheduleSpecialCompactFit === 'function') scheduleSpecialCompactFit();
+  if (typeof scheduleDefibCompactFit === 'function') scheduleDefibCompactFit();
   if (!isOpen && id === 'calccard-gcs' && typeof gcsAlignVerbalToggle === 'function') {
     requestAnimationFrame(gcsAlignVerbalToggle);
   }
@@ -16161,6 +16341,104 @@ window.addEventListener('orientationchange', scheduleSpecialCompactFit);
 window.addEventListener('pageshow', scheduleSpecialCompactFit);
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'visible') scheduleSpecialCompactFit();
+});
+
+/* ── Cardio/Defib: identical equal-gap "everything fits" layout as Special
+   Calc above — same math, applied to #tab-defib's direct children (ECG
+   Emergencies, Antihypertensives, AF, WCT/VT, SVT, BLS, Cardioversion cards)
+   instead of the category rows. No per-slot offset tuning here since every
+   child is a plain .calc-card with identical title-bar padding, unlike
+   Special Calc's mixed category-header/standalone-card first row. */
+var DEFIB_GAP_MIN = 6;
+var defibGapRaf = null;
+
+function defibGapModeOn() {
+  var header = document.querySelector('.app-header');
+  var tabBar = document.querySelector('.tab-bar');
+  var tabEl = document.getElementById('tab-defib');
+  var footer = document.querySelector('.app-footer');
+  if (header) header.style.paddingBottom = '0px';
+  if (tabBar) { tabBar.style.paddingTop = '0px'; tabBar.style.paddingBottom = '0px'; }
+  if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; }
+  if (footer) footer.style.paddingTop = '0px';
+}
+
+function defibGapModeOff() {
+  var header = document.querySelector('.app-header');
+  var tabBar = document.querySelector('.tab-bar');
+  var tabEl = document.getElementById('tab-defib');
+  var footer = document.querySelector('.app-footer');
+  if (header) header.style.paddingBottom = '';
+  if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = ''; tabBar.style.marginTop = ''; }
+  if (footer) { footer.style.paddingTop = ''; footer.style.marginTop = ''; }
+  if (tabEl) {
+    tabEl.style.paddingTop = '';
+    tabEl.style.paddingBottom = '';
+    Array.prototype.forEach.call(tabEl.children, function (k) { k.style.marginTop = ''; k.style.marginBottom = ''; });
+  }
+}
+
+function syncDefibGaps() {
+  var tabEl = document.getElementById('tab-defib');
+  if (!tabEl || !tabEl.classList.contains('active')) return;
+  var eyebrow = document.querySelector('.hdr-eyebrow');
+  var tabBar = document.querySelector('.tab-bar');
+  var footer = document.querySelector('.app-footer');
+  if (!eyebrow || !tabBar || !footer) return;
+
+  defibGapModeOn();
+
+  var kids = Array.prototype.filter.call(tabEl.children, function (k) {
+    return k.nodeType === 1 && getComputedStyle(k).display !== 'none';
+  });
+
+  // Zero every margin first (both edges — the static CSS gives most cards
+  // margin-bottom:0 already but a couple keep 4px) so measurements below are
+  // natural, ungapped heights and the JS-computed margin-top is the only
+  // source of the visible gap.
+  tabBar.style.marginTop = '0px';
+  kids.forEach(function (k) { k.style.marginTop = '0px'; k.style.marginBottom = '0px'; });
+  footer.style.marginTop = '0px';
+
+  var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  var eyebrowBottom = eyebrow.getBoundingClientRect().bottom;
+  var footerH = footer.offsetHeight;
+  var used = tabBar.offsetHeight;
+  kids.forEach(function (k) { used += k.offsetHeight; });
+
+  // Gap slots: subtitle→tab-bar, tab-bar→1st card, (N-1) between cards, last
+  // card→footer = N+2, exactly mirroring Special Calc's slot count.
+  var gapCount = kids.length + 2;
+  var spaceForGapsAndContent = viewportH - eyebrowBottom - footerH;
+  var gap = (spaceForGapsAndContent - used) / gapCount;
+  if (!isFinite(gap) || gap < DEFIB_GAP_MIN) gap = DEFIB_GAP_MIN;
+
+  tabBar.style.marginTop = gap + 'px';
+  kids.forEach(function (k, i) {
+    // Match the person's explicit spacing request: 3px less above the first
+    // card (tab-bar → "10 ECG Emergencies"), 3px more above the footer
+    // (last card → footer). Offsets cancel out, so the equal-fill math above
+    // still holds exactly.
+    var offset = i === 0 ? -5 : 0;
+    k.style.marginTop = Math.max(DEFIB_GAP_MIN, gap + offset) + 'px';
+  });
+  footer.style.marginTop = Math.max(DEFIB_GAP_MIN, gap + 5) + 'px';
+}
+
+function scheduleDefibCompactFit() {
+  if (defibGapRaf) cancelAnimationFrame(defibGapRaf);
+  defibGapRaf = requestAnimationFrame(function () {
+    defibGapRaf = null;
+    syncDefibGaps();
+  });
+}
+function fitDefibCompact() { syncDefibGaps(); }
+
+window.addEventListener('resize', scheduleDefibCompactFit);
+window.addEventListener('orientationchange', scheduleDefibCompactFit);
+window.addEventListener('pageshow', scheduleDefibCompactFit);
+document.addEventListener('visibilitychange', function () {
+  if (document.visibilityState === 'visible') scheduleDefibCompactFit();
 });
 
 /* ── Special Calc: Pin / Favorite system ── */
