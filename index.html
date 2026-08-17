@@ -801,6 +801,7 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
 .defib-rhythm { font-weight: 600; font-size: 11px; line-height: 16px; color: var(--text-strong); white-space: nowrap; }
 .defib-sync   { font-size: 9px; color: var(--muted); margin-top: 2px; }
 .defib-energy-sub { font-size: 9px; color: var(--muted); font-weight: 400; }
+.radio-label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
 .defib-energy { font-family: var(--sans); font-size: 11px; line-height: 16px; font-weight: 700; text-align: right; }
 
 /* ── Weight row in cards ── */
@@ -3164,8 +3165,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="margin-bottom:10px">
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Supplemental O₂?</div>
     <div style="display:flex;gap:8px">
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="news-o2" value="0" onchange="calcNEWS2()" checked style="accent-color:#f97316"> Air (0)</label>
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="news-o2" value="2" onchange="calcNEWS2()" style="accent-color:#f97316"> On O₂ (+2)</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="news-o2" value="0" onchange="calcNEWS2()" checked style="accent-color:#f97316"> Air (0)</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="news-o2" value="2" onchange="calcNEWS2()" style="accent-color:#f97316"> On O₂ (+2)</label>
     </div>
    </div>
 
@@ -3336,8 +3337,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="padding:0 0 8px">
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:7px">Acute Renal Failure?</div>
     <div style="display:flex;justify-content:space-between">
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-arf" value="1" onchange="calcAPACHE()" style="accent-color:#ef4444"> Yes (×2)</label>
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-arf" value="0" onchange="calcAPACHE()" checked style="accent-color:#ef4444"> No (×1)</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="ap-arf" value="1" onchange="calcAPACHE()" style="accent-color:#ef4444"> Yes (×2)</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="ap-arf" value="0" onchange="calcAPACHE()" checked style="accent-color:#ef4444"> No (×1)</label>
     </div>
    </div>
 
@@ -3415,9 +3416,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="margin-bottom:0">
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Severe organ insufficiency or immunocompromised?<br><span style="font-size:10px;color:var(--text-fainter)">(Liver cirrhosis · Portal HTN · NYHA IV · Severe COPD · Chronic dialysis · Immunosuppressed)</span></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-chronic" value="0" onchange="calcAPACHE()" checked style="accent-color:#10b981"> None (0)</label>
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-chronic" value="2" onchange="calcAPACHE()" style="accent-color:#10b981"> Elective post-op (+2)</label>
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ap-chronic" value="5" onchange="calcAPACHE()" style="accent-color:#10b981"> Non-op / Emergency post-op (+5)</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="ap-chronic" value="0" onchange="calcAPACHE()" checked style="accent-color:#10b981"> None (0)</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="ap-chronic" value="2" onchange="calcAPACHE()" style="accent-color:#10b981"> Elective post-op (+2)</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="ap-chronic" value="5" onchange="calcAPACHE()" style="accent-color:#10b981"> Non-op / Emergency post-op (+5)</label>
     </div>
    </div>
    </div>
@@ -3771,8 +3772,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px 8px 6px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">Sex</div>
     <div style="display:flex;justify-content:space-between;align-items:center">
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="crcl-sex" value="male" onchange="calcCrCl()" checked style="accent-color:#10b981"> Male</label>
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="crcl-sex" value="female" onchange="calcCrCl()" style="accent-color:#10b981"> Female</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="crcl-sex" value="male" onchange="calcCrCl()" checked style="accent-color:#10b981"> Male</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="crcl-sex" value="female" onchange="calcCrCl()" style="accent-color:#10b981"> Female</label>
     </div>
    </div>
   </div>
@@ -4023,8 +4024,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px 8px 6px">
     <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.4px">Sex</div>
     <div style="display:flex;justify-content:space-between;align-items:center">
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="fwd-sex" value="male" onchange="calcFWD()" checked style="accent-color:#0ea5e9"> Male</label>
-     <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="fwd-sex" value="female" onchange="calcFWD()" style="accent-color:#0ea5e9"> Female</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="fwd-sex" value="male" onchange="calcFWD()" checked style="accent-color:#0ea5e9"> Male</label>
+     <label class="radio-label" style="font-size:12px"><input type="radio" name="fwd-sex" value="female" onchange="calcFWD()" style="accent-color:#0ea5e9"> Female</label>
     </div>
    </div>
    <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
@@ -4062,9 +4063,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:6px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Platelet count (×10⁹/L)</div>
    <div style="display:flex;gap:6px;flex-wrap:wrap">
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-plt" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">&gt;100</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-plt" value="1" onchange="calcDIC()"> <span style="font-size:11px">50–100</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-plt" value="2" onchange="calcDIC()"> <span style="font-size:11px">&lt;50</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-plt" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">&gt;100</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-plt" value="1" onchange="calcDIC()"> <span style="font-size:11px">50–100</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-plt" value="2" onchange="calcDIC()"> <span style="font-size:11px">&lt;50</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
    </div>
   </div>
 
@@ -4072,9 +4073,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:6px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">PT prolongation (seconds above ULN)</div>
    <div style="display:flex;gap:6px;flex-wrap:wrap">
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-pt" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">&lt;3s</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-pt" value="1" onchange="calcDIC()"> <span style="font-size:11px">3–6s</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-pt" value="2" onchange="calcDIC()"> <span style="font-size:11px">&gt;6s</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-pt" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">&lt;3s</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-pt" value="1" onchange="calcDIC()"> <span style="font-size:11px">3–6s</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-pt" value="2" onchange="calcDIC()"> <span style="font-size:11px">&gt;6s</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
    </div>
   </div>
 
@@ -4082,8 +4083,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:6px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Fibrinogen level (g/L)</div>
    <div style="display:flex;gap:6px">
-    <label style="flex:1"><input type="radio" name="dic-fib" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">≥1 g/L</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1"><input type="radio" name="dic-fib" value="1" onchange="calcDIC()"> <span style="font-size:11px">&lt;1 g/L</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1"><input type="radio" name="dic-fib" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">≥1 g/L</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1"><input type="radio" name="dic-fib" value="1" onchange="calcDIC()"> <span style="font-size:11px">&lt;1 g/L</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
    </div>
   </div>
 
@@ -4091,9 +4092,9 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:8px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Fibrin-related marker (D-dimer / FDP)</div>
    <div style="display:flex;gap:6px;flex-wrap:wrap">
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-ddimer" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">No increase</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-ddimer" value="2" onchange="calcDIC()"> <span style="font-size:11px">Moderate ↑</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="dic-ddimer" value="3" onchange="calcDIC()"> <span style="font-size:11px">Strong ↑</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-ddimer" value="0" onchange="calcDIC()" checked> <span style="font-size:11px">No increase</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-ddimer" value="2" onchange="calcDIC()"> <span style="font-size:11px">Moderate ↑</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="dic-ddimer" value="3" onchange="calcDIC()"> <span style="font-size:11px">Strong ↑</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
    </div>
   </div>
 
@@ -4148,11 +4149,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:5px">
    <div style="font-size:10px;color:var(--accent);font-weight:700;margin-bottom:5px">🫁 Respiration — PaO₂/FiO₂ (mmHg)</div>
    <div style="display:flex;gap:5px;flex-wrap:wrap">
-    <label style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">≥400</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="1" onchange="calcSOFA()"> <span style="font-size:11px">300–399</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="2" onchange="calcSOFA()"> <span style="font-size:11px">200–299</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
-    <label style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="3" onchange="calcSOFA()"> <span style="font-size:11px">100–199 +MV</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
-    <label style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&lt;100 +MV</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
+    <label class="radio-label" style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">≥400</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="1" onchange="calcSOFA()"> <span style="font-size:11px">300–399</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="2" onchange="calcSOFA()"> <span style="font-size:11px">200–299</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="3" onchange="calcSOFA()"> <span style="font-size:11px">100–199 +MV</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
+    <label class="radio-label" style="flex:1;min-width:90px"><input type="radio" name="sofa-resp" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&lt;100 +MV</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
    </div>
   </div>
 
@@ -4160,11 +4161,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:5px">
    <div style="font-size:10px;color:#f59e0b;font-weight:700;margin-bottom:5px">🩸 Coagulation — Platelets (×10⁹/L)</div>
    <div style="display:flex;gap:5px;flex-wrap:wrap">
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">≥150</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="1" onchange="calcSOFA()"> <span style="font-size:11px">100–149</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="2" onchange="calcSOFA()"> <span style="font-size:11px">50–99</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="3" onchange="calcSOFA()"> <span style="font-size:11px">20–49</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&lt;20</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">≥150</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="1" onchange="calcSOFA()"> <span style="font-size:11px">100–149</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="2" onchange="calcSOFA()"> <span style="font-size:11px">50–99</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="3" onchange="calcSOFA()"> <span style="font-size:11px">20–49</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-plt" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&lt;20</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
    </div>
   </div>
 
@@ -4172,11 +4173,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:5px">
    <div style="font-size:10px;color:#f59e0b;font-weight:700;margin-bottom:5px">🫀 Liver — Bilirubin (µmol/L)</div>
    <div style="display:flex;gap:5px;flex-wrap:wrap">
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">&lt;20</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="1" onchange="calcSOFA()"> <span style="font-size:11px">20–32</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="2" onchange="calcSOFA()"> <span style="font-size:11px">33–101</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="3" onchange="calcSOFA()"> <span style="font-size:11px">102–204</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
-    <label style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&gt;204</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">&lt;20</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="1" onchange="calcSOFA()"> <span style="font-size:11px">20–32</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="2" onchange="calcSOFA()"> <span style="font-size:11px">33–101</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="3" onchange="calcSOFA()"> <span style="font-size:11px">102–204</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
+    <label class="radio-label" style="flex:1;min-width:80px"><input type="radio" name="sofa-bili" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&gt;204</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
    </div>
   </div>
 
@@ -4184,11 +4185,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:5px">
    <div style="font-size:10px;color:#ef4444;font-weight:700;margin-bottom:5px">❤️ Cardiovascular — Vasopressor / MAP</div>
    <div style="display:flex;gap:5px;flex-wrap:wrap">
-    <label style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">MAP ≥70</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="1" onchange="calcSOFA()"> <span style="font-size:11px">MAP &lt;70</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="2" onchange="calcSOFA()"> <span style="font-size:11px">Dopa ≤5 / Dobu any</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
-    <label style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="3" onchange="calcSOFA()"> <span style="font-size:11px">Dopa &gt;5 / Nora/Adr ≤0.1</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
-    <label style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="4" onchange="calcSOFA()"> <span style="font-size:11px">Nora/Adr &gt;0.1 µg/kg/min</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
+    <label class="radio-label" style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">MAP ≥70</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="1" onchange="calcSOFA()"> <span style="font-size:11px">MAP &lt;70</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="2" onchange="calcSOFA()"> <span style="font-size:11px">Dopa ≤5 / Dobu any</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="3" onchange="calcSOFA()"> <span style="font-size:11px">Dopa &gt;5 / Nora/Adr ≤0.1</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
+    <label class="radio-label" style="flex:1;min-width:130px"><input type="radio" name="sofa-cv" value="4" onchange="calcSOFA()"> <span style="font-size:11px">Nora/Adr &gt;0.1 µg/kg/min</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
    </div>
   </div>
 
@@ -4196,11 +4197,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:5px">
    <div style="font-size:10px;color:var(--accent);font-weight:700;margin-bottom:5px">🧠 CNS — Glasgow Coma Scale</div>
    <div style="display:flex;gap:5px;flex-wrap:wrap">
-    <label style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">15</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="1" onchange="calcSOFA()"> <span style="font-size:11px">13–14</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="2" onchange="calcSOFA()"> <span style="font-size:11px">10–12</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
-    <label style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="3" onchange="calcSOFA()"> <span style="font-size:11px">6–9</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
-    <label style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&lt;6</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
+    <label class="radio-label" style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">15</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="1" onchange="calcSOFA()"> <span style="font-size:11px">13–14</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="2" onchange="calcSOFA()"> <span style="font-size:11px">10–12</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="3" onchange="calcSOFA()"> <span style="font-size:11px">6–9</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
+    <label class="radio-label" style="flex:1;min-width:70px"><input type="radio" name="sofa-cns" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&lt;6</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
    </div>
   </div>
 
@@ -4208,11 +4209,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div style="background:var(--surface-deep);border-radius: 4px;padding:7px 8px;margin-bottom:8px">
    <div style="font-size:10px;color:var(--accent);font-weight:700;margin-bottom:5px">🫘 Renal — Creatinine (µmol/L) or Urine Output</div>
    <div style="display:flex;gap:5px;flex-wrap:wrap">
-    <label style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">&lt;110</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
-    <label style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="1" onchange="calcSOFA()"> <span style="font-size:11px">110–170</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
-    <label style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="2" onchange="calcSOFA()"> <span style="font-size:11px">171–299</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
-    <label style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="3" onchange="calcSOFA()"> <span style="font-size:11px">300–440 or UO&lt;500ml/d</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
-    <label style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&gt;440 or UO&lt;200ml/d</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
+    <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="0" onchange="calcSOFA()" checked> <span style="font-size:11px">&lt;110</span> <span style="font-size:10px;color:var(--text-faint)">(0)</span></label>
+    <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="1" onchange="calcSOFA()"> <span style="font-size:11px">110–170</span> <span style="font-size:10px;color:var(--text-faint)">(+1)</span></label>
+    <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="2" onchange="calcSOFA()"> <span style="font-size:11px">171–299</span> <span style="font-size:10px;color:var(--text-faint)">(+2)</span></label>
+    <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="3" onchange="calcSOFA()"> <span style="font-size:11px">300–440 or UO&lt;500ml/d</span> <span style="font-size:10px;color:var(--text-faint)">(+3)</span></label>
+    <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="sofa-renal" value="4" onchange="calcSOFA()"> <span style="font-size:11px">&gt;440 or UO&lt;200ml/d</span> <span style="font-size:10px;color:var(--text-faint)">(+4)</span></label>
    </div>
   </div>
 
@@ -6876,8 +6877,8 @@ function eiwSwitchPO4(which){
     </div>
 
     <div class="ida-radio-row">
-     <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="ida-tsat-mode" value="direct" checked onchange="idaUpdateTsatMode()" style="accent-color:#b45309"> Enter TSAT directly</label>
-     <label style="display:flex;align-items:center;gap:5px;cursor:pointer"><input type="radio" name="ida-tsat-mode" value="calc" onchange="idaUpdateTsatMode()" style="accent-color:#b45309"> Calculate from Iron/TIBC</label>
+     <label class="radio-label" style="gap:5px"><input type="radio" name="ida-tsat-mode" value="direct" checked onchange="idaUpdateTsatMode()" style="accent-color:#b45309"> Enter TSAT directly</label>
+     <label class="radio-label" style="gap:5px"><input type="radio" name="ida-tsat-mode" value="calc" onchange="idaUpdateTsatMode()" style="accent-color:#b45309"> Calculate from Iron/TIBC</label>
     </div>
 
     <div id="ida-tsat-direct-fields">
@@ -6924,15 +6925,15 @@ function eiwSwitchPO4(which){
       <div class="ida-field-box">
        <div class="ida-field-label">Population</div>
        <div style="display:flex;gap:8px;margin-top:2px">
-        <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ida-o-age" value="adult" checked onchange="calcOral()" style="accent-color:#b45309"> Adult</label>
-        <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="ida-o-age" value="child" onchange="calcOral()" style="accent-color:#b45309"> Child</label>
+        <label class="radio-label" style="font-size:12px"><input type="radio" name="ida-o-age" value="adult" checked onchange="calcOral()" style="accent-color:#b45309"> Adult</label>
+        <label class="radio-label" style="font-size:12px"><input type="radio" name="ida-o-age" value="child" onchange="calcOral()" style="accent-color:#b45309"> Child</label>
        </div>
       </div>
       <div class="ida-field-box">
        <div class="ida-field-label">Regimen</div>
        <div style="display:flex;gap:8px;margin-top:2px">
-        <label style="font-size:11px;display:flex;align-items:center;gap:4px"><input type="radio" name="ida-o-regimen" value="daily" checked onchange="calcOral()" style="accent-color:#b45309"> Daily</label>
-        <label style="font-size:11px;display:flex;align-items:center;gap:4px"><input type="radio" name="ida-o-regimen" value="altday" onchange="calcOral()" style="accent-color:#b45309"> Alt-day</label>
+        <label class="radio-label" style="font-size:11px"><input type="radio" name="ida-o-regimen" value="daily" checked onchange="calcOral()" style="accent-color:#b45309"> Daily</label>
+        <label class="radio-label" style="font-size:11px"><input type="radio" name="ida-o-regimen" value="altday" onchange="calcOral()" style="accent-color:#b45309"> Alt-day</label>
        </div>
       </div>
      </div>
@@ -7311,8 +7312,8 @@ function eiwSwitchPO4(which){
      <div style="padding-left:18px">
       <div style="font-size:10px;color:var(--text-faint);margin-bottom:3px">Sex</div>
       <div style="display:flex;gap:10px;justify-content:flex-end;align-items:center;border:1px solid #f9731640;border-radius: 4px;padding:6px 8px;box-sizing:border-box">
-       <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="dng-sex" value="M" onchange="dengueCalc()" checked style="accent-color:#f97316"> Male</label>
-       <label style="font-size:12px;display:flex;align-items:center;gap:4px"><input type="radio" name="dng-sex" value="F" onchange="dengueCalc()" style="accent-color:#f97316"> Female</label>
+       <label class="radio-label" style="font-size:12px"><input type="radio" name="dng-sex" value="M" onchange="dengueCalc()" checked style="accent-color:#f97316"> Male</label>
+       <label class="radio-label" style="font-size:12px"><input type="radio" name="dng-sex" value="F" onchange="dengueCalc()" style="accent-color:#f97316"> Female</label>
       </div>
      </div>
     </div>
@@ -7888,16 +7889,16 @@ function eiwSwitchPO4(which){
   <div style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;margin-bottom:6px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Population Risk</div>
    <div style="display:flex;gap:6px">
-    <label style="flex:1"><input type="radio" name="jones-risk" value="low" onchange="calcJones()"> <span style="font-size:11px">Low-risk</span></label>
-    <label style="flex:1"><input type="radio" name="jones-risk" value="high" onchange="calcJones()" checked> <span style="font-size:11px">Moderate/High-risk</span></label>
+    <label class="radio-label" style="flex:1"><input type="radio" name="jones-risk" value="low" onchange="calcJones()"> <span style="font-size:11px">Low-risk</span></label>
+    <label class="radio-label" style="flex:1"><input type="radio" name="jones-risk" value="high" onchange="calcJones()" checked> <span style="font-size:11px">Moderate/High-risk</span></label>
    </div>
   </div>
 
   <div style="border:1px solid var(--border);border-radius: 4px;padding:7px 8px;margin-bottom:8px">
    <div style="font-size:10px;color:var(--text-muted);font-weight:600;margin-bottom:5px">Episode Type</div>
    <div style="display:flex;gap:6px">
-    <label style="flex:1"><input type="radio" name="jones-episode" value="initial" onchange="calcJones()" checked> <span style="font-size:11px">Initial episode</span></label>
-    <label style="flex:1"><input type="radio" name="jones-episode" value="recurrent" onchange="calcJones()"> <span style="font-size:11px">Recurrent (known ARF/RHD)</span></label>
+    <label class="radio-label" style="flex:1"><input type="radio" name="jones-episode" value="initial" onchange="calcJones()" checked> <span style="font-size:11px">Initial episode</span></label>
+    <label class="radio-label" style="flex:1"><input type="radio" name="jones-episode" value="recurrent" onchange="calcJones()"> <span style="font-size:11px">Recurrent (known ARF/RHD)</span></label>
    </div>
   </div>
 
@@ -7993,15 +7994,15 @@ function eiwSwitchPO4(which){
    <div style="margin-bottom:8px">
     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Symptom burden</div>
     <div style="display:flex;gap:6px">
-     <label style="flex:1"><input type="radio" name="gold-symptom" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">mMRC 0–1 / CAT &lt;10</span></label>
-     <label style="flex:1"><input type="radio" name="gold-symptom" value="high" onchange="calcGOLD()"> <span style="font-size:11px">mMRC ≥2 / CAT ≥10</span></label>
+     <label class="radio-label" style="flex:1"><input type="radio" name="gold-symptom" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">mMRC 0–1 / CAT &lt;10</span></label>
+     <label class="radio-label" style="flex:1"><input type="radio" name="gold-symptom" value="high" onchange="calcGOLD()"> <span style="font-size:11px">mMRC ≥2 / CAT ≥10</span></label>
     </div>
    </div>
    <div>
     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Exacerbations in past year</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-     <label style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">0–1 (no hospitalisation)</span></label>
-     <label style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="high" onchange="calcGOLD()"> <span style="font-size:11px">≥2, or ≥1 hospitalised</span></label>
+     <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">0–1 (no hospitalisation)</span></label>
+     <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="high" onchange="calcGOLD()"> <span style="font-size:11px">≥2, or ≥1 hospitalised</span></label>
     </div>
    </div>
   </div>
