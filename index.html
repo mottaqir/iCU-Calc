@@ -588,7 +588,7 @@ input[type=range]::-moz-range-progress {
 .special-cat { margin-bottom: 0; }
 .special-cat-header {
   display: flex; align-items: flex-start; gap: 11px;
-  padding: 11px 2px; border-radius: 4px;
+  padding: 7px 2px; border-radius: 4px;
   cursor: pointer; user-select: none;
 }
 .special-cat-icon { font-size: 14px; flex-shrink: 0; line-height: 1; align-self: center; }
@@ -599,9 +599,16 @@ input[type=range]::-moz-range-progress {
   overflow-wrap: break-word;
 }
 .special-cat-sub {
-  display: block; margin-top: 0.5px;
-  letter-spacing: 0.2px;
+  display: block; margin-top: 1.5px;
+  font-size: 10.5px !important; line-height: 1.22;
+  letter-spacing: 0.1px;
   font-weight: 400 !important; color: var(--text-faint) !important;
+}
+.special-cat-sub-dot {
+  display: inline-block;
+  transform: scale(1.55);
+  font-weight: 700;
+  margin: 0 1px;
 }
 .special-cat-count {
   font-size: 10.5px; font-weight: 700; color: var(--accent);
@@ -625,6 +632,8 @@ input[type=range]::-moz-range-progress {
    etc.): drop the calc-card box outline, and badge-style just the middle title
    text — chevron dot and pin star stay untouched, casing stays as-written. */
 .special-cat-body .calc-card { border: none; background: transparent; margin-bottom: 4px; }
+#special-pinned-body .calc-card { border: none; background: transparent; margin-bottom: 4px; }
+#special-pinned-body .calc-card:last-child { margin-bottom: 0; }
 .special-cat-body .calc-title > span:not(.calc-title-dot) {
   color: var(--text-strong);
   padding: 4px 10px;
@@ -636,6 +645,7 @@ input[type=range]::-moz-range-progress {
    same big bordered bar as a .special-cat-header, not the small title-badge
    treatment used for plain sub-items like Shock/SIADH. */
 #calccard-glance { border: none; background: transparent; }
+#calccard-glance > .calc-title { padding-top: 7px; padding-bottom: 7px; }
 #calccard-glance > .calc-title > span:not(.calc-title-dot):not(.special-cat-count) {
   font-weight: 800; letter-spacing: 0.3px;
   color: var(--text-strong);
@@ -3632,18 +3642,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
  </div>
  <div class="calc-card" id="calccard-nacl">
- <div class="calc-title" onclick="toggleCalc('calccard-nacl')"><span class="calc-title-dot"></span><span>3% NaCl in Hyponatraemia</span><button type="button" class="calc-pin" data-cid="calccard-nacl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-nacl', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-title" onclick="toggleCalc('calccard-nacl')"><span class="calc-title-dot"></span><span>3% NaCl in Severe Symptomatic Hyponatraemia</span><button type="button" class="calc-pin" data-cid="calccard-nacl" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-nacl', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
- <div class="field-row">
- <div class="field-label">Weight (kg)</div>
- <div class="field-inputs">
- <input type="range" min="0.5" max="150" step="0.5" value="60" id="nacl-wt" oninput="syncGlobalWeight(this.value)" style="accent-color:#06b6d4">
- <input type="number" min="0.5" max="150" value="60" id="nacl-wt-n" oninput="syncGlobalWeight(this.value)">
- </div>
- </div>
  <div class="calc-result" style="border:1px solid #06b6d440">
- <div class="cr-main" style="color:var(--accent)" id="nacl-result">&mdash;</div>
- <div class="cr-detail">Rate = Weight &times; 0.488 | Corrects Na ~0.5mmol/L/hr | Over 6hr &rarr; Na rises ~3mmol/L<br><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Max correction: 10mmol/L per 24hr (ODS risk)</div>
+ <div class="cr-main" style="color:var(--accent);font-size:15px">150 mL bolus over 20 min</div>
+ <div class="cr-detail">Fixed bolus (not weight-based) — recheck serum Na at 20 min<br>Symptoms persist or rise &lt;5 mmol/L → repeat bolus (up to 2 further times)<br>Stop once symptoms improve or Na rises 4&ndash;6 mmol/L in first 6hr<br><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Max correction: 8&ndash;10 mmol/L per 24hr (ODS risk — stricter limit 4&ndash;6 mmol/L/24hr if liver disease, malnutrition, alcoholism, or hypokalaemia)</div>
  </div>
  </div>
  </div>
@@ -4234,7 +4237,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="note-box">
    <strong>Sepsis-3 Definition:</strong> Suspected infection + SOFA ↑ ≥2 points from baseline<br>
    <strong>Septic Shock:</strong> Sepsis + vasopressor needed to maintain MAP ≥65 + lactate &gt;2 mmol/L despite adequate fluids<br>
-   <strong>qSOFA ≥2:</strong> Screen positive → assess full SOFA, obtain cultures, start antibiotics within 1 hour<br>
+   <strong>qSOFA ≥2:</strong> Screen positive → assess full SOFA + obtain cultures/lactate. Antibiotic timing driven by clinical probability/severity of infection (possible vs likely sepsis or septic shock) — not by qSOFA alone. If sepsis/septic shock likely → antibiotics within 1 hour<br>
    <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> SOFA score predicts ICU mortality; repeat daily to track trajectory. Rising score = worsening prognosis.
   </div>
  </div>
@@ -5239,7 +5242,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <strong>Pitfall:</strong> Normal glucose misleads — always check pH, ketones, AG in any sick diabetic on SGLT2i<br>
    <strong>HHS hallmark:</strong> Profound dehydration (average 9–10L deficit) + hyperosmolarity ± AMS — acidosis mild/absent<br>
    <strong>Overlap:</strong> ~30% of HHS has some ketosis; DKA can have high osmolality — always treat the dominant picture<br>
-   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> In euDKA: do NOT aim to normalise glucose before clearing ketones. Continue insulin + add dextrose infusion when glucose &lt;11 mmol/L.
+   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> In euDKA: do NOT aim to normalise glucose before clearing ketones. Continue insulin + add dextrose infusion when glucose &lt;13.9 mmol/L (250 mg/dL).
   </div>
 
  </div>
@@ -7729,7 +7732,7 @@ function eiwSwitchPO4(which){
      </label>
      <label class="bd-label">
       <input type="checkbox" id="bd-pre4" onchange="calcBrainDeath()" style="width:15px;height:15px;accent-color:var(--accent);margin:2px 0 0;padding:0;display:block">
-      <div style="font-size:11px;color:var(--text-muted)"><strong>Haemodynamic stability:</strong> SBP ≥100 mmHg maintained (vasopressors acceptable)</div>
+      <div style="font-size:11px;color:var(--text-muted)"><strong>Haemodynamic stability:</strong> SBP ≥100 mmHg AND MAP ≥75 mmHg maintained (vasopressors acceptable)</div>
      </label>
     </div>
    </div>
@@ -7773,12 +7776,12 @@ function eiwSwitchPO4(which){
      <strong>Baseline ABG:</strong> PaCO₂ 35–45, pH normal before disconnecting<br>
      <strong>Disconnect ventilator</strong> → deliver O₂ 6L/min via suction catheter into ETT<br>
      <strong>Observe 8–10 min</strong> for any respiratory effort<br>
-     <strong>Repeat ABG:</strong> PaCO₂ must rise to ≥60 mmHg (or ≥20 above baseline)<br>
-     <strong>Result:</strong> No respiratory effort + PaCO₂ ≥60 = <span style="color:#ef4444;font-weight:700">Positive (supports BD)</span>
+     <strong>Repeat ABG:</strong> PaCO₂ ≥60 mmHg <strong>AND</strong> ≥20 mmHg above baseline <strong>AND</strong> pH &lt;7.30<br>
+     <strong>Result:</strong> No respiratory effort + PaCO₂ ≥60 (and ≥20 above baseline) + pH &lt;7.30 = <span style="color:#ef4444;font-weight:700">Positive (supports BD)</span>
     </div>
     <label class="bd-label bd-label-apnoea">
      <input type="checkbox" id="bd-apnoea" onchange="calcBrainDeath()" style="width:15px;height:15px;accent-color:#ef4444;margin:2px 0 0;padding:0;display:block">
-     <div style="font-size:11px;color:var(--text-muted)"><strong style="color:#ef4444">Apnoea test positive</strong> — No spontaneous breathing, PaCO₂ ≥60 mmHg confirmed</div>
+     <div style="font-size:11px;color:var(--text-muted)"><strong style="color:#ef4444">Apnoea test positive</strong> — No spontaneous breathing, PaCO₂ ≥60 mmHg AND ≥20 above baseline AND pH &lt;7.30 confirmed</div>
     </label>
    </div>
 
@@ -9941,7 +9944,7 @@ function eiwSwitchPO4(which){
      <!-- TAB: HHS -->
      <div class="gl-panel" id="gl-hgc-hhs">
 
-      <div class="gl-step"><div class="gl-step-num">1</div><div class="gl-step-content"><div class="gl-step-title">Diagnosis &amp; Severity — All HHS → ICU</div><div class="gl-step-body">Requires all four: glucose ≥600 mg/dL (≥33.3 mmol/L), effective osmolality &gt;300 mOsm/kg (or total &gt;320), β-OHB &lt;3.0 mmol/L, pH ≥7.3 and HCO₃ ≥15 mmol/L.<div class="gl-alert gl-alert-danger">🔴 All HHS → ICU. Severe dehydration, hyperosmolality, high VTE risk. Mixed HHS/DKA (ketonaemia + hyperosmolality) → treat as DKA at 0.1 units/kg/h.</div></div></div></div>
+      <div class="gl-step"><div class="gl-step-num">1</div><div class="gl-step-content"><div class="gl-step-title">Diagnosis &amp; Severity — HHS: ICU if severe/AMS</div><div class="gl-step-body">Requires all four: glucose ≥600 mg/dL (≥33.3 mmol/L), effective osmolality &gt;300 mOsm/kg (or total &gt;320), β-OHB &lt;3.0 mmol/L, pH ≥7.3 and HCO₃ ≥15 mmol/L.<div class="gl-alert gl-alert-danger">🔴 ICU/HDU for severe HHS, altered mental status, critical precipitating illness, or haemodynamic instability — mild/moderate HHS with normal mentation may be managed on a monitored ward bed per local protocol. Severe dehydration, hyperosmolality, high VTE risk regardless of setting. Mixed HHS/DKA (ketonaemia + hyperosmolality) → treat as DKA at 0.1 units/kg/h.</div></div></div></div>
 
       <div class="gl-step"><div class="gl-step-num">2</div><div class="gl-step-content"><div class="gl-step-title">Investigations &amp; Monitoring</div><div class="gl-step-body">Glucose, U&amp;E, creatinine, serum osmolality, FBC, coagulation screen, β-OHB and venous pH (exclude mixed DKA/HHS). ECG, septic workup — infection is the commonest precipitant. Recheck glucose, creatinine, electrolytes, osmolality every 4 h.<div class="gl-note">Effective osmolality = 2×[Na⁺] + glucose (mmol/L). Exclude urea — it crosses cell membranes freely and doesn't drive tonicity.</div></div></div></div>
 
@@ -11529,11 +11532,6 @@ function syncGlobalWeight(val) {
  if (kwt && kwt !== active) kwt.value = v;
  if (kwtN && kwtN !== active) kwtN.value = v;
 
- // Special Calc — 3% NaCl (Hyponatraemia Correction)
- const naclWt = document.getElementById('nacl-wt'), naclWtN = document.getElementById('nacl-wt-n');
- if (naclWt && naclWt !== active) naclWt.value = v;
- if (naclWtN && naclWtN !== active) naclWtN.value = v;
-
  // Special Calc — Sodium Bicarbonate
  const bicarbWt = document.getElementById('bicarb-wt'), bicarbWtN = document.getElementById('bicarb-wt-n');
  if (bicarbWt && bicarbWt !== active) bicarbWt.value = v;
@@ -11835,14 +11833,6 @@ function calcLasix(dose) {
  document.getElementById('rate-lasix').textContent = rate;
 }
 
-function calcNaCl() {
- const el = document.getElementById('nacl-result');
- if (!el) return;
- const wtEl = document.getElementById('nacl-wt');
- const wt = wtEl ? (parseFloat(wtEl.value) || 60) : getWt();
- el.textContent = (wt * 0.488).toFixed(1) + ' ml/hr';
-}
-
 function calcBicarb() {
  const wtEl = document.getElementById('bicarb-wt');
  const wt = wtEl ? (parseFloat(wtEl.value) || 60) : getWt();
@@ -11961,7 +11951,6 @@ function updateAll() {
   if (g('range-ins')) calcFixed('ins', g('range-ins'));
   if (g('range-midmor')) calcFixed('midmor', g('range-midmor'));
  } catch(e) {}
- try { calcNaCl(); } catch(e) {}
  try { calcBicarb(); } catch(e) {}
  try { calcK(); } catch(e) {}
  try { calcAmio(); } catch(e) {}
@@ -16031,9 +16020,10 @@ function calcDKA() {
   const ketHigh = dkaKetone === 'high' || dkaKetone === 'mod';
   const ketPos  = dkaKetone !== 'none';
   const amsAltered = dkaAMS !== 'alert';
-  const acidotic = ph < 7.30;
-  const hco3Low  = hco3 < 15;
-  const agHigh   = ag > 12;
+  const phLow    = ph > 0 && ph < 7.30;
+  const hco3Low  = hco3 < 18;
+  const acidotic = phLow || hco3Low;   // 2024 consensus: pH<7.30 AND/OR HCO3<18 (either qualifies)
+  const agHigh   = ag > 12;            // supportive only — NOT a mandatory diagnostic gate (2024 consensus removed AG as required criterion)
   const glucHigh = gluc > 11;
   const glucVeryHigh = gluc > 33;
   const osmHigh  = osm > 320;
@@ -16041,26 +16031,26 @@ function calcDKA() {
   let diagnosis = '', severity = '', criteria = '', management = '', color = '#f59e0b', borderColor = '#f59e0b60';
 
   // ── Scoring logic ──
-  const isDKA    = acidotic && hco3Low && agHigh && ketHigh && glucHigh;
-  const isEuDKA  = acidotic && hco3Low && agHigh && ketHigh && !glucHigh;
+  const isDKA    = acidotic && ketHigh && glucHigh;
+  const isEuDKA  = acidotic && ketHigh && !glucHigh;
   const isHHS    = glucVeryHigh && osmHigh && !ketHigh && !acidotic;
   const isOverlap= glucVeryHigh && osmHigh && ketPos && acidotic;
-  const euDKAtrigger = isEuDKA || (acidotic && hco3Low && agHigh && ketHigh && !glucHigh);
+  const euDKAtrigger = isEuDKA;
 
   if (isDKA || euDKAtrigger || isHHS || isOverlap) {
 
     if (isOverlap) {
       diagnosis = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> DKA + HHS Overlap';
       color = '#f97316'; borderColor = '#f9731660';
-      criteria = '✅ High glucose (>33) · ✅ High osmolality (>320) · ✅ Acidosis (pH<7.30) · ✅ Ketonaemia present';
+      criteria = '✅ High glucose (>33) · ✅ High osmolality (>320) · ✅ Acidosis (pH&lt;7.30 and/or HCO₃&lt;18) · ✅ Ketonaemia present';
       management = `<strong style="color:#f97316">Treat as DKA primarily.</strong><br>
 IV 0.9% NaCl — correct volume deficit carefully (avoid rapid osmolality drop)<br>
-IV Actrapid infusion 0.1 unit/kg/hr · Add dextrose when glucose &lt;11 mmol/L<br>
+IV Actrapid infusion 0.1 unit/kg/hr · Add 5–10% dextrose when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin<br>
 Check K⁺ — replace before starting insulin if &lt;3.5 mEq/L<br>
 Monitor osmolality 4-hourly — target drop &lt;3 mOsm/kg/hr<br>
 <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Rapid osmolality correction risks cerebral oedema`;
     }
-    else if (isEuDKA || (!glucHigh && acidotic && hco3Low && agHigh && ketHigh)) {
+    else if (isEuDKA) {
       diagnosis = '🟣 Euglycaemic DKA (euDKA)';
       color = 'var(--accent)'; borderColor = 'var(--border)';
 
@@ -16069,7 +16059,7 @@ Monitor osmolality 4-hourly — target drop &lt;3 mOsm/kg/hr<br>
       if (preg)  flags.push('Pregnancy ✔');
       if (t1dm)  flags.push('T1DM ✔');
 
-      criteria = `✅ Glucose ≤11 mmol/L · ✅ pH &lt;7.30 · ✅ HCO₃ &lt;15 · ✅ AG >12 · ✅ Ketonaemia present`;
+      criteria = `✅ Glucose ≤11 mmol/L · ✅ pH &lt;7.30 and/or HCO₃ &lt;18 · ✅ Ketonaemia present${ag > 0 ? ` · AG ${ag.toFixed(0)} (supportive)` : ''}`;
       if (flags.length) criteria += `<br><span style="color:var(--accent);font-weight:600">Trigger: ${flags.join(' · ')}</span>`;
 
       management = `<strong style="color:var(--accent)">Do NOT be misled by normal glucose.</strong><br>
@@ -16078,7 +16068,7 @@ Start 5–10% Dextrose infusion immediately (glucose normal — still needs insu
 IV 0.9% NaCl — volume replacement<br>
 K⁺ replacement — check hourly initially<br>
 Hold SGLT2i immediately and do not restart until fully recovered<br>
-Target: ketones &lt;0.6 mmol/L · pH &gt;7.30 · HCO₃ &gt;15 before stopping insulin`;
+Target: ketones &lt;0.6 mmol/L · pH &gt;7.30 · HCO₃ &gt;18 before stopping insulin`;
     }
     else if (isDKA) {
       // DKA severity
@@ -16092,20 +16082,20 @@ Target: ketones &lt;0.6 mmol/L · pH &gt;7.30 · HCO₃ &gt;15 before stopping i
       color = '#ef4444'; borderColor = '#ef444460';
       severity = `<span style="color:${sevColor}">${sev}</span>`;
 
-      criteria = `✅ Glucose >11 mmol/L · ✅ pH &lt;7.30 · ✅ HCO₃ &lt;15 · ✅ AG >12 · ✅ Ketonaemia`;
+      criteria = `✅ Glucose >11 mmol/L · ✅ pH &lt;7.30 and/or HCO₃ &lt;18 · ✅ Ketonaemia${ag > 0 ? ` · AG ${ag.toFixed(0)} (supportive)` : ''}`;
 
       management = `<strong style="color:#ef4444">ICU/HDU management:</strong><br>
 IV 0.9% NaCl: 1L over 1st hr · then 500ml/hr × 2h · then 250ml/hr (reassess)<br>
 IV Actrapid infusion: 0.1 unit/kg/hr (fixed rate) — do NOT bolus<br>
-K⁺ replacement: if K &lt;3.5 → replace before insulin; K 3.5–5.5 → 20–40 mEq/hr with fluid; K &gt;5.5 → hold K<br>
-Switch to 5% Dextrose + 0.45% NaCl when glucose &lt;11 mmol/L — continue insulin<br>
+K⁺ replacement: if K &lt;3.5 → hold insulin, give ~10 mmol/hr KCl until K&gt;3.5; K 3.5–5.5 → add 20–30 mmol KCl per litre IV fluid; K &gt;5.5 → hold K<br>
+Switch to 5% Dextrose + 0.45% NaCl when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin until ketosis resolves<br>
 Bicarbonate: only if pH &lt;6.9 (100 mEq NaHCO₃ over 2h)<br>
-Target resolution: glucose &lt;11 · AG &lt;12 · HCO₃ &gt;15 · pH &gt;7.30 · ketones &lt;0.6`;
+Target resolution: ketones &lt;0.6 · pH &gt;7.30 · HCO₃ &gt;18 (anion gap closed)`;
     }
     else if (isHHS) {
       diagnosis = '🔵 Hyperglycaemic Hyperosmolar State (HHS)';
       color = '#06b6d4'; borderColor = '#06b6d460';
-      criteria = `✅ Glucose >33 mmol/L · ✅ Osmolality >320 · ✅ Ketonaemia absent/trace · ✅ pH &gt;7.30`;
+      criteria = `✅ Glucose >33 mmol/L · ✅ Osmolality >320 · ✅ Ketonaemia absent/trace · ✅ pH &ge;7.30 and HCO₃ &ge;15 (absence of acidosis)`;
 
       const amsMsg = dkaAMS !== 'alert' ? `<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> AMS/coma present — consistent with severe HHS` : '';
 
@@ -16425,7 +16415,7 @@ var SPECIAL_LAYOUT = [
     'calccard-sepsis3', 'calccard-dic', 'calccard-ards', 'calccard-gold', 'calccard-lights', 'calccard-jones', 'calccard-braindeath'
   ] },
   { slot: 'specialcat-calculators-body', cards: [
-    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-unitconv', 'calccard-abg', 'calccard-ventcalc'
+    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-abg', 'calccard-ventcalc', 'calccard-unitconv'
   ] },
   { slot: 'specialcat-correction-body', cards: [
     'calccard-bicarb', 'calccard-kdeficit', 'calccard-nacl', 'calccard-fwd', 'calccard-insulin', 'calccard-heparin', 'calccard-eiw'
@@ -16456,13 +16446,59 @@ function getCardShortTitle(card) {
   return clone.textContent.replace(/\s+/g, ' ').trim();
 }
 
-// Rebuilds every category's "— ..." subtitle from whichever cards are
-// currently living in that category (favourites/pins excluded), so a newly
-// added sub-card's own heading is picked up automatically — no manual
-// subtitle edits needed when the Special Calc tab grows.
+// One-word/short-tag override per card, used in the category keyword strip
+// only (the card's own on-screen title is untouched). Any card NOT listed
+// here falls back to its live title (getCardShortTitle), trailing "Score"
+// stripped — so a newly added card still shows *something* sensible until
+// a short tag is added for it below.
+var CATEGORY_TAG_OVERRIDES = {
+  // Assessment
+  'calccard-shock': 'Shock',
+  'calccard-siadh': 'SIADH/CSW',
+  'calccard-dka': 'DKA/HHS',
+  'calccard-cbc': 'CBC',
+  'calccard-ida': 'IDA',
+  'calccard-hemolysis': 'Haemolysis',
+  'calccard-thyroid': 'Thyroid',
+  'calccard-dengue': 'Dengue HCT',
+  // Calculators
+  'calccard-calcium': 'Corrected Ca\u00B2\u207A',
+  'calccard-crcl': 'CrCl',
+  'calccard-renaldose': 'Renal Dose',
+  'calccard-abg': 'ABG',
+  'calccard-ventcalc': 'Ventilator',
+  // Criteria
+  'calccard-dic': 'DIC',
+  'calccard-ards': 'ARDS',
+  'calccard-gold': 'GOLD',
+  'calccard-lights': "Light's",
+  'calccard-jones': 'Jones',
+  // Correction
+  'calccard-bicarb': 'NaHCO\u2083',
+  'calccard-kdeficit': 'K\u207A',
+  'calccard-nacl': '3% NaCl',
+  'calccard-fwd': 'Free Water Deficit',
+  'calccard-insulin': 'Insulin',
+  'calccard-heparin': 'Heparin',
+  'calccard-eiw': 'Electrolytes',
+  // At a Glance
+  'gls-abg': 'ABG',
+  'gls-vent': 'Ventilator',
+  'gls-cbc': 'CBC',
+  'gls-sepsis': 'Sepsis Guideline',
+  'gls-abx': 'Antibiotic',
+  'gls-dengue': 'Dengue',
+  'gls-hbv': 'HBV Serology',
+  'gls-hgc': 'Hyperglycemic Crisis',
+  'gls-se': 'Status Epilepticus',
+  'gls-pe': 'Pre-eclampsia'
+};
+
+// Rebuilds every category's keyword strip from whichever cards are currently
+// assigned to that category. Prefers the curated short tag above; falls back
+// to the card's own live title (trimmed of a trailing "Score") so a brand
+// new card still shows something reasonable before a tag is added for it.
 function updateCategorySubtitles() {
-  var favSet = {};
-  getFavoriteCalcs().forEach(function (id) { favSet[id] = true; });
   SPECIAL_LAYOUT.forEach(function (group) {
     var isCategory = group.slot.indexOf('specialcat-') === 0;
     var isGlanceBody = group.slot === 'calccard-glance-body';
@@ -16472,9 +16508,24 @@ function updateCategorySubtitles() {
     if (!hostEl) return;
     var subEl = hostEl.querySelector(':scope > .special-cat-header .special-cat-sub, :scope > .calc-title .special-cat-sub');
     if (!subEl) return;
-    var base = subEl.getAttribute('data-base') || subEl.textContent.replace(/^—\s*/, '').replace(/\s*\(.*\)\s*$/, '').trim();
-    subEl.setAttribute('data-base', base);
-    subEl.textContent = base;
+    var names = group.cards.map(function (id) {
+      if (CATEGORY_TAG_OVERRIDES.hasOwnProperty(id)) return CATEGORY_TAG_OVERRIDES[id];
+      var card = document.getElementById(id);
+      if (!card) return '';
+      return getCardShortTitle(card).replace(/\s+Score$/i, '');
+    }).filter(Boolean);
+    var joined = names.join(' \u00B7 ');
+    subEl.setAttribute('data-base', joined);
+    // Render with an oversized separator dot (readable at a glance) while
+    // the keyword text itself stays small — a plain textContent join can't
+    // size the dot differently, so build it as escaped HTML instead. Each
+    // tag's own internal spaces/hyphens are turned unbreakable (\u2011,
+    // \u00A0) so e.g. "Free Water Deficit" or "Sepsis-3" never splits across
+    // two lines — only the real space-dot-space between tags is a valid
+    // line-wrap point.
+    var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    var glueTag = function (s) { return esc(s).replace(/ /g, '\u00A0').replace(/-/g, '\u2011'); };
+    subEl.innerHTML = names.map(glueTag).join(' <span class="special-cat-sub-dot">\u00B7</span> ');
   });
 }
 
@@ -16877,7 +16928,7 @@ function toggleTerminal(){
 /* amt/amtU/vol = default concentration; doseU/lo/hi = default dose unit + usual adult range in that unit */
 const DRUGS = [
   // Vasopressors / Inotropes
-  {id:'norepi',   name:'Norepinephrine (Noradrenaline)', cat:'Vasopressor/Inotrope', amt:4,   amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:0.02, hi:1,    rangeNote:'Usual adult range: 0.02–0.5 mcg/kg/min, up to 1.0 mcg/kg/min — verify local protocol.', note:'Titrate to MAP ≥65 mmHg. Give via central line.'},
+  {id:'norepi',   name:'Norepinephrine (Noradrenaline)', cat:'Vasopressor/Inotrope', amt:4,   amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:0.02, hi:1,    rangeNote:'Usual adult range: 0.02–0.5 mcg/kg/min, up to 1.0 mcg/kg/min — verify local protocol.', note:'Titrate to MAP ≥65 mmHg. May be initiated peripherally (large vein, short duration, close monitoring) under an appropriate safety protocol; central access preferred for ongoing/prolonged infusion.'},
   {id:'epi',      name:'Epinephrine (Adrenaline)',        cat:'Vasopressor/Inotrope', amt:4,   amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:0.01, hi:2,    note:'Increases myocardial O2 demand; watch for tachyarrhythmia.'},
   {id:'dopamine', name:'Dopamine',                        cat:'Vasopressor/Inotrope', amt:400, amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:2,    hi:20,   note:'"Renal-dose" dopamine is not evidence-based.'},
   {id:'dobutamine',name:'Dobutamine',                     cat:'Vasopressor/Inotrope', amt:250, amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:2.5,  hi:20,   note:'May cause tachycardia/arrhythmia; a pure inotrope, not a pressor.'},
