@@ -2582,6 +2582,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="range-limits"><span>0.05</span><span>1.0</span></div>
  </div>
  <div class="note-box"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Do NOT use NS &mdash; unstable in normal saline</div>
+ <div class="note-box"><strong>N.B. &mdash;</strong><br>Peripheral initiation &rarr; appropriate safety protocol. Central access &rarr; preferred for ongoing/prolonged infusion.</div>
  </div>
  </div>
  <div class="drug-card" id="card-vaso">
@@ -3245,8 +3246,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ─── APACHE II ─── -->
  <div class="calc-card" id="calccard-apache">
-  <div class="calc-title" onclick="toggleCalc('calccard-apache')"><span class="calc-title-dot"></span><span>APACHE II Score <span style="color:var(--text-faint);font-weight:400">(ICU Mortality Prediction)</span></span><button type="button" class="calc-pin" data-cid="calccard-apache" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-apache', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+  <div class="calc-title" onclick="toggleCalc('calccard-apache')"><span class="calc-title-dot"></span><span>APACHE II Score <span style="color:var(--text-faint);font-weight:400">(ICU Illness Severity)</span></span><button type="button" class="calc-pin" data-cid="calccard-apache" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-apache', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
   <div class="calc-body" style="display:none">
+
+   <div style="background:var(--surface-deep);border-radius:4px;padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+    <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> The severity band shown is population-derived and does <strong>not</strong> constitute a validated individual mortality prediction — the original APACHE II model requires the score to be combined with a diagnostic-category coefficient in a logistic regression equation, which this simplified calculator does not perform.
+   </div>
 
    <!-- Helper macro: single row param -->
    <!-- SECTION A: Physiological -->
@@ -3442,7 +3447,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      </div>
      <div style="text-align:right">
       <div style="font-size:13px;font-weight:700" id="apache-mortality">—</div>
-      <div style="font-size:10px;color:var(--text-faint);margin-top:3px">Predicted mortality</div>
+      <div style="font-size:10px;color:var(--text-faint);margin-top:3px">Illness severity band</div>
      </div>
     </div>
     <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px" id="apache-breakdown">A:0 · B:0 · C:0</div>
@@ -3482,7 +3487,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="calc-card" id="calccard-chadsvasc">
   <div class="calc-title" onclick="toggleCalc('calccard-chadsvasc')">
    <span class="calc-title-dot"></span>
-   <span>CHA&#8322;DS&#8322;-VASc Score <span style="color:var(--text-faint);font-weight:400">— Stroke Risk in Atrial Fibrillation</span></span>
+   <span>CHA&#8322;DS&#8322;-VA Score <span style="color:var(--text-faint);font-weight:400">— Stroke Risk in Atrial Fibrillation (2024 ESC)</span></span>
    <button type="button" class="calc-pin" data-cid="calccard-chadsvasc" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-chadsvasc', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button>
   </div>
   <div class="calc-body" style="display:none">
@@ -3518,8 +3523,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </label>
    <label class="cv-qlabel">
     <input type="checkbox" id="cv-female" onchange="calcCHADSVASC()">
-    <div class="cv-qtext"><strong>Sex category: female</strong> — risk-modifying, not risk-conferring, in isolation</div>
-    <div class="cv-wt">+1</div>
+    <div class="cv-qtext"><strong>Sex category: female</strong> — 2024 ESC: risk modifier only, no longer independently scored</div>
+    <div class="cv-wt">+0</div>
    </label>
 
    <div class="cv-row" id="cv-row-age" data-score="0">
@@ -3535,7 +3540,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <button onclick="calcCHADSVASC()" style="width:100%;padding:8px;border-radius:4px;border:1px solid var(--accent);background:var(--accent-dim);color:var(--accent);font-size:12px;font-weight:700;cursor:pointer;margin:4px 0 8px">▶ Calculate / Refresh Result</button>
 
    <div id="cv-result" style="border-radius:4px;padding:9px 10px;margin-bottom:8px;background:var(--surface-deep);border:2px solid var(--border-strong)">
-    <div id="cv-result-title" style="font-size:14px;font-weight:900;color:var(--text-muted);margin-bottom:4px">— Tap the button to calculate CHA₂DS₂-VASc —</div>
+    <div id="cv-result-title" style="font-size:14px;font-weight:900;color:var(--text-muted);margin-bottom:4px">— Tap the button to calculate CHA₂DS₂-VA —</div>
     <div id="cv-result-detail" style="font-size:11px;color:var(--text-muted);line-height:1.6"></div>
    </div>
 
@@ -5120,7 +5125,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      <input type="checkbox" id="dka-preg" onchange="calcDKA()" style="width:14px;height:14px;accent-color:#f59e0b"> Pregnant / Peripartum (lower thresholds apply)
     </label>
     <label style="display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--text);cursor:pointer">
-     <input type="checkbox" id="dka-t1dm" onchange="calcDKA()" style="width:14px;height:14px;accent-color:#f59e0b"> Known T1DM
+     <input type="checkbox" id="dka-t1dm" onchange="calcDKA()" style="width:14px;height:14px;accent-color:#f59e0b"> Known diabetes (T1/T2)
     </label>
    </div>
   </div>
@@ -7795,19 +7800,17 @@ function eiwSwitchPO4(which){
    <div style="padding:8px 6px;margin-bottom:8px">
     <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.4px;padding-bottom:5px;margin-bottom:7px"><span class="bd-sec-head">🔬 ANCILLARY / CONFIRMATORY TESTS</span> <span style="color:var(--text-faint);font-weight:400">(when clinical testing equivocal or incomplete)</span></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:10px;color:var(--text-muted)">
-     <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">EEG</span><br>Electrocerebral silence (isoelectric) at max sensitivity × 30 min</div>
-     <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">CT Angiography</span><br>No intracranial flow (4-vessel study). Most widely available.</div>
+     <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">DSA (Catheter Angiography)</span><br>4-vessel conventional angiography — no intracranial flow. Historical gold standard.</div>
      <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">Radionuclide Scan</span><br>HMPAO SPECT — absent brain perfusion ("hollow skull" sign)</div>
-     <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">TCD Ultrasound</span><br>Absent/reversed diastolic flow in both MCAs</div>
-     <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">SSEP</span><br>Absent bilateral N20 cortical response to median nerve stimulation</div>
-     <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">BSA (BAEP)</span><br>Absent waves III–V bilaterally on brainstem auditory evoked potential</div>
+     <div class="bd-chip"><span style="font-weight:700;color:var(--accent)">TCD Ultrasound</span><br>Absent/reversed diastolic flow or brief systolic spikes in both MCAs (adults only)</div>
     </div>
+    <div style="font-size:9px;color:var(--text-faint);margin-top:5px">2023 AAN/AAP/CNS/SCCM: EEG, evoked potentials (SSEP/BAEP), CT angiography and MR angiography are <strong>not acceptable</strong> ancillary tests.</div>
    </div>
 
    <!-- Notes - its own container -->
    <div class="note-box">
     <strong>Number of examiners (Bangladesh/regional):</strong> 2 independent physicians required; at least one senior neurologist/neurosurgeon or intensivist. Examiners must not be part of transplant team.<br>
-    <strong>Observation period:</strong> 6h minimum after hypoxic-ischaemic injury; 12–24h after other causes — before declaring brain death<br>
+    <strong>Observation period (2023 AAN/AAP/CNS/SCCM):</strong> ≥24h minimum after hypoxic-ischaemic brain injury (adults/≥24mo) before starting BD/DNC evaluation · for other causes, guideline specifies no fixed number — observe a <em>sufficient</em> time based on injury pathophysiology to establish irreversibility and exclude confounders. Verify local/legal minimums for your jurisdiction — may differ from this clinical guideline.<br>
     <strong>Spinal reflexes may persist</strong> (Lazarus sign, limb withdrawal) — do NOT invalidate BD diagnosis as these are spinal cord reflexes<br>
     <strong>Paediatric:</strong> Different criteria apply (&lt;37 wks GA → not applicable; neonates → 7 days observation; infants → 2 exams 24h apart)<br>
     <strong>Organ donation:</strong> Brain death = legal death in most jurisdictions. Haemodynamic management critical for organ preservation: MAP 60–80, Na 130–150, glucose 5–10 mmol/L, temp 36–37°C, DDAVP for diabetes insipidus<br>
@@ -8002,10 +8005,10 @@ function eiwSwitchPO4(which){
     </div>
    </div>
    <div>
-    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Exacerbations in past year</div>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Moderate/severe exacerbations in past year</div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
-     <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">0–1 (no hospitalisation)</span></label>
-     <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="high" onchange="calcGOLD()"> <span style="font-size:11px">≥2, or ≥1 hospitalised</span></label>
+     <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="low" onchange="calcGOLD()" checked> <span style="font-size:11px">0 (none)</span></label>
+     <label class="radio-label" style="flex:1;min-width:110px"><input type="radio" name="gold-exac" value="high" onchange="calcGOLD()"> <span style="font-size:11px">≥1 moderate or severe</span></label>
     </div>
    </div>
   </div>
@@ -8017,7 +8020,7 @@ function eiwSwitchPO4(which){
 
   <div class="note-box">
    <strong>GOLD 1 Mild:</strong> FEV1 ≥80% | <strong>GOLD 2 Moderate:</strong> 50–79% | <strong>GOLD 3 Severe:</strong> 30–49% | <strong>GOLD 4 Very Severe:</strong> &lt;30%<br>
-   <strong>Group A:</strong> low symptoms + low exacerbation risk | <strong>Group B:</strong> high symptoms + low exacerbation risk | <strong>Group E:</strong> ≥2 exacerbations or ≥1 hospitalisation (regardless of symptoms)<br>
+   <strong>Group A:</strong> low symptoms + no exacerbations in past year | <strong>Group B:</strong> high symptoms + no exacerbations in past year | <strong>Group E:</strong> ≥1 moderate or severe exacerbation in past year (GOLD 2026 — lowered from ≥2 moderate/≥1 hospitalisation)<br>
    <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> FEV1/FVC &lt;0.70 post-bronchodilator confirms airflow obstruction — required before staging applies.
   </div>
  </div>
@@ -9861,7 +9864,7 @@ function eiwSwitchPO4(which){
          <tr><td>Bicarbonate</td><td>&lt;18 mmol/L</td><td>&lt;18 mmol/L</td><td>≥15 mmol/L</td></tr>
          <tr><td>Eff. osmolality</td><td>Variable</td><td>Variable</td><td>&gt;300 mOsm/kg (calc.) or total &gt;320</td></tr>
          <tr><td>Anion gap</td><td>Often &gt;12 (not first-line)</td><td>Often &gt;12</td><td>Variable</td></tr>
-         <tr><td>Care setting</td><td>Ward / HDU / ICU by severity</td><td>Ward / HDU by severity</td><td>ICU (all cases)</td></tr>
+         <tr><td>Care setting</td><td>Ward / HDU / ICU by severity</td><td>Ward / HDU by severity</td><td>HDU / ICU by severity, mental status, haemodynamic stability</td></tr>
          <tr><td>Insulin rate</td><td>0.1 u/kg/h IV (severe) or SC q1–2h (mild-mod)</td><td>0.05–0.1 u/kg/h IV + concurrent dextrose</td><td>0.05 u/kg/h IV after initial fluids</td></tr>
         </tbody>
        </table></div>
@@ -9908,7 +9911,7 @@ function eiwSwitchPO4(which){
 
       <div class="gl-step"><div class="gl-step-num">3</div><div class="gl-step-content"><div class="gl-step-title">IV Fluid Resuscitation</div><div class="gl-step-body">First 2–4 h: isotonic saline or balanced crystalloid at 500–1,000 mL/h — balanced solutions now preferred (~5 h faster resolution). Switch to 0.45% NaCl once volume restored if corrected Na⁺ normal/high; continue 0.9% NaCl if low. Typical deficit ~6 L; replace 50% in first 8–12 h. Reduce bolus to 250 mL in cardiac/renal compromise or elderly.</div></div></div>
 
-      <div class="gl-step"><div class="gl-step-num">4</div><div class="gl-step-content"><div class="gl-step-title">Potassium — Check Before Insulin</div><div class="gl-step-body"><span class="gl-badge gl-badge-danger">K⁺ &lt;3.5</span> replace 10–20 mmol/h, hold insulin · <span class="gl-badge gl-badge-warn">K⁺ 3.5–5.0</span> add 20–40 mmol/L IV fluid, start insulin · <span class="gl-badge gl-badge-ok">K⁺ &gt;5.0</span> start insulin, withhold K⁺, recheck 2 h. Target 4.0–5.0 mmol/L throughout.</div></div></div>
+      <div class="gl-step"><div class="gl-step-num">4</div><div class="gl-step-content"><div class="gl-step-title">Potassium — Check Before Insulin</div><div class="gl-step-body"><span class="gl-badge gl-badge-danger">K⁺ &lt;3.5</span> hold insulin, replace ~10 mmol/h until K⁺ &gt;3.5 · <span class="gl-badge gl-badge-warn">K⁺ 3.5–5.0</span> add 20–30 mmol/L IV fluid, start insulin · <span class="gl-badge gl-badge-ok">K⁺ &gt;5.0</span> start insulin, withhold K⁺, recheck 2 h. Target 4.0–5.0 mmol/L throughout.</div></div></div>
 
       <div class="gl-step"><div class="gl-step-num">5</div><div class="gl-step-content"><div class="gl-step-title">Insulin Therapy</div><div class="gl-step-body">Severe DKA (ICU): fixed-rate IV infusion 0.1 units/kg/h — no bolus. Mild/uncomplicated moderate DKA: SC rapid-acting analogue q1–2h now acceptable (2024). Continue home basal insulin at usual dose. Target glucose ~200 mg/dL (11 mmol/L).<div class="gl-note">When glucose &lt;250 mg/dL: add 5–10% dextrose to IV so insulin can continue until ketonaemia resolves — do not reduce insulin just to chase glucose.</div></div></div></div>
 
@@ -9968,8 +9971,8 @@ function eiwSwitchPO4(which){
        <div class="dg-table-wrap"><table class="dg-table hgc-lytes-table">
         <thead><tr><th>Electrolyte</th><th>Threshold / Trigger</th><th>Action</th><th>Notes</th></tr></thead>
         <tbody>
-         <tr><td>K⁺ &lt;3.5 mmol/L</td><td>Before / during insulin</td><td>Replace 10–20 mmol/h IV; hold insulin</td><td>Restart insulin only when K⁺ &gt;3.5</td></tr>
-         <tr><td>K⁺ 3.5–5.0 mmol/L</td><td>Throughout treatment</td><td>Add 20–40 mmol K⁺ per litre IV fluid</td><td>Target 4.0–5.0 mmol/L</td></tr>
+         <tr><td>K⁺ &lt;3.5 mmol/L</td><td>Before / during insulin</td><td>Hold insulin; replace ~10 mmol/h IV</td><td>Restart insulin only when K⁺ &gt;3.5</td></tr>
+         <tr><td>K⁺ 3.5–5.0 mmol/L</td><td>Throughout treatment</td><td>Add 20–30 mmol K⁺ per litre IV fluid</td><td>Target 4.0–5.0 mmol/L</td></tr>
          <tr><td>K⁺ &gt;5.0 mmol/L</td><td>At presentation</td><td>Start insulin; withhold K⁺ supplementation</td><td>Recheck in 2 h</td></tr>
          <tr><td>HCO₃⁻ (bicarbonate)</td><td>pH &lt;7.0 + haemodynamic compromise</td><td>100 mmol NaHCO₃ over 1 h (selective only)</td><td>Not recommended routinely</td></tr>
          <tr><td>Phosphate</td><td>&lt;1.0 mmol/L + muscle weakness / cardiac / respiratory compromise</td><td>20–30 mmol KPO₄ in IV fluid</td><td>Not recommended routinely; rapid replacement risks hypocalcaemia</td></tr>
@@ -10851,9 +10854,9 @@ function eiwSwitchPO4(which){
    <div style="padding:8px 2px;margin-bottom:8px">
     <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:6px">ONSET DURATION — Critical Decision</div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.75">
-     <strong style="color:var(--text-strong)">&lt;48 hr onset</strong> → Cardioversion safe (chemical or electrical) without anticoagulation delay<br>
-     <strong style="color:var(--text-strong)">&gt;48 hr or unknown</strong> → Anticoagulate ≥3 weeks before cardioversion <em>OR</em> TOE-guided cardioversion to exclude LAA thrombus<br>
-     <span style="color:#f59e0b"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Always rate-control first regardless of duration</span>
+     <strong style="color:var(--text-strong)">&lt;24 hr onset</strong> (and no high thromboembolic risk) → Cardioversion reasonable without pre-anticoagulation delay — start anticoagulation at time of cardioversion<br>
+     <strong style="color:var(--text-strong)">≥24 hr or unknown</strong> → NOT recommended without ≥3 weeks therapeutic anticoagulation <em>OR</em> TOE excluding LAA thrombus first<br>
+     <span style="color:#f59e0b"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Continue anticoagulation ≥4 weeks post-cardioversion in nearly all patients, longer-term if thromboembolic risk present. Haemodynamically unstable patients proceed to immediate electrical cardioversion regardless of duration (see above) — rate control is for stable patients only.</span>
     </div>
    </div>
 
@@ -10876,18 +10879,18 @@ function eiwSwitchPO4(which){
 
    <!-- Rhythm control -->
    <div style="padding:8px 2px;margin-bottom:8px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:6px">CHEMICAL CARDIOVERSION (&lt;48 hr AF, stable)</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:6px">CHEMICAL CARDIOVERSION (&lt;24 hr AF, stable)</div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
      <strong style="color:var(--accent)">Amiodarone IV</strong> 5 mg/kg over 1 hr → 50 mg/hr maintenance (max 1.2g/24hr)<br>
      <strong style="color:var(--accent)">Flecainide IV</strong> 2 mg/kg over 30 min (max 150mg) — structural heart disease CI<br>
      <strong style="color:var(--accent)">Sotalol</strong> 0.5–1.5 mg/kg IV over 10 min — QTc monitoring required<br>
-     <span style="color:#f59e0b"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Always anticoagulate before and after cardioversion per CHA₂DS₂-VASc score</span>
+     <span style="color:#f59e0b"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Peri-cardioversion anticoagulation depends on AF duration, thromboembolic risk, prior anticoagulation, and TOE findings. Most patients need ≥4 weeks post-cardioversion OAC; in carefully selected very-low-risk patients with definite AF ≤24 hr, post-CV OAC may be omitted.</span>
     </div>
    </div>
 
-   <!-- CHA2DS2 VASc quick strip -->
+   <!-- CHA2DS2 VA quick strip -->
    <div style="padding:8px 2px;margin-bottom:8px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:6px">CHA₂DS₂-VASc — STROKE RISK (Anticoag threshold ≥2 men / ≥3 women)</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:6px">CHA₂DS₂-VA — STROKE RISK (2024 ESC: unified threshold ≥2)</div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;font-size:11px;color:var(--text-muted)">
      <div><span style="color:#60a5fa;font-weight:700">C</span> Cardiac failure (+1)</div>
      <div><span style="color:#60a5fa;font-weight:700">H</span> Hypertension (+1)</div>
@@ -10896,10 +10899,10 @@ function eiwSwitchPO4(which){
      <div><span style="color:#60a5fa;font-weight:700">S₂</span> Stroke/TIA (+2)</div>
      <div><span style="color:#60a5fa;font-weight:700">V</span> Vascular disease (+1)</div>
      <div><span style="color:#60a5fa;font-weight:700">A</span> Age 65–74 (+1)</div>
-     <div><span style="color:#60a5fa;font-weight:700">Sc</span> Sex = female (+1)</div>
+     <div>Female sex — risk modifier, not scored</div>
     </div>
     <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">
-     Score 0 (M) / 1 (F): No anticoag &nbsp;|&nbsp; Score 1 (M) / 2 (F): Consider DOAC &nbsp;|&nbsp; ≥2 (M) / ≥3 (F): DOAC (preferred over warfarin)
+     Score 0: No anticoag &nbsp;|&nbsp; Score 1: Consider anticoagulation &nbsp;|&nbsp; ≥2: Anticoagulation recommended (DOAC preferred over warfarin)
     </div>
    </div>
 
@@ -11194,10 +11197,10 @@ function eiwSwitchPO4(which){
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
     <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">POST-ROSC CARE</div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.8">
-     • SpO₂ 94–98% &nbsp;|&nbsp; PaCO₂ 35–45 mmHg &nbsp;|&nbsp; MAP ≥65 mmHg<br>
+     • SpO₂ 90–98% (PaO₂ 60–105 mmHg) &nbsp;|&nbsp; PaCO₂ 35–45 mmHg &nbsp;|&nbsp; MAP ≥65 mmHg<br>
      • 12-lead ECG → PCI if STEMI<br>
-     • TTM: 32–36°C × 24hr if comatose post-ROSC<br>
-     • CBG: 7.8–10 mmol/L (avoid hypoglycaemia)<br>
+     • Temperature control: 32–37.5°C, deliberate strategy for ≥36hr if not following commands<br>
+     • Glucose: avoid hypoglycaemia (&lt;70 mg/dL / 3.9 mmol/L) and hyperglycaemia (&gt;180 mg/dL / 10 mmol/L)<br>
      <span style="font-size:10.5px;color:var(--text-faint)">2025: Vasopressin removed · ECPR for refractory arrest · Double sequential defibrillation for refractory VF</span>
     </div>
    </div>
@@ -15291,14 +15294,17 @@ function calcAPACHE() {
 
  const total = physTotal + ageS + chronicS;
 
- // Mortality estimate
+ // Illness severity band — NOTE: original APACHE II mortality prediction requires a
+ // diagnostic-category coefficient combined with the score in a logistic regression
+ // equation; a raw score→percentage lookup (population-derived, no category adjustment)
+ // is not a validated per-patient mortality estimate. Severity band only.
  let mort, color, interp;
- if      (total < 10)  { mort = '~15%';  color = '#10b981'; interp = '✅ Low severity'; }
- else if (total < 15)  { mort = '~25%';  color = '#10b981'; interp = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Moderate'; }
- else if (total < 20)  { mort = '~40%';  color = '#f59e0b'; interp = '🟡 High severity'; }
- else if (total < 25)  { mort = '~55%';  color = '#f97316'; interp = '🟠 Very high severity'; }
- else if (total < 30)  { mort = '~75%';  color = '#ef4444'; interp = '🔴 Critical'; }
- else                  { mort = '>85%';  color = '#ef4444'; interp = '🔴 Critical — very high predicted mortality'; }
+ if      (total < 10)  { mort = 'Low';        color = '#10b981'; interp = '✅ Low severity'; }
+ else if (total < 15)  { mort = 'Low–Mod';    color = '#10b981'; interp = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Moderate'; }
+ else if (total < 20)  { mort = 'Moderate';   color = '#f59e0b'; interp = '🟡 High severity'; }
+ else if (total < 25)  { mort = 'High';       color = '#f97316'; interp = '🟠 Very high severity'; }
+ else if (total < 30)  { mort = 'Very High';  color = '#ef4444'; interp = '🔴 Critical'; }
+ else                  { mort = 'Extreme';    color = '#ef4444'; interp = '🔴 Critical — very high illness severity'; }
 
  const totalEl  = document.getElementById('apache-total');
  const mortEl   = document.getElementById('apache-mortality');
@@ -15522,8 +15528,8 @@ function calcBrainDeath() {
  let summary, detail, color, borderColor;
 
  if (allMet) {
-  summary = '🔴 ALL CRITERIA MET — Brain Death';
-  detail = 'All 4 prerequisites satisfied · All 6 brainstem reflexes absent · Apnoea test positive (PaCO₂ ≥60 mmHg confirmed)<br><strong style="color:#ef4444">Proceed per institutional protocol: second examiner confirmation, time of death documentation, family notification, organ donation discussion.</strong>';
+  summary = '🔴 BD/DNC Clinical Criteria Assessment Complete';
+  detail = 'All 4 prerequisites satisfied · All 6 brainstem reflexes absent · Apnoea test positive (PaCO₂ ≥60 mmHg AND ≥20 above baseline AND pH &lt;7.30)<br><strong style="color:#ef4444">This checklist supports — but does NOT constitute — a legal determination of death. Formal institutional/legal declaration requires the qualified examiner(s) to independently confirm findings per local protocol (second independent examination, ancillary testing if any confounder present, time-of-death documentation) before organ donation discussion or withdrawal of support.</strong>';
   color = '#ef4444'; borderColor = '#ef444460';
  } else if (!allPre) {
   summary = '⏸ Prerequisites Incomplete (' + prereqs + '/4)';
@@ -15892,11 +15898,10 @@ function cvPick(rowId, val, btnEl) {
 }
 
 function calcCHADSVASC() {
-  const isFemale = document.getElementById('cv-female').checked;
   const flags = [
     ['cv-chf', 1], ['cv-htn', 1], ['cv-dm', 1],
-    ['cv-stroke', 2], ['cv-vasc', 1], ['cv-female', 1]
-  ];
+    ['cv-stroke', 2], ['cv-vasc', 1]
+  ];   // 2024 ESC CHA₂DS₂-VA: female sex is a risk modifier, not independently scored
   let total = 0;
   flags.forEach(([id, wt]) => { if (document.getElementById(id).checked) total += wt; });
   const ageRow = document.getElementById('cv-row-age');
@@ -15913,22 +15918,21 @@ function calcCHADSVASC() {
   const risk = riskTable[Math.min(total, 9)];
 
   let title, detail, color, borderColor;
-  const threshold = isFemale ? 3 : 2;
-  const considerThreshold = isFemale ? 2 : 1;
 
-  if (total === 0 || (isFemale && total === 1)) {
-    title = '🟢 CHA₂DS₂-VASc: ' + total + ' — Low Risk';
-    detail = 'Est. annual stroke risk ≈ ' + risk + '%. No antithrombotic therapy generally needed.';
+  if (total === 0) {
+    title = '🟢 CHA₂DS₂-VA: ' + total + ' — Low Risk';
+    detail = 'Approx. annual stroke risk ≈ ' + risk + '%* . No antithrombotic therapy generally needed.';
     color = '#10b981'; borderColor = '#10b98140';
-  } else if (total === considerThreshold) {
-    title = '🟡 CHA₂DS₂-VASc: ' + total + ' — Intermediate Risk';
-    detail = 'Est. annual stroke risk ≈ ' + risk + '%. Consider anticoagulation, individualised to bleeding risk.';
+  } else if (total === 1) {
+    title = '🟡 CHA₂DS₂-VA: ' + total + ' — Intermediate Risk';
+    detail = 'Approx. annual stroke risk ≈ ' + risk + '%* . Anticoagulation should be considered, individualised to bleeding risk (2024 ESC).';
     color = 'var(--accent)'; borderColor = 'var(--border)';
   } else {
-    title = '🔴 CHA₂DS₂-VASc: ' + total + ' — High Risk';
-    detail = 'Est. annual stroke risk ≈ ' + risk + '%. Anticoagulation recommended (score ≥' + threshold + '), subject to bleeding-risk assessment (e.g. HAS-BLED).';
+    title = '🔴 CHA₂DS₂-VA: ' + total + ' — High Risk';
+    detail = 'Approx. annual stroke risk ≈ ' + risk + '%* . Anticoagulation recommended (score ≥2), subject to bleeding-risk assessment (e.g. HAS-BLED).';
     color = '#ef4444'; borderColor = '#ef444460';
   }
+  detail += '<div style="font-size:9px;color:var(--text-faint);margin-top:4px">*Cohort-derived estimate — varies by population studied; the score\'s primary validated use is guiding the anticoagulation decision, not precise individual risk prediction.</div>';
 
   titleEl.style.color = color;
   titleEl.innerHTML = title;
@@ -16024,15 +16028,16 @@ function calcDKA() {
   const hco3Low  = hco3 < 18;
   const acidotic = phLow || hco3Low;   // 2024 consensus: pH<7.30 AND/OR HCO3<18 (either qualifies)
   const agHigh   = ag > 12;            // supportive only — NOT a mandatory diagnostic gate (2024 consensus removed AG as required criterion)
-  const glucHigh = gluc > 11;
-  const glucVeryHigh = gluc > 33;
-  const osmHigh  = osm > 320;
+  const glucHighNumeric = gluc > 11;
+  const glucHigh = glucHighNumeric || t1dm;   // 2024 consensus: hyperglycaemia criterion = glucose ≥11.1 mmol/L OR known diabetes (for standard-DKA path only)
+  const glucVeryHigh = gluc >= 33.3;   // 2024 consensus exact threshold: ≥600 mg/dL = 33.3 mmol/L
+  const osmHigh  = osm > 300;   // input field is EFFECTIVE osmolality (2Na+Glu/18) — 2024 consensus threshold is >300 mOsm/kg for effective osm (vs >320 for total osm)
 
   let diagnosis = '', severity = '', criteria = '', management = '', color = '#f59e0b', borderColor = '#f59e0b60';
 
   // ── Scoring logic ──
   const isDKA    = acidotic && ketHigh && glucHigh;
-  const isEuDKA  = acidotic && ketHigh && !glucHigh;
+  const isEuDKA  = acidotic && ketHigh && !glucHighNumeric;   // euDKA defined by genuinely non-elevated glucose — NOT overridden by known-diabetes flag, since euDKA occurs precisely in known diabetics with normal/near-normal glucose
   const isHHS    = glucVeryHigh && osmHigh && !ketHigh && !acidotic;
   const isOverlap= glucVeryHigh && osmHigh && ketPos && acidotic;
   const euDKAtrigger = isEuDKA;
@@ -16042,7 +16047,7 @@ function calcDKA() {
     if (isOverlap) {
       diagnosis = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> DKA + HHS Overlap';
       color = '#f97316'; borderColor = '#f9731660';
-      criteria = '✅ High glucose (>33) · ✅ High osmolality (>320) · ✅ Acidosis (pH&lt;7.30 and/or HCO₃&lt;18) · ✅ Ketonaemia present';
+      criteria = '✅ High glucose (&ge;33.3) · ✅ High eff. osmolality (>300) · ✅ Acidosis (pH&lt;7.30 and/or HCO₃&lt;18) · ✅ Ketonaemia present';
       management = `<strong style="color:#f97316">Treat as DKA primarily.</strong><br>
 IV 0.9% NaCl — correct volume deficit carefully (avoid rapid osmolality drop)<br>
 IV Actrapid infusion 0.1 unit/kg/hr · Add 5–10% dextrose when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin<br>
@@ -16071,11 +16076,13 @@ Hold SGLT2i immediately and do not restart until fully recovered<br>
 Target: ketones &lt;0.6 mmol/L · pH &gt;7.30 · HCO₃ &gt;18 before stopping insulin`;
     }
     else if (isDKA) {
-      // DKA severity
+      // DKA severity — 2024 consensus: multi-parameter (pH, HCO3, ketones, mental status), not pH alone
       let sev = '', sevColor = '';
-      if (ph >= 7.25)       { sev = 'Mild DKA';    sevColor = '#10b981'; }
-      else if (ph >= 7.00)  { sev = 'Moderate DKA'; sevColor = '#f59e0b'; }
-      else                  { sev = 'Severe DKA';   sevColor = '#ef4444'; }
+      const severeFlags = (ph > 0 && ph < 7.00) || (hco3 > 0 && hco3 < 10) || dkaKetone === 'high' || dkaAMS === 'stupor' || dkaAMS === 'coma';
+      const moderateFlags = (ph >= 7.00 && ph <= 7.25) || (hco3 >= 10 && hco3 < 15) || dkaKetone === 'mod' || dkaAMS === 'drowsy';
+      if (severeFlags)       { sev = 'Severe DKA';   sevColor = '#ef4444'; }
+      else if (moderateFlags){ sev = 'Moderate DKA'; sevColor = '#f59e0b'; }
+      else                    { sev = 'Mild DKA';    sevColor = '#10b981'; }
       if (preg && ph < 7.30) { sev = 'Severe (Pregnancy)'; sevColor = '#ef4444'; }
 
       diagnosis = `🔴 Diabetic Ketoacidosis (DKA)`;
@@ -16095,7 +16102,7 @@ Target resolution: ketones &lt;0.6 · pH &gt;7.30 · HCO₃ &gt;18 (anion gap cl
     else if (isHHS) {
       diagnosis = '🔵 Hyperglycaemic Hyperosmolar State (HHS)';
       color = '#06b6d4'; borderColor = '#06b6d460';
-      criteria = `✅ Glucose >33 mmol/L · ✅ Osmolality >320 · ✅ Ketonaemia absent/trace · ✅ pH &ge;7.30 and HCO₃ &ge;15 (absence of acidosis)`;
+      criteria = `✅ Glucose ≥33.3 mmol/L (≥600 mg/dL) · ✅ Eff. osmolality >300 · ✅ Ketonaemia absent/trace · ✅ pH &ge;7.30 and HCO₃ &ge;15 (absence of acidosis)`;
 
       const amsMsg = dkaAMS !== 'alert' ? `<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> AMS/coma present — consistent with severe HHS` : '';
 
