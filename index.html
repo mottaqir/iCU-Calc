@@ -2801,15 +2801,15 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-amio">
  <div class="drug-header" onclick="toggleCard('amio')">
  <div class="drug-dot" style="background:#f59e0b"></div>
- <div style="flex:1"><div class="drug-name">Amiodarone <span class="brand-name">(Maintenance)</span></div><div class="drug-dilution">6 amp + 12ml 5% DA &rarr; 30ml (900mg)<br>Conc: 30mg/ml</div></div>
- <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-amio">2</div><div class="rate-unit">ml/hr</div></div></div>
+ <div style="flex:1"><div class="drug-name">Amiodarone <span class="brand-name">(Maintenance)</span></div><div class="drug-dilution">6 amp + 482ml 5% DA &rarr; 500ml (900mg)<br>Conc: 1.8mg/ml</div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">Infusion rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-amio">33.3</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="result-box" style="border:1px solid #f59e0b40; margin-top:10px">
  <div class="label">Fixed Protocol</div>
- <div style="text-align:right; font-size:13px; color:#f59e0b; font-weight:700; line-height:1.8">360mg &rarr; 2ml/hr &times; 6 hrs<br>540mg &rarr; 1ml/hr &times; 18 hrs</div>
+ <div style="text-align:right; font-size:13px; color:#f59e0b; font-weight:700; line-height:1.8">360mg &rarr; 33.3ml/hr &times; 6 hrs (1mg/min)<br>540mg &rarr; 16.7ml/hr &times; 18 hrs (0.5mg/min)</div>
  </div>
- <div class="note-box">6 amp + 12ml 5% DA = 30ml = 900mg | 1 amp = 3ml = 150mg | Use 5% DA only<br><strong>N.B.</strong> Check BP &amp; HR carefully. Stop if BP low or HR &le; 75 bpm.</div>
+ <div class="note-box">6 amp + 482ml 5% DA = 500ml = 900mg (1.8mg/ml) | 1 amp = 3ml = 150mg | Use 5% DA only | FDA-labelled safe range 1&ndash;6mg/ml (&gt;2mg/ml requires central line)<br><strong>N.B.</strong> Continuous ECG/BP monitoring. Reduce or stop for clinically significant bradycardia, hypotension, or other toxicity — no fixed HR cutoff.</div>
  </div>
  </div>
  </div>
@@ -9172,7 +9172,7 @@ function eiwSwitchPO4(which){
    ];
 
    const abxProtocolDrugs = [
-     { name:"Vancomycin (IV)", why:"AUC/trough-guided — use dedicated Vancomycin dosing protocol, not a fixed table" },
+     { name:"Vancomycin (IV)", why:"AUC24/MIC 400–600 preferred (2020 consensus) — use dedicated Vancomycin dosing protocol, not a fixed table" },
    ];
 
    const abxSourceNote = "Rows marked \"standard reference\" (Tigecycline, Clarithromycin, Fosfomycin, Amikacin, Gentamicin, Colistin, Polymyxin B, Teicoplanin, Cefoperazone-sulbactam, Entecavir) come from established pharmacology references (Sanford/Lexicomp-type), not the Stanford PDF — cross-check against your hospital's own antibiogram/formulary.";
@@ -9891,7 +9891,7 @@ function eiwSwitchPO4(which){
        <div class="dg-table-wrap"><table class="dg-table hgc-resolution-table">
         <thead><tr><th>Condition</th><th>Resolution Criteria</th><th>SC Transition</th></tr></thead>
         <tbody>
-         <tr><td class="tag-dka">DKA / euDKA</td><td>β-OHB &lt;0.6 mmol/L <em>and</em> venous pH ≥7.3 <em>and</em> glucose &lt;200 mg/dL</td><td rowspan="2">Basal-bolus TDD 0.3–0.6 u/kg/day. Start basal ≥1–2 h before stopping IV infusion.</td></tr>
+         <tr><td class="tag-dka">DKA / euDKA</td><td>β-OHB &lt;0.6 mmol/L <em>and</em> (venous pH ≥7.3 <em>or</em> HCO₃ ≥18) <em>and</em> glucose &lt;200 mg/dL</td><td rowspan="2">Basal-bolus TDD 0.3–0.6 u/kg/day. Start basal ≥1–2 h before stopping IV infusion.</td></tr>
          <tr><td class="tag-hhs">HHS</td><td>Osmolality &lt;300 mOsm/kg <em>and</em> glucose &lt;250 mg/dL <em>and</em> alert + tolerating orals</td></tr>
         </tbody>
        </table></div>
@@ -9917,7 +9917,7 @@ function eiwSwitchPO4(which){
 
       <div class="gl-step"><div class="gl-step-num">6</div><div class="gl-step-content"><div class="gl-step-title">Bicarbonate &amp; Phosphate — Selective Use Only</div><div class="gl-step-body">Bicarbonate: not routine — consider 100 mmol NaHCO₃ over 1 h only if pH &lt;7.0 with haemodynamic compromise. Phosphate: not routine — replace if &lt;1.0 mmol/L with muscle weakness, cardiac or respiratory impairment (20–30 mmol KPO₄ in IV fluid).</div></div></div>
 
-      <div class="gl-step"><div class="gl-step-num">7</div><div class="gl-step-content"><div class="gl-step-title">Resolution &amp; SC Transition</div><div class="gl-step-body">Resolved when β-OHB &lt;0.6 mmol/L (or HCO₃ ≥18 if unavailable) + venous pH ≥7.3 + glucose &lt;200 mg/dL — see Diagnosis tab table. Estimate TDD 0.3–0.6 u/kg/day; start basal-bolus SC, giving basal ≥1–2 h before stopping IV infusion.</div></div></div>
+      <div class="gl-step"><div class="gl-step-num">7</div><div class="gl-step-content"><div class="gl-step-title">Resolution &amp; SC Transition</div><div class="gl-step-body">Resolved when β-OHB &lt;0.6 mmol/L + (venous pH ≥7.3 <em>or</em> HCO₃ ≥18) + glucose &lt;200 mg/dL — see Diagnosis tab table. Estimate TDD 0.3–0.6 u/kg/day; start basal-bolus SC, giving basal ≥1–2 h before stopping IV infusion.</div></div></div>
 
       <div class="gl-step"><div class="gl-step-num">8</div><div class="gl-step-content"><div class="gl-step-title">Discharge Planning &amp; Prevention</div><div class="gl-step-body">Sick-day rules, insulin omission risks, ketone monitoring and injection-technique education. Ketone testing supplies at discharge. Address the precipitant. Outpatient diabetes follow-up within 1–4 weeks.</div></div></div>
 
@@ -9936,9 +9936,9 @@ function eiwSwitchPO4(which){
 
       <div class="gl-step"><div class="gl-step-num">5</div><div class="gl-step-content"><div class="gl-step-title">Potassium — Same Protocol as DKA</div><div class="gl-step-body">Check K⁺ before insulin. Replace aggressively if &lt;3.5 mmol/L and hold insulin until corrected. Target 4.0–5.0 mmol/L.</div></div></div>
 
-      <div class="gl-step"><div class="gl-step-num">6</div><div class="gl-step-content"><div class="gl-step-title">Insulin + Dextrose — Key Distinction from Classic DKA</div><div class="gl-step-body">Run dextrose alongside insulin from the start: 5–10% dextrose concurrently with or before insulin; IV insulin 0.05–0.1 units/kg/h (lower end if glucose near-normal). Target glucose 140–200 mg/dL. Continue until β-OHB &lt;0.6 mmol/L and pH ≥7.3 — do not stop early.<div class="gl-note">The goal is to clear ketones, not to lower glucose — dextrose is what lets insulin continue safely.</div></div></div></div>
+      <div class="gl-step"><div class="gl-step-num">6</div><div class="gl-step-content"><div class="gl-step-title">Insulin + Dextrose — Key Distinction from Classic DKA</div><div class="gl-step-body">Run dextrose alongside insulin from the start: 5–10% dextrose concurrently with or before insulin; IV insulin 0.05–0.1 units/kg/h (lower end if glucose near-normal). Target glucose 140–200 mg/dL. Continue until β-OHB &lt;0.6 mmol/L and (pH ≥7.3 or HCO₃ ≥18) — do not stop early.<div class="gl-note">The goal is to clear ketones, not to lower glucose — dextrose is what lets insulin continue safely.</div></div></div></div>
 
-      <div class="gl-step"><div class="gl-step-num">7</div><div class="gl-step-content"><div class="gl-step-title">Resolution &amp; SC Transition</div><div class="gl-step-body">β-OHB &lt;0.6 mmol/L + venous pH ≥7.3 + eating and drinking normally. Transition to basal-bolus SC insulin, giving basal ≥1–2 h before stopping IV infusion.</div></div></div>
+      <div class="gl-step"><div class="gl-step-num">7</div><div class="gl-step-content"><div class="gl-step-title">Resolution &amp; SC Transition</div><div class="gl-step-body">β-OHB &lt;0.6 mmol/L + (venous pH ≥7.3 or HCO₃ ≥18) + eating and drinking normally. Transition to basal-bolus SC insulin, giving basal ≥1–2 h before stopping IV infusion.</div></div></div>
 
       <div class="gl-step"><div class="gl-step-num">8</div><div class="gl-step-content"><div class="gl-step-title">Discharge — SGLT2 Counselling</div><div class="gl-step-body">Educate on euDKA risk with SGLT2 inhibitors during illness, fasting, surgery or alcohol use. Check ketones (blood preferred) whenever unwell, regardless of glucose. Joint decision on restarting SGLT2 after specialist review.</div></div></div>
 
@@ -11503,7 +11503,7 @@ const bolusData = [
  { name:"Somatostatin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasoactive", color:"#a78bfa", amp:"3 mg vial (lyophilized) + solvent", doseMin:null, doseMax:null, unit:"IV slow bolus over 3–5 min", headerLabel:"250 mcg", onset:"1-2 min", duration:"~3 min (very short half-life)", note:"For acute variceal bleeding | <span style='font-size:0.8em;vertical-align:0.10em'>&#9888;&#65039;</span> Bolus alone is not enough — follow immediately with continuous infusion 250 mcg/hr, or effect wears off within minutes | May repeat bolus once in first hour if bleeding continues | Watch for hyperglycaemia, bradycardia, abdominal cramps" },
  { name:"Octreotide", group:"GI Bleed – Vasoactive Drugs", cat:"Somatostatin Analogue", color:"#a78bfa", amp:"1 amp = 1ml = 50mcg", doseMin:null, doseMax:null, unit:"IV bolus", headerLabel:"50 mcg", onset:"few min", duration:"~1.5-2 hr", note:"For acute variceal bleeding | Follow bolus with continuous infusion 25–50 mcg/hr | Longer acting than Somatostatin, less frequent redosing needed | Monitor blood glucose (can cause hyper- or hypoglycaemia)" },
  // ── Anti-epileptic & Endocrine ──
- { name:"Phenytoin <span class=\"brand-name\">(Eptoin)</span>", group:"Anti-epileptic & Endocrine", cat:"Anti-epileptic", color:"#10b981", amp:"1 amp = 2ml = 100mg", doseMin:15, doseMax:15, unit:"mg/kg loading", onset:"-", duration:"-", note:"Dilute each amp to 5ml | 1 amp/min | CI: Pregnancy, Bradycardia" },
+ { name:"Phenytoin <span class=\"brand-name\">(Eptoin)</span>", group:"Anti-epileptic & Endocrine", cat:"Anti-epileptic", color:"#10b981", amp:"1 amp = 2ml = 100mg", doseMin:15, doseMax:15, unit:"mg/kg loading", onset:"-", duration:"-", note:"Dilute each amp to 5ml | Max rate 50 mg/min (never exceed) | Caution: bradycardia, hypotension — pregnancy is not an absolute CI in status epilepticus, weigh risk/benefit" },
  { name:"Human Insulin R <span class=\"brand-name\" style=\"font-size:0.78em\">(Actrapid HM 100IU/ml)</span>", group:"Anti-epileptic & Endocrine", cat:"Endocrine", color:"#10b981", amp:"100 IU/ml vial | S/C injection", doseMin:null, doseMax:null, unit:"units S/C", onset:"15-30 min", duration:"4-6 hr", slidingScale:true, smallHeader:true },
 ];
 
@@ -12193,7 +12193,7 @@ var rdacDrugList = [
  { id:'acyclovir', name:'Acyclovir (IV)', category:'Antibiotics', type:'calc' },
  { id:'ganciclovir', name:'Ganciclovir (induction)', category:'Antibiotics', type:'calc' },
  { id:'vancomycin', name:'Vancomycin (IV)', category:'Antibiotics', type:'note',
-   note:'Level/AUC-guided dosing (trough 15-20 mcg/mL or AUC24 400-600). Loading dose 25-30 mg/kg (max 3g) is unchanged regardless of renal function; maintenance interval lengthens as CrCl falls. Do not dose purely from a CrCl bracket — involve pharmacy.' },
+   note:'AUC24/MIC 400–600 is the preferred target for serious MRSA infection (2020 consensus) — lower nephrotoxicity than trough-only dosing. Trough-only 15–20 mcg/mL remains used in some contexts (e.g. CNS infection) where AUC monitoring is unavailable. Loading dose 25-30 mg/kg (max 3g) is unchanged regardless of renal function; maintenance interval lengthens as CrCl falls. Do not dose purely from a CrCl bracket — involve pharmacy.' },
  { id:'colistin', name:'Colistin (Colistimethate)', category:'Antibiotics', type:'note',
    note:'Loading and maintenance dose are calculated from a specific formula (Colistin Base Activity, CBA) using renal function and a target plasma steady-state concentration — not a simple CrCl bracket. Requires pharmacy/ICU dosing protocol.' },
  { id:'ceftriaxone', name:'Ceftriaxone', category:'Antibiotics', type:'note',
@@ -16073,7 +16073,7 @@ Start 5–10% Dextrose infusion immediately (glucose normal — still needs insu
 IV 0.9% NaCl — volume replacement<br>
 K⁺ replacement — check hourly initially<br>
 Hold SGLT2i immediately and do not restart until fully recovered<br>
-Target: ketones &lt;0.6 mmol/L · pH &gt;7.30 · HCO₃ &gt;18 before stopping insulin`;
+Target: ketones &lt;0.6 mmol/L · (pH &ge;7.30 or HCO₃ &ge;18) before stopping insulin`;
     }
     else if (isDKA) {
       // DKA severity — 2024 consensus: multi-parameter (pH, HCO3, ketones, mental status), not pH alone
@@ -16097,7 +16097,7 @@ IV Actrapid infusion: 0.1 unit/kg/hr (fixed rate) — do NOT bolus<br>
 K⁺ replacement: if K &lt;3.5 → hold insulin, give ~10 mmol/hr KCl until K&gt;3.5; K 3.5–5.5 → add 20–30 mmol KCl per litre IV fluid; K &gt;5.5 → hold K<br>
 Switch to 5% Dextrose + 0.45% NaCl when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin until ketosis resolves<br>
 Bicarbonate: only if pH &lt;6.9 (100 mEq NaHCO₃ over 2h)<br>
-Target resolution: ketones &lt;0.6 · pH &gt;7.30 · HCO₃ &gt;18 (anion gap closed)`;
+Target resolution: ketones &lt;0.6 · (pH &ge;7.30 or HCO₃ &ge;18)`;
     }
     else if (isHHS) {
       diagnosis = '🔵 Hyperglycaemic Hyperosmolar State (HHS)';
@@ -16944,7 +16944,7 @@ const DRUGS = [
   {id:'milrinone',name:'Milrinone',                        cat:'Vasopressor/Inotrope', amt:20,  amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:0.125,hi:0.75, note:'Vasodilator + inotrope; reduce/avoid in renal impairment.'},
 
   // Antiarrhythmics / Antihypertensives
-  {id:'amiodarone',name:'Amiodarone (maintenance)',        cat:'Antiarrhythmic',       amt:900, amtU:'mg',   vol:50, doseU:'mg/min',     lo:0.5,  hi:1,    note:'Loading 150 mg over 10 min given separately, then this maintenance infusion.'},
+  {id:'amiodarone',name:'Amiodarone (maintenance)',        cat:'Antiarrhythmic',       amt:900, amtU:'mg',   vol:500, doseU:'mg/min',     lo:0.5,  hi:1,    note:'900mg in 500ml D5W (1.8mg/ml) — FDA-labelled safe range 1–6mg/ml, >2mg/ml requires central line. Loading 150 mg over 10 min given separately, then this maintenance infusion.'},
   {id:'lidocaine',name:'Lidocaine',                        cat:'Antiarrhythmic',       amt:2,   amtU:'g',    vol:50, doseU:'mg/min',     lo:1,    hi:4,    note:'Reduce dose in hepatic failure or low cardiac output.'},
   {id:'esmolol',  name:'Esmolol',                          cat:'Antihypertensive',     amt:2500,amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:50,   hi:200,  note:'Loading bolus 500 mcg/kg over 1 min usually precedes infusion.'},
   {id:'labetalol',name:'Labetalol',                        cat:'Antihypertensive',     amt:200, amtU:'mg',   vol:50, doseU:'mg/hr',      lo:2,    hi:8,    note:'Avoid in reactive airway disease/decompensated HF.'},
