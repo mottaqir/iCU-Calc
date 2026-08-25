@@ -603,6 +603,7 @@ input[type=range]::-moz-range-progress {
   font-size: 10.5px !important; line-height: 1.22;
   letter-spacing: 0.1px;
   font-weight: 400 !important; color: var(--text-faint) !important;
+  text-align: justify; text-align-last: left;
 }
 .special-cat-sub-dot {
   display: inline-block;
@@ -16533,7 +16534,12 @@ function updateCategorySubtitles() {
     // line-wrap point.
     var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
     var glueTag = function (s) { return esc(s).replace(/ /g, '\u00A0').replace(/-/g, '\u2011'); };
-    subEl.innerHTML = names.map(glueTag).join(' <span class="special-cat-sub-dot">\u00B7</span> ');
+    var parts = names.map(glueTag);
+    var html = parts.length ? parts[0] : '';
+    for (var i = 1; i < parts.length; i++) {
+      html += ' <span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span>\u00A0' + parts[i] + '</span>';
+    }
+    subEl.innerHTML = html;
   });
 }
 
