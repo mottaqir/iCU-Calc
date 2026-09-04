@@ -16536,8 +16536,18 @@ function updateCategorySubtitles() {
     var glueTag = function (s) { return esc(s).replace(/ /g, '\u00A0').replace(/-/g, '\u2011'); };
     var parts = names.map(glueTag);
     var html = parts.length ? parts[0] : '';
+    // The separator before each tag (after the first) is the browser's only
+    // valid wrap point in this strip. Normally that's a plain breakable
+    // space — but if the very last tag were free to wrap on its own, a
+    // narrow screen could strand it alone on the final line, looking like
+    // it's glued to its bullet with no room to breathe (no neighbour on
+    // that line to justify-stretch against). Using a non-breaking space
+    // before the last tag only forces it to always wrap together with the
+    // tag before it, so the final line — if it wraps at all — carries at
+    // least two tags, never a lone orphan.
     for (var i = 1; i < parts.length; i++) {
-      html += ' <span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span> ' + parts[i] + '</span>';
+      var sep = (i === parts.length - 1) ? '\u00A0' : ' ';
+      html += sep + '<span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span> ' + parts[i] + '</span>';
     }
     subEl.innerHTML = html;
   });
