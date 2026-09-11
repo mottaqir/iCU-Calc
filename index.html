@@ -600,7 +600,11 @@ input[type=range]::-moz-range-progress {
 }
 .special-cat-sub {
   display: block; margin-top: 1.5px;
-  font-size: 10.5px !important; line-height: 1.22;
+  /* var() indirection lets JS shrink this per-instance (fitCategorySubtitle)
+     via --sub-fs on the element's inline style, even though the property
+     itself is !important \u2014 the !important locks precedence of the
+     declaration, not the runtime value of the custom property it reads. */
+  font-size: var(--sub-fs, 10.5px) !important; line-height: 1.22;
   letter-spacing: 0.1px;
   font-weight: 400 !important; color: var(--text-faint) !important;
   text-align: justify; text-align-last: left;
@@ -610,6 +614,12 @@ input[type=range]::-moz-range-progress {
   transform: scale(1.85);
   font-weight: 700;
 }
+/* Fixed-width, non-text spacer used in place of a literal space after the dot
+   once a subtitle wraps to 3\u20134 lines \u2014 see fitCategorySubtitle(). Being an
+   inline-block box (not a space character), text-align:justify cannot stretch
+   it, so it stays exactly 4px on every line regardless of how much slack that
+   line's native justify needs to distribute elsewhere. */
+.special-cat-sub-gap { display: inline-block; width: 4px; }
 .special-cat-count {
   font-size: 10.5px; font-weight: 700; color: var(--accent);
   background: var(--accent-dim); border-radius: 999px;
@@ -16255,6 +16265,8 @@ function syncSpecialGaps() {
   var footer = document.querySelector('.app-footer');
   if (!eyebrow || !tabBar || !footer) return;
 
+  fitAllCategorySubtitles();
+
   specialGapModeOn();
 
   var kids = Array.prototype.filter.call(tabEl.children, function (k) {
@@ -16303,6 +16315,11 @@ function scheduleSpecialCompactFit() {
 }
 function fitSpecialCalcCompact() { syncSpecialGaps(); }
 
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function () {
+    if (typeof scheduleSpecialCompactFit === 'function') scheduleSpecialCompactFit();
+  });
+}
 window.addEventListener('resize', scheduleSpecialCompactFit);
 window.addEventListener('orientationchange', scheduleSpecialCompactFit);
 window.addEventListener('pageshow', scheduleSpecialCompactFit);
@@ -16507,6 +16524,57 @@ var CATEGORY_TAG_OVERRIDES = {
 // assigned to that category. Prefers the curated short tag above; falls back
 // to the card's own live title (trimmed of a trailing "Score") so a brand
 // new card still shows something reasonable before a tag is added for it.
+// Builds the dot-separated tag string's HTML, wrapped in an inline "probe"
+// span. .special-cat-sub itself is display:block, and getClientRects() only
+// fragments into one rect per line for an INLINE box \u2014 on a block element
+// it always returns a single rect for the whole box regardless of how many
+// lines it wraps to. Measuring the inner inline probe (which shares the same
+// available width, since it's laid out inside the block) gives an accurate
+// per-line rect count.
+//
+// When fixedGap is false, the dot\u2192tag gap is a plain (justify-eligible)
+// space \u2014 the original look, fine when the subtitle only wraps to 1\u20132 lines
+// since there's no repeated line-start position for the eye to compare. When
+// fixedGap is true, that gap is replaced with a fixed 4px spacer (see
+// .special-cat-sub-gap) so it can never be stretched, used once wrapping
+// reaches 3\u20134 lines \u2014 see fitCategorySubtitle().
+function renderCategorySubHTML(parts, fixedGap) {
+  var inner = parts.length ? parts[0] : '';
+  var gap = fixedGap ? '<span class="special-cat-sub-gap"></span>' : ' ';
+  for (var i = 1; i < parts.length; i++) {
+    inner += ' <span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span>' + gap + parts[i] + '</span>';
+  }
+  return '<span class="special-cat-sub-probe">' + inner + '</span>';
+}
+
+// Re-renders one .special-cat-sub against its actual current wrap once the
+// element is visible/measurable: shrinks the font 1px if it wraps to 4+
+// lines, then locks the dot\u2192tag gap to a fixed 4px if the (possibly now
+// shrunk) result still wraps to 3 or more lines.
+function fitCategorySubtitle(subEl) {
+  var parts = subEl.__subParts;
+  if (!parts || parts.length < 2) return;
+
+  subEl.style.removeProperty('--sub-fs');
+  subEl.innerHTML = renderCategorySubHTML(parts, false);
+  var probe = subEl.firstElementChild;
+  if (!probe || probe.getClientRects().length === 0) return; // not laid out/visible yet
+  var lines = probe.getClientRects().length;
+
+  if (lines >= 4) {
+    subEl.style.setProperty('--sub-fs', '9.5px');
+    lines = probe.getClientRects().length; // same probe node, re-measure post-shrink
+  }
+
+  if (lines >= 3) {
+    subEl.innerHTML = renderCategorySubHTML(parts, true);
+  }
+}
+
+function fitAllCategorySubtitles() {
+  document.querySelectorAll('.special-cat-sub').forEach(fitCategorySubtitle);
+}
+
 function updateCategorySubtitles() {
   SPECIAL_LAYOUT.forEach(function (group) {
     var isCategory = group.slot.indexOf('specialcat-') === 0;
@@ -16535,21 +16603,12 @@ function updateCategorySubtitles() {
     var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
     var glueTag = function (s) { return esc(s).replace(/ /g, '\u00A0').replace(/-/g, '\u2011'); };
     var parts = names.map(glueTag);
-    var html = parts.length ? parts[0] : '';
-    // The separator before each tag (after the first) is the browser's only
-    // valid wrap point in this strip. Normally that's a plain breakable
-    // space — but if the very last tag were free to wrap on its own, a
-    // narrow screen could strand it alone on the final line, looking like
-    // it's glued to its bullet with no room to breathe (no neighbour on
-    // that line to justify-stretch against). Using a non-breaking space
-    // before the last tag only forces it to always wrap together with the
-    // tag before it, so the final line — if it wraps at all — carries at
-    // least two tags, never a lone orphan.
-    for (var i = 1; i < parts.length; i++) {
-      var sep = (i === parts.length - 1) ? '\u00A0' : ' ';
-      html += sep + '<span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span> ' + parts[i] + '</span>';
-    }
-    subEl.innerHTML = html;
+    // Stash for fitCategorySubtitle() to re-render against once this element
+    // is actually visible/measurable (it may not be yet \u2014 e.g. Special Calc
+    // isn't the active tab on first load).
+    subEl.__subParts = parts;
+    subEl.style.removeProperty('--sub-fs');
+    subEl.innerHTML = renderCategorySubHTML(parts, false);
   });
 }
 
