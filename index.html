@@ -587,11 +587,18 @@ input[type=range]::-moz-range-progress {
 /* ── Special Calc: category groups ── */
 .special-cat { margin-bottom: 0; }
 .special-cat-header {
-  display: flex; align-items: flex-start; gap: 11px;
+  display: flex; align-items: flex-start; gap: 7px;
   padding: 7px 2px; border-radius: 4px;
   cursor: pointer; user-select: none;
 }
 .special-cat-icon { font-size: 14px; flex-shrink: 0; line-height: 1; align-self: center; }
+/* Column holding the title row (label + chevron, parallel to each other) and
+   the subtitle strip below it. Kept as its own flex item (separate from the
+   chevron) so the subtitle's width is the *full* row width on every line —
+   the chevron only ever competes for space on the title's own line, not on
+   the subtitle's wrapped lines beneath it. */
+.special-cat-content { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.special-cat-toprow { display: flex; align-items: center; gap: 7px; }
 .special-cat-label {
   flex: 1 1 auto; min-width: 0;
   font-size: 12.5px; font-weight: 800; letter-spacing: 0.3px;
@@ -600,11 +607,12 @@ input[type=range]::-moz-range-progress {
 }
 .special-cat-sub {
   display: block; margin-top: 1.5px;
-  /* var() indirection lets JS shrink this per-instance (fitCategorySubtitle)
-     via --sub-fs on the element's inline style, even though the property
-     itself is !important \u2014 the !important locks precedence of the
-     declaration, not the runtime value of the custom property it reads. */
-  font-size: var(--sub-fs, 10.5px) !important; line-height: 1.22;
+  /* padding-right caps the line's usable width a hair short of this row's
+     true right edge, so justified text lines up with the chevron's visible
+     sharp point rather than the chevron's slightly-wider invisible icon box
+     (the mask glyph doesn't fill its box edge-to-edge). */
+  padding-right: 5px;
+  font-size: 10px !important; line-height: 1.22;
   letter-spacing: 0.1px;
   font-weight: 400 !important; color: var(--text-faint) !important;
   text-align: justify; text-align-last: left;
@@ -620,13 +628,6 @@ input[type=range]::-moz-range-progress {
    it, so it stays exactly 4px on every line regardless of how much slack that
    line's native justify needs to distribute elsewhere. */
 .special-cat-sub-gap { display: inline-block; width: 4px; }
-.special-cat-count {
-  font-size: 10.5px; font-weight: 700; color: var(--accent);
-  background: var(--accent-dim); border-radius: 999px;
-  width: 22px; height: 18px; padding: 0; box-sizing: border-box;
-  text-align: center; line-height: 18px; flex-shrink: 0;
-  align-self: center;
-}
 .special-cat-chevron {
   width: 15px; height: 15px; flex-shrink: 0; background: var(--muted);
   -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
@@ -635,7 +636,6 @@ input[type=range]::-moz-range-progress {
   -webkit-mask-position: center; mask-position: center;
   -webkit-mask-size: contain; mask-size: contain;
   transform: rotate(-90deg); transition: transform .25s ease;
-  align-self: center;
 }
 .special-cat.is-open .special-cat-chevron { transform: rotate(0deg); }
 .special-cat-body { padding-top: 8px; }
@@ -657,7 +657,8 @@ input[type=range]::-moz-range-progress {
    treatment used for plain sub-items like Shock/SIADH. */
 #calccard-glance { border: none; background: transparent; }
 #calccard-glance > .calc-title { padding-top: 7px; padding-bottom: 7px; }
-#calccard-glance > .calc-title > span:not(.calc-title-dot):not(.special-cat-count) {
+#calccard-glance > .calc-title .special-cat-title-text {
+  flex: 1 1 auto; min-width: 0;
   font-weight: 800; letter-spacing: 0.3px;
   color: var(--text-strong);
   overflow-wrap: break-word;
@@ -677,7 +678,7 @@ input[type=range]::-moz-range-progress {
 }
 #calccard-glance > .calc-title,
 #calccard-syringe > .calc-title {
-  gap: 11px;
+  gap: 7px;
 }
 /* Syringe Pump Calculator now sits at the top of the Infusion Drugs tab, in
    place of a drug-card — flat/borderless like the drug-cards below it (same
@@ -755,11 +756,7 @@ input[type=range]::-moz-range-progress {
   padding: 11px 2px;
 }
 #tab-defib > .calc-card > .calc-body { padding-left: 2px !important; padding-right: 2px !important; }
-#calccard-glance > .calc-title > .special-cat-count,
-#calccard-glance > .calc-title > .special-cat-chevron {
-  flex: 0 0 auto !important;
-}
-.calc-card.is-expanded > .calc-title > .special-cat-chevron { transform: rotate(0deg); }
+.calc-card.is-expanded > .calc-title .special-cat-chevron { transform: rotate(0deg); }
 
 /* ── Calc Fields ── */
 .field-row { margin-bottom: 10px; }
@@ -2935,9 +2932,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-assessment">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-assessment')">
    <span class="special-cat-icon">🩺</span>
-   <span class="special-cat-label">Assessment <span class="special-cat-sub" data-base="Differential &amp; Diagnostic Tools">Differential &amp; Diagnostic Tools</span></span>
-   <span class="special-cat-count" id="specialcat-assessment-count"></span>
-   <span class="special-cat-chevron"></span>
+   <div class="special-cat-content">
+    <div class="special-cat-toprow">
+     <span class="special-cat-label">Assessment</span>
+     <span class="special-cat-chevron"></span>
+    </div>
+    <span class="special-cat-sub" data-base="Differential &amp; Diagnostic Tools">Differential &amp; Diagnostic Tools</span>
+   </div>
   </div>
   <div class="special-cat-body" id="specialcat-assessment-body" style="display:none"></div>
  </div>
@@ -2945,9 +2946,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-scores">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-scores')">
    <span class="special-cat-icon">📊</span>
-   <span class="special-cat-label">Scores <span class="special-cat-sub" data-base="Severity &amp; Risk Scoring Systems">Severity &amp; Risk Scoring Systems</span></span>
-   <span class="special-cat-count" id="specialcat-scores-count"></span>
-   <span class="special-cat-chevron"></span>
+   <div class="special-cat-content">
+    <div class="special-cat-toprow">
+     <span class="special-cat-label">Scores</span>
+     <span class="special-cat-chevron"></span>
+    </div>
+    <span class="special-cat-sub" data-base="Severity &amp; Risk Scoring Systems">Severity &amp; Risk Scoring Systems</span>
+   </div>
   </div>
   <div class="special-cat-body" id="specialcat-scores-body" style="display:none"></div>
  </div>
@@ -2955,9 +2960,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-calculators">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-calculators')">
    <span class="special-cat-icon">🧮</span>
-   <span class="special-cat-label">Calculators <span class="special-cat-sub" data-base="Bedside Clinical Calculators">Bedside Clinical Calculators</span></span>
-   <span class="special-cat-count" id="specialcat-calculators-count"></span>
-   <span class="special-cat-chevron"></span>
+   <div class="special-cat-content">
+    <div class="special-cat-toprow">
+     <span class="special-cat-label">Calculators</span>
+     <span class="special-cat-chevron"></span>
+    </div>
+    <span class="special-cat-sub" data-base="Bedside Clinical Calculators">Bedside Clinical Calculators</span>
+   </div>
   </div>
   <div class="special-cat-body" id="specialcat-calculators-body" style="display:none"></div>
  </div>
@@ -2965,9 +2974,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-criteria">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-criteria')">
    <span class="special-cat-icon">✅</span>
-   <span class="special-cat-label">Criteria <span class="special-cat-sub" data-base="important Diagnostic Criteria sets">important Diagnostic Criteria sets</span></span>
-   <span class="special-cat-count" id="specialcat-criteria-count"></span>
-   <span class="special-cat-chevron"></span>
+   <div class="special-cat-content">
+    <div class="special-cat-toprow">
+     <span class="special-cat-label">Criteria</span>
+     <span class="special-cat-chevron"></span>
+    </div>
+    <span class="special-cat-sub" data-base="important Diagnostic Criteria sets">important Diagnostic Criteria sets</span>
+   </div>
   </div>
   <div class="special-cat-body" id="specialcat-criteria-body" style="display:none"></div>
  </div>
@@ -2975,9 +2988,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="special-cat" id="specialcat-correction">
   <div class="special-cat-header" onclick="toggleSpecialCat('specialcat-correction')">
    <span class="special-cat-icon">💉</span>
-   <span class="special-cat-label">Correction <span class="special-cat-sub" data-base="Electrolyte &amp; Infusion Correction">Electrolyte &amp; Infusion Correction</span></span>
-   <span class="special-cat-count" id="specialcat-correction-count"></span>
-   <span class="special-cat-chevron"></span>
+   <div class="special-cat-content">
+    <div class="special-cat-toprow">
+     <span class="special-cat-label">Correction</span>
+     <span class="special-cat-chevron"></span>
+    </div>
+    <span class="special-cat-sub" data-base="Electrolyte &amp; Infusion Correction">Electrolyte &amp; Infusion Correction</span>
+   </div>
   </div>
   <div class="special-cat-body" id="specialcat-correction-body" style="display:none"></div>
  </div>
@@ -8095,9 +8112,13 @@ function eiwSwitchPO4(which){
  <div class="calc-card" id="calccard-glance">
   <div class="calc-title" onclick="toggleCalc('calccard-glance')">
    <span class="calc-title-dot">👁️</span>
-   <span>At a Glance <span class="special-cat-sub" data-base="Cheatsheets &amp; Quick Reference">Cheatsheets &amp; Quick Reference</span></span>
-   <span class="special-cat-count">10</span>
-   <span class="special-cat-chevron"></span>
+   <div class="special-cat-content">
+    <div class="special-cat-toprow">
+     <span class="special-cat-title-text">At a Glance</span>
+     <span class="special-cat-chevron"></span>
+    </div>
+    <span class="special-cat-sub" data-base="Cheatsheets &amp; Quick Reference">Cheatsheets &amp; Quick Reference</span>
+   </div>
   </div>
   <div class="calc-body" id="calccard-glance-body" style="display:none">
 
@@ -16495,25 +16516,25 @@ var CATEGORY_TAG_OVERRIDES = {
   'calccard-ventcalc': 'Ventilator',
   // Criteria
   'calccard-dic': 'DIC',
-  'calccard-ards': 'ARDS',
+  'calccard-ards': 'Berlin ARDS',
   'calccard-gold': 'GOLD',
   'calccard-lights': "Light's",
   'calccard-jones': 'Jones',
   // Correction
   'calccard-bicarb': 'NaHCO\u2083',
-  'calccard-kdeficit': 'K\u207A',
+  'calccard-kdeficit': 'K\u207A deficit',
   'calccard-nacl': '3% NaCl',
   'calccard-fwd': 'Free Water Deficit',
-  'calccard-insulin': 'Insulin',
-  'calccard-heparin': 'Heparin',
-  'calccard-eiw': 'Electrolytes',
+  'calccard-insulin': 'Insulin Dosing',
+  'calccard-heparin': 'Heparin Adjustment',
+  'calccard-eiw': 'Electrolyte Workup',
   // At a Glance
-  'gls-abg': 'ABG',
+  'gls-abg': 'ABG Interpretation',
   'gls-vent': 'Ventilator',
   'gls-cbc': 'CBC',
   'gls-sepsis': 'Sepsis Guideline',
-  'gls-abx': 'Antibiotic',
-  'gls-dengue': 'Dengue',
+  'gls-abx': 'Antibiotic Coverage',
+  'gls-dengue': 'Dengue Guideline',
   'gls-hbv': 'HBV Serology',
   'gls-hgc': 'Hyperglycemic Crisis',
   'gls-se': 'Status Epilepticus',
@@ -16539,32 +16560,39 @@ var CATEGORY_TAG_OVERRIDES = {
 // .special-cat-sub-gap) so it can never be stretched, used once wrapping
 // reaches 3\u20134 lines \u2014 see fitCategorySubtitle().
 function renderCategorySubHTML(parts, fixedGap) {
-  var inner = parts.length ? parts[0] : '';
   var gap = fixedGap ? '<span class="special-cat-sub-gap"></span>' : ' ';
-  for (var i = 1; i < parts.length; i++) {
-    inner += ' <span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span>' + gap + parts[i] + '</span>';
+  var inner = '';
+  for (var i = 0; i < parts.length; i++) {
+    // Only the tag's own first word needs to stay glued to its leading dot
+    // (so the dot never gets orphaned alone at a line end) — any further
+    // words in a multi-word tag (e.g. "Antibiotic Coverage") are free to
+    // wrap on their own like normal text, so a lone "Coverage" can start
+    // the next line instead of dragging the whole tag down with it.
+    var sp = parts[i].indexOf(' ');
+    var firstWord = sp === -1 ? parts[i] : parts[i].slice(0, sp);
+    var rest = sp === -1 ? '' : parts[i].slice(sp + 1);
+    if (i === 0) {
+      inner += firstWord;
+    } else {
+      inner += ' <span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span>' + gap + firstWord + '</span>';
+    }
+    if (rest) inner += ' ' + rest;
   }
   return '<span class="special-cat-sub-probe">' + inner + '</span>';
 }
 
 // Re-renders one .special-cat-sub against its actual current wrap once the
-// element is visible/measurable: shrinks the font 1px if it wraps to 4+
-// lines, then locks the dot\u2192tag gap to a fixed 4px if the (possibly now
-// shrunk) result still wraps to 3 or more lines.
+// element is visible/measurable: locks the dot\u2192tag gap to a fixed 4px
+// once wrapping reaches 3+ lines (font size itself stays fixed at 10.5px \u2014
+// see .special-cat-sub \u2014 no longer auto-shrunk on long wraps).
 function fitCategorySubtitle(subEl) {
   var parts = subEl.__subParts;
   if (!parts || parts.length < 2) return;
 
-  subEl.style.removeProperty('--sub-fs');
   subEl.innerHTML = renderCategorySubHTML(parts, false);
   var probe = subEl.firstElementChild;
   if (!probe || probe.getClientRects().length === 0) return; // not laid out/visible yet
   var lines = probe.getClientRects().length;
-
-  if (lines >= 4) {
-    subEl.style.setProperty('--sub-fs', '9.5px');
-    lines = probe.getClientRects().length; // same probe node, re-measure post-shrink
-  }
 
   if (lines >= 3) {
     subEl.innerHTML = renderCategorySubHTML(parts, true);
@@ -16595,13 +16623,14 @@ function updateCategorySubtitles() {
     subEl.setAttribute('data-base', joined);
     // Render with an oversized separator dot (readable at a glance) while
     // the keyword text itself stays small — a plain textContent join can't
-    // size the dot differently, so build it as escaped HTML instead. Each
-    // tag's own internal spaces/hyphens are turned unbreakable (\u2011,
-    // \u00A0) so e.g. "Free Water Deficit" or "Sepsis-3" never splits across
-    // two lines — only the real space-dot-space between tags is a valid
-    // line-wrap point.
+    // size the dot differently, so build it as escaped HTML instead. Only a
+    // tag's own hyphen is turned unbreakable (\u2011) so a compound token like
+    // "Sepsis-3" never splits mid-word; a tag's internal spaces stay real
+    // (breakable) spaces — renderCategorySubHTML() glues just the dot to the
+    // tag's first word, so a multi-word tag like "Antibiotic Coverage" can
+    // still wrap between its own words once on the line.
     var esc = function (s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
-    var glueTag = function (s) { return esc(s).replace(/ /g, '\u00A0').replace(/-/g, '\u2011'); };
+    var glueTag = function (s) { return esc(s).replace(/-/g, '\u2011'); };
     var parts = names.map(glueTag);
     // Stash for fitCategorySubtitle() to re-render against once this element
     // is actually visible/measurable (it may not be yet \u2014 e.g. Special Calc
