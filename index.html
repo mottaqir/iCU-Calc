@@ -630,7 +630,7 @@ input[type=range]::-moz-range-progress {
 .special-cat-sub-gap { display: inline-block; width: 4px; }
 .special-cat-count {
   font-size: 10px; font-weight: 700; color: var(--accent);
-  background: transparent; border: 1px solid var(--accent-dim);
+  background: transparent; border: 1px solid var(--accent);
   border-radius: 4px;
   min-width: 18px; height: 17px; padding: 0 4px; box-sizing: border-box;
   text-align: center; line-height: 15px; flex-shrink: 0;
@@ -11536,7 +11536,7 @@ const bolusData = [
  { name:"Labetalol", group:"Cardiac & Anti-arrhythmic", cat:"Anti-hypertensive", color:"#f59e0b", amp:"1 amp = 10ml = 50mg", doseMin:0.25, doseMax:0.5, unit:"mg/kg IV over 10 min", onset:"5-10 min", duration:"3-6 hr", note:"Usual dose: 20-80mg slow IV | Repeat every 10 min PRN | Max cumulative: 300mg | CI: Asthma, bradycardia, heart block, decompensated HF" },
  // ── Sedation & Analgesia ──
  { name:"Midazolam", group:"Sedation & Analgesia", cat:"Sedation", color:"#58a6ff", amp:"5mg/5cc OR 15mg/3cc amp", doseMin:0.02, doseMax:0.1, unit:"mg/kg slow IV", onset:"2-3 min", duration:"15-30 min", note:"IV bolus slowly over 2 min | Titrate to effect | Reduce dose in elderly & hepatic impairment" },
- { name:"Fentanyl", group:"Sedation & Analgesia", cat:"Analgesia", color:"#58a6ff", amp:"1 amp = 2ml = 100mcg", doseMin:1, doseMax:1.5, unit:"mcg/kg slow IV", onset:"2-5 min", duration:"30-60 min", note:"Give slowly over 3-5 min | Bolus: 0.3-1.5mcg/kg | Reduce in elderly & renal impairment" },
+ { name:"Fentanyl", group:"Sedation & Analgesia", cat:"Analgesia", color:"#58a6ff", amp:"1 amp = 2ml = 100mcg", doseMin:0.3, doseMax:1.5, unit:"mcg/kg slow IV", onset:"2-5 min", duration:"30-60 min", note:"Give slowly over 3-5 min | Bolus: 0.3-1.5mcg/kg | Reduce in elderly & renal impairment" },
  { name:"Propofol", group:"Sedation & Analgesia", cat:"Sedation", color:"#58a6ff", amp:"200mg/20ml vial (10mg/ml)", doseMin:1, doseMax:2.5, unit:"mg/kg", onset:"60 sec", duration:"-", note:"For 70kg: 70-175mg" },
  // ── Induction & Neuromuscular Blockers (RSI) ──
  { name:"Ketamine", group:"Induction & NMB (RSI)", cat:"Induction / Dissociative", color:"#ef4444", amp:"500mg/10ml vial (50mg/ml)", doseMin:1, doseMax:2, unit:"mg/kg IV induction", onset:"30-60 sec", duration:"10-15 min", note:"RSI/induction: 1-2mg/kg IV | Sub-dissociative analgesia: 0.1-0.3mg/kg IV | Preferred in haemodynamic instability, bronchospasm/asthma | Raises BP &amp; HR — caution in IHD, uncontrolled HTN | Emergence reactions — co-administer Midazolam | CI: severe uncontrolled hypertension, eclampsia" },
@@ -11682,16 +11682,27 @@ function renderBolus() {
  const wt = getWt();
  let html = '';
  let lastGroup = null;
- bolusData.forEach((d, i) => {
+ // Pulls the weight-based dose's actual unit (e.g. "mcg" or "mg") off the
+// front of a drug's d.unit string (e.g. "mcg/kg slow IV" -> "mcg"), instead
+// of assuming every weight-based drug is dosed in mg — Fentanyl is mcg/kg,
+// and hardcoding " mg" on its calculated numbers was a real overdose-display
+// risk (mcg numbers rendered with an "mg" label).
+function doseUnitLabel(u) {
+ var m = /^([a-zA-Z]+)\//.exec(u || '');
+ return m ? m[1] : 'mg';
+}
+
+bolusData.forEach((d, i) => {
  if (d.group && d.group !== lastGroup) {
   if (lastGroup !== null) html += '</div>';
   html += `<div class="cat-block"><div class="cat-label">${d.group}</div>`;
   lastGroup = d.group;
  }
  const id = 'bc-' + i;
+ const du = doseUnitLabel(d.unit);
  let doseText = d.doseMin === null ? 'See note'
- : d.doseMin === d.doseMax ? (d.doseMin * wt).toFixed(1) + ' mg'
- : (d.doseMin * wt).toFixed(1) + ' - ' + (d.doseMax * wt).toFixed(1) + ' mg';
+ : d.doseMin === d.doseMax ? (d.doseMin * wt).toFixed(1) + ' ' + du
+ : (d.doseMin * wt).toFixed(1) + ' - ' + (d.doseMax * wt).toFixed(1) + ' ' + du;
 
  let bodyContent = '';
  if (d.slidingScale) {
@@ -11758,8 +11769,9 @@ function updateBolusDoses(v) {
   const sl = document.getElementById('bwt-' + i), num = document.getElementById('bwt-' + i + '-n');
   if (sl) sl.value = v;
   if (num) num.value = v;
-  const doseText = d.doseMin === d.doseMax ? (d.doseMin * v).toFixed(1) + ' mg'
-   : (d.doseMin * v).toFixed(1) + ' - ' + (d.doseMax * v).toFixed(1) + ' mg';
+  const du = doseUnitLabel(d.unit);
+  const doseText = d.doseMin === d.doseMax ? (d.doseMin * v).toFixed(1) + ' ' + du
+   : (d.doseMin * v).toFixed(1) + ' - ' + (d.doseMax * v).toFixed(1) + ' ' + du;
   const wtLabel = document.getElementById('bc-wtlabel-' + i);
   if (wtLabel) wtLabel.textContent = v;
   const doseEl = document.getElementById('bc-dose-' + i);
