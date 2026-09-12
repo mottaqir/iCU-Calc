@@ -629,11 +629,11 @@ input[type=range]::-moz-range-progress {
    line's native justify needs to distribute elsewhere. */
 .special-cat-sub-gap { display: inline-block; width: 4px; }
 .special-cat-count {
-  font-size: 10px; font-weight: 700; color: var(--accent);
-  background: transparent; border: 1px solid var(--accent);
+  font-size: 9px; font-weight: 400; color: var(--text-strong);
+  background: transparent; border: 1px solid var(--text-strong);
   border-radius: 4px;
-  min-width: 18px; height: 17px; padding: 0 4px; box-sizing: border-box;
-  text-align: center; line-height: 15px; flex-shrink: 0;
+  min-width: 16px; height: 15px; padding: 0 3px; box-sizing: border-box;
+  text-align: center; line-height: 13px; flex-shrink: 0;
 }
 .special-cat-chevron {
   width: 15px; height: 15px; flex-shrink: 0; background: var(--muted);
@@ -11678,19 +11678,25 @@ const slidingScaleHTML = `
   </div>
  </div>`;
 
-function renderBolus() {
- const wt = getWt();
- let html = '';
- let lastGroup = null;
- // Pulls the weight-based dose's actual unit (e.g. "mcg" or "mg") off the
+// Pulls the weight-based dose's actual unit (e.g. "mcg" or "mg") off the
 // front of a drug's d.unit string (e.g. "mcg/kg slow IV" -> "mcg"), instead
 // of assuming every weight-based drug is dosed in mg — Fentanyl is mcg/kg,
 // and hardcoding " mg" on its calculated numbers was a real overdose-display
-// risk (mcg numbers rendered with an "mg" label).
+// risk (mcg numbers rendered with an "mg" label). Declared at top level (not
+// nested inside renderBolus()) because updateBolusDoses() — a separate
+// function that every weight slider's oninput funnels through — also calls
+// it; nesting it inside renderBolus() left updateBolusDoses() throwing a
+// silent ReferenceError on every weight change, which is why the header
+// doses stopped updating at all after that fix.
 function doseUnitLabel(u) {
  var m = /^([a-zA-Z]+)\//.exec(u || '');
  return m ? m[1] : 'mg';
 }
+
+function renderBolus() {
+ const wt = getWt();
+ let html = '';
+ let lastGroup = null;
 
 bolusData.forEach((d, i) => {
  if (d.group && d.group !== lastGroup) {
