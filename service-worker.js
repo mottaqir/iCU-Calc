@@ -1,4 +1,4 @@
-// ═══ iCU Calc — Service Worker (v47, cache-first + silent revalidate) ═══
+// ═══ iCU Calc — Service Worker (v48, cache-first + silent revalidate) ═══
 // Strategy: cache-first for instant, always-works opens. Every request
 // (navigation, app-shell, cross-origin) is answered from cache immediately
 // if a cached copy exists — no waiting on the network, and it works with
@@ -10,7 +10,7 @@
 // request wait on the network (there is nothing else to serve yet).
 // Every activation nukes ANY cache that isn't the current version — no
 // accumulation of old app-shell caches ever.
-const VERSION = 'v47';
+const VERSION = 'v48';
 const CACHE_NAME = 'icu-calc-' + VERSION;
 
 const APP_SHELL = [
