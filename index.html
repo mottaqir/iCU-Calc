@@ -27,8 +27,17 @@
 <link rel="manifest" href="./manifest.json">
 
 <!-- Static fallback theme-color (read by OS/browser chrome before JS runs).
-     JS below overrides #themeColorMeta live on every theme toggle. -->
-<meta name="theme-color" id="themeColorMeta" content="#0d1117" media="(prefers-color-scheme: dark)">
+     JS below overrides #themeColorMeta live on every theme toggle. No
+     media="(prefers-color-scheme: ...)" restriction here on purpose — the
+     app's dark/light theme is driven entirely by our own in-app toggle
+     (data-theme attribute), not by the OS's color-scheme preference. With
+     that media condition attached, this tag only "activated" for Chrome's
+     status-bar coloring when the OS itself preferred dark; the moment the
+     OS preference was light, the tag went inert and every JS content update
+     was silently ignored, so the status bar just stayed on whatever color
+     Chrome had defaulted to — which is exactly why toggling to the in-app
+     light theme left a dark status bar behind. -->
+<meta name="theme-color" id="themeColorMeta" content="#0d1117">
 
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="iCU Calc">
