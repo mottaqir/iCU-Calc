@@ -1139,7 +1139,7 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
    shrunk/inset next to the other pinned rows; strip it back to plain
    .calc-title's padding (10px 14px on the header, none on the text) so every
    row in the pinned strip lines up the same. */
-#special-pinned-body .gl-sub-header { padding: 10px 14px; }
+#special-pinned-body .gl-sub-header { padding-top: 10px; padding-bottom: 10px; padding-left: 2px; padding-right: 2px; }
 #special-pinned-body .gl-sub-header-txt > span:not(.gl-sub-emoji) { padding: 0; }
 .gl-sub-body { padding: 0 0 3px; display: none; }
 .gl-sub-body.gl-open { display: block; }
@@ -2944,7 +2944,6 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
  <!-- ═══ Pinned/Favorited cards land here, in the user's pin order ═══ -->
  <div id="special-pinned-wrap" style="display:none">
-  <div class="pinned-section-label">★ Pinned</div>
   <div id="special-pinned-body"></div>
  </div>
 
