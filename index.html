@@ -10192,17 +10192,18 @@ function eiwSwitchPO4(which){
       </div>
       <div class="gl-section">
        <div class="gl-section-title"><span class="gl-ico"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span></span> Severe Features (any one)</div>
-       <div class="gl-tags">
+       <div class="gl-tags" style="margin-left:-7px">
         <span class="gl-tag">SBP ≥160 or DBP ≥110</span>
-        <span class="gl-tag">Plt &lt;100,000</span>
+        <span class="gl-tag">Platelet &lt;100,000</span>
         <span class="gl-tag">Cr &gt;1.1 or 2× baseline</span>
         <span class="gl-tag">LFTs 2× normal / RUQ pain</span>
-        <span class="gl-tag">Pulmonary edema</span>
-        <span class="gl-tag">New headache, unresponsive to meds</span>
+        <span class="gl-tag">Pulmonary oedema</span>
+        <span class="gl-tag">New headache, unresponsive to medication</span>
         <span class="gl-tag">Visual disturbances</span>
+        <span class="gl-tag">Proteinuria &gt;5 g/24h</span>
        </div>
       </div>
-      <div class="gl-note">Proteinuria is <b>not required</b> to diagnose severe pre-eclampsia if end-organ features are present.</div>
+      <div class="gl-note" style="background:transparent;border:0.5px solid #facc1599;border-radius:4px;padding:8px 10px"><b>N.B. —</b> Proteinuria is <b>not required</b> to diagnose severe pre-eclampsia if end-organ features are present.</div>
      </div>
 
      <!-- TAB: BP CONTROL -->
@@ -16548,6 +16549,8 @@ function getCardShortTitle(card) {
 // stripped — so a newly added card still shows *something* sensible until
 // a short tag is added for it below.
 var CATEGORY_TAG_OVERRIDES = {
+  // Scores
+  'calccard-sofa': 'SOFA + qSOFA',
   // Assessment
   'calccard-shock': 'Shock',
   'calccard-siadh': 'SIADH/CSW',
