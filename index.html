@@ -1453,10 +1453,11 @@ ul.vent-facts code{
 #gls-pe-body .pe-drug-dose small { display: block; font-weight: 400; color: var(--muted); font-size: 9.5px; }
 #gls-pe-body .pe-def-row {
   display: flex; justify-content: space-between; gap: 10px; padding: 6px 6px;
-  border-bottom: 1px dashed var(--border); font-size: 11px; color: var(--muted);
+  border-bottom: 1px dashed var(--border); font-size: 10px; color: var(--muted);
 }
 #gls-pe-body .pe-def-row:last-child { border-bottom: none; }
-#gls-pe-body .pe-def-row b { color: var(--accent); font-weight: 700; text-align: right; }
+#gls-pe-body .pe-def-row b { color: var(--accent); font-weight: 400; text-align: right; }
+#gls-pe-body .gl-tag { font-size: 10px; font-weight: 400; }
 
 /* ── Antibiotic Coverage Card (nested inside At a Glance) ──
    Ported from a standalone reference tool. Every internal class here is
@@ -10194,7 +10195,7 @@ function eiwSwitchPO4(which){
        <div class="gl-section-title"><span class="gl-ico"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span></span> Severe Features (any one)</div>
        <div class="gl-tags" style="margin-left:-7px">
         <span class="gl-tag">SBP ≥160 or DBP ≥110</span>
-        <span class="gl-tag">Platelet &lt;100,000</span>
+        <span class="gl-tag">Plt &lt;100,000</span>
         <span class="gl-tag">Cr &gt;1.1 or 2× baseline</span>
         <span class="gl-tag">LFTs 2× normal / RUQ pain</span>
         <span class="gl-tag">Pulmonary oedema</span>
