@@ -1452,12 +1452,63 @@ ul.vent-facts code{
 #gls-pe-body .pe-drug-dose { font-size: 11px; color: var(--text); font-weight: 600; text-align: right; flex: 0 0 auto; }
 #gls-pe-body .pe-drug-dose small { display: block; font-weight: 400; color: var(--muted); font-size: 9.5px; }
 #gls-pe-body .pe-def-row {
-  display: flex; justify-content: space-between; gap: 10px; padding: 6px 6px;
+  display: flex; justify-content: space-between; gap: 10px; padding: 6px 0;
   border-bottom: 1px dashed var(--border); font-size: 10px; color: var(--muted);
 }
 #gls-pe-body .pe-def-row:last-child { border-bottom: none; }
 #gls-pe-body .pe-def-row b { color: var(--accent); font-weight: 400; text-align: right; }
-#gls-pe-body .gl-tag { font-size: 10px; font-weight: 400; }
+/* Diagnostic Criteria (Dx tab only): label locked to a fixed column so it
+   never shrinks/grows, and the value gets flex-grow:1 to always fill
+   exactly the remaining width — same value-box width in every row, so
+   every row's left-aligned value text starts at the same x. 82px is the
+   measured natural single-line width of the widest label ("Gestational
+   HTN"), with white-space:nowrap so no label ever wraps — font stays at
+   the base 10px (9px was tried for a 2-line value but was too small to
+   read, and the labels wrapping was rejected too). The value text is
+   left-aligned (not right, like every other .pe-def-row in the app)
+   because that's the only way to make all three rows' value text start
+   at the same x regardless of how long or short each one is; this also
+   means its right edge isn't flush/justified, which is why it's scoped
+   to #gl-pe-dx instead of changing every .pe-def-row. text-wrap:balance
+   was tried here to even out the Pre-eclampsia value's 3 lines, but on
+   the actual phone's font it pushed MORE text onto the last line than
+   the first two (the opposite of wanted) — headless Chromium here doesn't
+   have the same system font as the device, so its balance measurements
+   didn't transfer. Plain greedy wrap (balance removed) fills each line to
+   capacity before breaking, which reliably produces a long-long-short
+   shape on any font, so it's the more robust choice here even without
+   being able to render the exact device font to confirm pixel-for-pixel.
+   align-items:center on the row centers the single-line label against
+   the taller multi-line value instead of sitting at its top (flex
+   default is stretch, which doesn't vertically center text within it). */
+#gl-pe-dx .pe-def-row { align-items: center; gap: 14px; }
+#gl-pe-dx .pe-def-row > span:first-child { flex: 0 0 82px; min-width: 0; white-space: nowrap; }
+#gl-pe-dx .pe-def-row > b { flex: 1 1 auto; min-width: 0; text-align: justify; text-align-last: left; }
+#gl-pe-dx > .gl-section:first-child > .gl-section-title { margin-top: 12px; margin-bottom: 1.5px; }
+#gl-pe-dx > .gl-section:first-child > .pe-def-row:nth-child(2) { padding-top: 3px; }
+#gl-pe-dx > .gl-section:nth-child(2) > .gl-section-title { margin-bottom: 6px; }
+#gls-pe-body .gl-tags { display: block; text-align: justify; text-align-last: left; margin-right: -7px; }
+#gls-pe-body .gl-tag { display: inline-block; font-size: 10px; font-weight: 400; margin: 2px 0; }
+/* Severe Features list: independent flex rows, not a table/grid — a table
+   would force every row's cells into shared column widths, which is its
+   own version of the "fixed slot" problem that made short items wrap
+   unnecessarily. Each row here sizes itself purely from its own content,
+   with justify-content:space-between spreading its own gaps evenly (not
+   just before the last item), and a thin .pe-sep hairline dropped in as
+   its own flex child between every pair of items so each gap reads as two
+   smaller, deliberate gaps around a divider rather than one big empty
+   stretch. The 3/3/2 grouping is fixed by which items are in which row in
+   the markup, not by width-based auto-flow, so it never depends on
+   viewport width, and rows don't align with each other's columns at all —
+   by design, like courses of brick in a wall. */
+#gls-pe-body .pe-severe-row { display: flex; justify-content: space-between; align-items: center; gap: 6px; padding: 0; margin-bottom: 4px; }
+#gls-pe-body .pe-severe-row span {
+  font-size: 10px; font-weight: 400; color: var(--muted); flex: 0 1 auto;
+}
+#gls-pe-body .pe-severe-row-mid { border-top: 1px dashed var(--border); border-bottom: 1px dashed var(--border); padding: 4px 0; }
+#gls-pe-body .pe-severe-row .pe-sep {
+  flex: 0 0 auto; width: 1px; align-self: stretch; background: var(--border);
+}
 
 /* ── Antibiotic Coverage Card (nested inside At a Glance) ──
    Ported from a standalone reference tool. Every internal class here is
@@ -10187,24 +10238,33 @@ function eiwSwitchPO4(which){
      <div class="gl-panel gl-active" id="gl-pe-dx">
       <div class="gl-section">
        <div class="gl-section-title"><span class="gl-ico">🩺</span> Diagnostic Criteria</div>
-       <div class="pe-def-row"><span>Pre-eclampsia</span><b>BP ≥140/90 (×2, 4h apart) after 20wk + proteinuria (≥300mg/24h or P:C ≥0.3) OR end-organ dysfunction w/o proteinuria</b></div>
+       <div class="pe-def-row"><span>Pre-eclampsia</span><b>BP ≥140/90 mmHg (×2, 4 hour apart) after 20 weeks + Proteinuria (≥300mg/24h or P:C ≥0.3) or end-organ dysfunction without proteinuria</b></div>
        <div class="pe-def-row"><span>Gestational HTN</span><b>BP ≥140/90 after 20wk, no proteinuria/end-organ signs</b></div>
        <div class="pe-def-row"><span>Eclampsia</span><b>new-onset tonic-clonic seizure / coma in pre-eclampsia, not attributable to other cause</b></div>
       </div>
       <div class="gl-section">
        <div class="gl-section-title"><span class="gl-ico"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span></span> Severe Features (any one)</div>
-       <div class="gl-tags" style="margin-left:-7px">
-        <span class="gl-tag">SBP ≥160 or DBP ≥110</span>
-        <span class="gl-tag">Plt &lt;100,000</span>
-        <span class="gl-tag">Cr &gt;1.1 or 2× baseline</span>
-        <span class="gl-tag">LFTs 2× normal / RUQ pain</span>
-        <span class="gl-tag">Pulmonary oedema</span>
-        <span class="gl-tag">New headache, unresponsive to medication</span>
-        <span class="gl-tag">Visual disturbances</span>
-        <span class="gl-tag">Proteinuria &gt;5 g/24h</span>
+       <div class="pe-severe-row">
+        <span>SBP ≥160 or DBP ≥110</span>
+        <span class="pe-sep"></span>
+        <span>Platelet &lt;100,000</span>
+        <span class="pe-sep"></span>
+        <span>Cr &gt;1.1 or 2×baseline</span>
+       </div>
+       <div class="pe-severe-row pe-severe-row-mid">
+        <span>LFTs 2×normal/RUQ pain</span>
+        <span class="pe-sep"></span>
+        <span>Pulmonary edema</span>
+        <span class="pe-sep"></span>
+        <span>Visual disturbances</span>
+       </div>
+       <div class="pe-severe-row">
+        <span>New headache, unresponsive to medication</span>
+        <span class="pe-sep"></span>
+        <span>Proteinuria &gt;5g/24h</span>
        </div>
       </div>
-      <div class="gl-note" style="background:transparent;border:0.5px solid #facc1599;border-radius:4px;padding:8px 10px"><b>N.B. —</b> Proteinuria is <b>not required</b> to diagnose severe pre-eclampsia if end-organ features are present.</div>
+      <div class="gl-note" style="background:transparent;border:0.5px solid #facc1599;border-radius:4px;padding:8px 10px;margin-top:10px;text-align:justify"><b>N.B. —</b> Proteinuria is <b>not required</b> to diagnose severe pre-eclampsia if end-organ features are present.</div>
      </div>
 
      <!-- TAB: BP CONTROL -->
