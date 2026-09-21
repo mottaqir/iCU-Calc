@@ -414,7 +414,7 @@ input[type=range]::-moz-range-progress {
 .mini-select-trigger {
   display: inline-flex; align-items: center; gap: 2px;
   background: var(--surface2); border: 1px solid var(--border-strong); border-radius: 3px;
-  color: var(--text); font-family: var(--mono); font-size: 10px; font-weight: 700;
+  color: var(--text); font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: -0.3px;
   padding: 0px 4px; margin: 0; line-height: 1.5; cursor: pointer;
 }
 .mini-select-trigger::after { content: '▾'; font-size: 6px; color: var(--muted); margin-left: 1px; transition: transform 0.15s; }
@@ -433,6 +433,11 @@ input[type=range]::-moz-range-progress {
 }
 .mini-select-option:hover { background: rgba(255,255,255,0.07); }
 .mini-select-option.selected { background: var(--accent-dim); color: var(--accent); font-weight: 700; }
+.dil-inline-input {
+  width: 36.5px; background: var(--surface2); border: 1px solid var(--border-strong); border-radius: 3px;
+  color: var(--text); font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: -0.3px;
+  padding: 0px 2px; margin: 0 1px 0 0; line-height: 1.5; vertical-align: baseline; text-align: center;
+}
 
 /* ── Note Box ── */
 .note-box {
@@ -2993,6 +2998,27 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="range-limits"><span>1</span><span>10</span></div>
  </div>
  <div class="note-box">1ml = 1unit | Rate ml/hr = units/hr directly<br>Before stopping IV insulin, give SC basal insulin (glargine/detemir or NPH) 1&ndash;2 hrs early &mdash; don't stop IV right after one SC dose. Basal dose &asymp; 50&ndash;80% of total insulin given in last 24h. Stopping IV too soon can cause blood sugar to rebound high.<span class="ref-info-btn" onclick="toggleRef('ref-ins')">i</span><div class="ref-popup" id="ref-ins">Ref: ADA Consensus Report, Diabetologia 2024 &bull; SCCM Insulin Infusion Guidelines, Crit Care Med 2012</div></div>
+ </div>
+ </div>
+ </div>
+
+ <div class="cat-block">
+ <div class="cat-label">Toxicology &amp; Antidotes</div>
+ <div class="drug-card" id="card-nac">
+ <div class="drug-header" onclick="toggleCard('nac')">
+ <div class="drug-dot" style="background:#eab308"></div>
+ <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:13px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308" id="rate-nac">&mdash;</div><div class="rate-unit">mg/hr</div></div></div>
+ </div>
+ <div class="drug-body">
+ <div class="card-wt-row">
+ <div class="dose-label"><span>Weight</span><span class="dose-val" style="color:#60a5fa"><span id="cwt-val-nac">60</span> kg</span></div>
+ <input type="range" id="cwt-nac" min="0.5" max="150" step="0.5" value="60" oninput="cwtSync('nac',this.value)" style="accent-color:#60a5fa">
+ </div>
+
+ <div class="note-box">2 bags, 12hr total (300mg/kg): <strong>Bag 1</strong> 100mg/kg over 2hr (200ml) &rarr; <strong>Bag 2</strong> 200mg/kg over 10hr (1000ml). Switch the ml selector above to auto-fill the amount for whichever bag you're preparing.</div>
+ <div class="note-box"><strong>Recheck ~2hr before Bag 2 ends:</strong> ALT, INR, paracetamol level. <strong>Stop</strong> if paracetamol &lt;10mg/L AND ALT normal AND INR &le;1.3 AND no clinical signs of liver injury. Otherwise continue with a further 200mg/kg over 10hr (same as Bag 2), then recheck.</div>
+ <div class="note-box"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> SNAP is a UK-originated, MHRA-unlicensed modified regimen (TOXBASE/NHS) &mdash; cross-check against your local/national poisoning protocol before use. Anaphylactoid reaction: pause infusion, treat, restart at half rate once resolved. Not independently verified against a Bangladesh national guideline.</div>
  </div>
  </div>
  </div>
@@ -11959,6 +11985,51 @@ function calcInfusion(id, dose, multiplier, conc, unit) {
  document.getElementById('rate-' + id).textContent = rate;
 }
 
+function calcNAC() {
+ const amtEl = document.getElementById('nac-amt');
+ const rateEl = document.getElementById('rate-nac');
+ if (!amtEl || !rateEl) return;
+ const wtEl = document.getElementById('cwt-nac');
+ const wt = wtEl ? parseFloat(wtEl.value) || 60 : getWt();
+ const vol = window.nacVol || 200;
+ const durationHr = vol === 1000 ? 10 : 2;
+ const perKg = vol === 1000 ? 200 : 100;
+ const unit = window.nacUnit || 'mg';
+
+ // Auto-fill the suggested weight-based dose, but never overwrite while the
+ // user is actively typing their own drawn-up amount into the field.
+ if (document.activeElement !== amtEl) {
+  const suggestedMg = perKg * wt;
+  amtEl.value = unit === 'gm' ? (suggestedMg / 1000).toFixed(2) : suggestedMg.toFixed(0);
+ }
+
+ const rawAmt = parseFloat(amtEl.value) || 0;
+ const amtMg = unit === 'gm' ? rawAmt * 1000 : rawAmt;
+ rateEl.textContent = durationHr ? (amtMg / durationHr).toFixed(1) : '—';
+}
+
+function pickNacUnit(e, val) {
+ e.stopPropagation();
+ window.nacUnit = val;
+ const trigEl = document.getElementById('mini-nac-unit-trigger');
+ if (trigEl) trigEl.textContent = val;
+ document.querySelectorAll('[data-owner="mini-nac-unit"] .mini-select-option').forEach(o => o.classList.remove('selected'));
+ e.target.classList.add('selected');
+ closeAllMiniSelects();
+ calcNAC();
+}
+
+function pickNacVol(e, val) {
+ e.stopPropagation();
+ window.nacVol = val;
+ const trigEl = document.getElementById('mini-nac-vol-trigger');
+ if (trigEl) trigEl.textContent = val + 'ml';
+ document.querySelectorAll('[data-owner="mini-nac-vol"] .mini-select-option').forEach(o => o.classList.remove('selected'));
+ e.target.classList.add('selected');
+ closeAllMiniSelects();
+ calcNAC();
+}
+
 function calcFixed(id, val) {
  document.getElementById('dv-' + id).textContent = val;
  document.getElementById('rate-' + id).textContent = val;
@@ -12107,6 +12178,7 @@ function updateAll() {
   if (g('range-kcl')) calcFixed('kcl', g('range-kcl'));
   if (g('range-ins')) calcFixed('ins', g('range-ins'));
   if (g('range-midmor')) calcFixed('midmor', g('range-midmor'));
+  if (g('cwt-nac')) calcNAC();
  } catch(e) {}
  try { calcBicarb(); } catch(e) {}
  try { calcK(); } catch(e) {}
@@ -17058,7 +17130,7 @@ try { hgInit(); } catch(e) {}
     }
   }
   function fitAllDrugNames() {
-    document.querySelectorAll('.drug-name').forEach(fitOneDrugName);
+    document.querySelectorAll('.drug-name:not([data-nofit])').forEach(fitOneDrugName);
   }
   // Align every calculator sub-card's left edge and width to exactly where a
   // card's own title text starts and how far its first line runs (e.g. up to
