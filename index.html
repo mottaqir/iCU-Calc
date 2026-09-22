@@ -398,7 +398,6 @@ input[type=range]::-moz-range-progress {
   height: 6px; border-radius: 999px;
   background: linear-gradient(90deg, #3a5a85, #16283f);
 }
-
 /* ── Result Box ── */
 .result-box {
   background: var(--surface2); border: 1px solid var(--border-strong);
@@ -2827,7 +2826,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-midmor">
  <div class="drug-header" onclick="toggleCard('midmor')">
  <div class="drug-dot" style="background:#58a6ff"></div>
- <div style="flex:1"><div class="drug-name">Midazolam + Morphine</div><div class="drug-dilution">2 amp Morphine (20mg) + 2 amp Midazolam (30mg) + 22ml NS &rarr; 30ml</div></div>
+ <div style="flex:1"><div class="drug-name">Midazolam + Morphine</div><div class="drug-dilution">2 amp Morphine (20mg) + 2 amp Midazolam<br><span style="white-space:nowrap">(30mg) + 22ml NS &rarr; 30ml</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-midmor">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -2857,6 +2856,29 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="range-limits"><span>5</span><span>20</span></div>
  </div>
  <div class="note-box">Opioid-sparing analgesic adjunct (NMDA antagonist) | Reduces opioid/sedative requirement | Watch for emergence reactions, hypersalivation, tachycardia | Caution: uncontrolled HTN, raised ICP | 1 vial = 10ml = 500mg</div>
+ </div>
+ </div>
+ </div>
+ <div class="cat-block">
+ <div class="cat-label">Status Epilepticus / Neuro-critical</div>
+ <div class="drug-card" id="card-thio">
+ <div class="drug-header" onclick="toggleCard('thio')">
+ <div class="drug-dot" style="background:#a78bfa"></div>
+ <div style="flex:1"><div class="drug-name">Thiopental Sodium <span class="brand-name">(TPS)</span></div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml · Conc: <span id="thio-conc">50</span>mg/ml</span></div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-thio">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
+ </div>
+ <div class="drug-body">
+ <div class="card-wt-row">
+ <div class="dose-label"><span>Weight</span><span class="dose-val" style="color:#60a5fa"><span id="cwt-val-thio">60</span> kg</span></div>
+ <input type="range" id="cwt-thio" min="0.5" max="150" step="0.5" value="60" oninput="cwtSync('thio',this.value)" style="accent-color:#60a5fa">
+</div>
+ 
+ <div class="dose-row">
+ <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#a78bfa"><span id="dv-thio">3.0</span> mg/kg/hr</span></div>
+ <input type="range" id="range-thio" min="1" max="15" step="0.5" value="3" oninput="calcThio()" style="accent-color:#a78bfa">
+ <div class="range-limits"><span>1</span><span>15</span></div>
+ </div>
+ <div class="note-box"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> ICU use: refractory status epilepticus or barbiturate coma for raised ICP (not routine induction/RSI). Typical maintenance 3&ndash;5mg/kg/hr; range up to 15mg/kg/hr (source table) for refractory cases &mdash; titrate to EEG burst suppression/seizure control &amp; BP. Significant hypotension/myocardial depression; immunosuppression &amp; tachyphylaxis with prolonged use; central line preferred.</div>
  </div>
  </div>
  </div>
@@ -2905,15 +2927,17 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-rate-preview"><div class="rate-caption">Infusion rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-amio">33.3</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
- <div class="result-box" style="border:1px solid #f59e0b40; margin-top:10px">
- <div class="label">Fixed Protocol</div>
- <div style="text-align:right; font-size:13px; color:#f59e0b; font-weight:700; line-height:1.8">360mg &rarr; 33.3ml/hr &times; 6 hrs (1mg/min)<br>540mg &rarr; 16.7ml/hr &times; 18 hrs (0.5mg/min)</div>
+ <div class="result-box" style="border:1px solid #f59e0b40; margin-top:10px; flex-direction:column; align-items:flex-start; gap:6px">
+ <div class="label" style="text-decoration:underline; text-underline-offset:2px">Fixed Protocol</div>
+ <div style="display:flex; flex-direction:column; gap:4px; width:100%; font-size:13px; color:#f59e0b; font-weight:700; line-height:1.8">
+  <div style="display:flex; justify-content:space-between; gap:10px"><span>360mg &rarr; 33.3ml/hr &times; 6 hrs</span><span>(1mg/min)</span></div>
+  <div style="display:flex; justify-content:space-between; gap:10px"><span>540mg &rarr; 16.7ml/hr &times; 18 hrs</span><span>(0.5mg/min)</span></div>
+ </div>
  </div>
  <div class="note-box">6 amp + 482ml 5% DA = 500ml = 900mg (1.8mg/ml) | 1 amp = 3ml = 150mg | Use 5% DA only | FDA-labelled safe range 1&ndash;6mg/ml (&gt;2mg/ml requires central line)<br><strong>N.B.</strong> Continuous ECG/BP monitoring. Reduce or stop for clinically significant bradycardia, hypotension, or other toxicity — no fixed HR cutoff.</div>
  </div>
  </div>
  </div>
-
  <div class="cat-block">
  <div class="cat-label">GI Bleed &ndash; Vasoactive Drugs</div>
  <div class="drug-card" id="card-octreo">
@@ -11660,14 +11684,26 @@ const bolusData = [
  { name:"Atracurium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"25mg/2.5ml amp (10mg/ml)", doseMin:0.5, doseMax:0.5, unit:"mg/kg", onset:"90 sec", duration:"-", note:"Safe in hepatic & renal impairment" },
  { name:"Vecuronium <span class=\"brand-name\">(Norcuron)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"10mg dry powder + 10ml NS", doseMin:0.08, doseMax:0.1, unit:"mg/kg (intubation)", onset:"90-120 sec", duration:"30 min", note:"Maintenance: 0.02-0.03mg/kg | 70kg ~ half amp" },
  { name:"Pipecuronium <span class=\"brand-name\">(Arduan)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"4mg dry powder + 2ml NS", doseMin:0.06, doseMax:0.08, unit:"mg/kg", onset:"90-120 sec", duration:"60 min", note:"Renal failure: 0.04mg/kg | CI: Myasthenia Gravis | Antidote: Neostigmine" },
+ { name:"Thiopental Sodium <span class=\"brand-name\">(TPS)</span>", group:"Status Epilepticus / Neuro-critical", cat:"Barbiturate coma", color:"#a78bfa", amp:"<span onclick=\"event.stopPropagation()\"><span class=\"mini-select\" id=\"mini-thiob-vial\"><button type=\"button\" class=\"mini-select-trigger\" id=\"mini-thiob-vial-trigger\" onclick=\"toggleMiniSelect(event,'mini-thiob-vial')\">500mg</button><span class=\"mini-select-panel\" data-owner=\"mini-thiob-vial\"><span class=\"mini-select-option selected\" onclick=\"pickThiobVial(event,500)\">500mg</span><span class=\"mini-select-option\" onclick=\"pickThiobVial(event,1000)\">1000mg</span></span></span> vial + 10ml<br><span style=\"white-space:nowrap\">WFI or 5% DA or 0.9% NS = <span id=\"thiob-conc\">50</span>mg/ml</span></span>", doseMin:2, doseMax:5, unit:"IV loading bolus", onset:"<30 sec", duration:"5-10 min", note:"ICU use is mainly refractory status epilepticus or barbiturate coma for raised ICP &mdash; NOT routine RSI/induction. Loading 2-5mg/kg (barbiturate coma protocols cite 2-3mg/kg; status epilepticus protocols cite 3-5mg/kg) &mdash; source table's 3-6mg/kg is the general-anaesthesia induction dose. Follow bolus with maintenance infusion (see Infusion Drugs), titrated to EEG burst suppression/seizure control. Significant myocardial depression/hypotension &mdash; caution in haemodynamic instability | CI: porphyria, status asthmaticus, severe shock" },
  // ── GI Bleed – Vasoactive Drugs ──
- { name:"Terlipressin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasopressor", color:"#a78bfa", amp:"1 mg vial (lyophilized) + 8.5ml diluent", doseMin:null, doseMax:null, unit:"IV bolus, every 4–6 hr", headerLabel:"1 – 2 mg", onset:"~30 min", duration:"4-6 hr", note:"For acute variceal bleeding &amp; hepatorenal syndrome | Give as slow IV bolus over 1 min | Reduce dose/frequency in elderly &amp; cardiovascular disease | Monitor for peripheral/cardiac ischaemia &amp; hyponatraemia | CI: uncontrolled hypertension, septic shock, pregnancy" },
+ { name:"Terlipressin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasopressor", color:"#a78bfa", amp:"1 mg vial<br><span style=\"white-space:nowrap\">(lyophilized) + 8.5ml diluent</span>", doseMin:null, doseMax:null, unit:"IV bolus, every 4–6 hr", headerLabel:"1 – 2 mg", onset:"~30 min", duration:"4-6 hr", note:"For acute variceal bleeding &amp; hepatorenal syndrome | Give as slow IV bolus over 1 min | Reduce dose/frequency in elderly &amp; cardiovascular disease | Monitor for peripheral/cardiac ischaemia &amp; hyponatraemia | CI: uncontrolled hypertension, septic shock, pregnancy" },
  { name:"Somatostatin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasoactive", color:"#a78bfa", amp:"3 mg vial (lyophilized) + solvent", doseMin:null, doseMax:null, unit:"IV slow bolus over 3–5 min", headerLabel:"250 mcg", onset:"1-2 min", duration:"~3 min (very short half-life)", note:"For acute variceal bleeding | <span style='font-size:0.8em;vertical-align:0.10em'>&#9888;&#65039;</span> Bolus alone is not enough — follow immediately with continuous infusion 250 mcg/hr, or effect wears off within minutes | May repeat bolus once in first hour if bleeding continues | Watch for hyperglycaemia, bradycardia, abdominal cramps" },
  { name:"Octreotide", group:"GI Bleed – Vasoactive Drugs", cat:"Somatostatin Analogue", color:"#a78bfa", amp:"1 amp = 1ml = 50mcg", doseMin:null, doseMax:null, unit:"IV bolus", headerLabel:"50 mcg", onset:"few min", duration:"~1.5-2 hr", note:"For acute variceal bleeding | Follow bolus with continuous infusion 25–50 mcg/hr | Longer acting than Somatostatin, less frequent redosing needed | Monitor blood glucose (can cause hyper- or hypoglycaemia)" },
  // ── Anti-epileptic & Endocrine ──
  { name:"Phenytoin <span class=\"brand-name\">(Eptoin)</span>", group:"Anti-epileptic & Endocrine", cat:"Anti-epileptic", color:"#10b981", amp:"1 amp = 2ml = 100mg", doseMin:15, doseMax:15, unit:"mg/kg loading", onset:"-", duration:"-", note:"Dilute each amp to 5ml | Max rate 50 mg/min (never exceed) | Caution: bradycardia, hypotension — pregnancy is not an absolute CI in status epilepticus, weigh risk/benefit" },
  { name:"Human Insulin R <span class=\"brand-name\" style=\"font-size:0.78em\">(Actrapid HM 100IU/ml)</span>", group:"Anti-epileptic & Endocrine", cat:"Endocrine", color:"#10b981", amp:"100 IU/ml vial | S/C injection", doseMin:null, doseMax:null, unit:"units S/C", onset:"15-30 min", duration:"4-6 hr", slidingScale:true, smallHeader:true },
 ];
+
+function pickThiobVial(e, vialMg) {
+ e.stopPropagation();
+ const trigEl = document.getElementById('mini-thiob-vial-trigger');
+ if (trigEl) trigEl.textContent = (vialMg === 1000 ? '1gm' : '500mg');
+ document.querySelectorAll('[data-owner="mini-thiob-vial"] .mini-select-option').forEach(o => o.classList.remove('selected'));
+ e.target.classList.add('selected');
+ const concEl = document.getElementById('thiob-conc');
+ if (concEl) concEl.textContent = (vialMg / 10).toFixed(0);
+ closeAllMiniSelects();
+}
 
 function getWt() { return parseFloat(document.getElementById('globalWt').value) || 60; }
 
@@ -11870,7 +11906,7 @@ bolusData.forEach((d, i) => {
  html += `<div class="bolus-card" id="${id}">
  <div class="bolus-header" onclick="toggleBolus('${id}')">
  <div class="drug-dot" style="background:${d.color}"></div>
- <div style="flex:1"><div class="drug-name" style="${nameSize}">${d.name}</div><div style="font-size:10px;color:var(--text-fainter)">${d.cat} &middot; ${d.amp}</div></div>
+ <div style="flex:1"><div class="drug-name" style="${nameSize}">${d.name}</div><div style="font-size:10px;color:var(--text-fainter)">${d.cat} <span style="font-size:16px;font-weight:700;color:var(--text-faint);vertical-align:middle;line-height:0">&middot;</span> ${d.amp}</div></div>
  ${d.slidingScale && d.smallHeader ? `<div style="text-align:right;font-size:12px;font-weight:500;color:${d.color};font-family:'Open Sans',sans-serif;white-space:normal;max-width:72px;line-height:1.2;align-self:center;flex-shrink:0">acc. to<br>sliding scale</div>` : headerRight}
  </div>
  <div class="bolus-body">${bodyContent}
@@ -11983,6 +12019,28 @@ function calcInfusion(id, dose, multiplier, conc, unit) {
  const dec = unit.includes('kg/min') ? (isSmall ? 3 : 2) : 1;
  document.getElementById('dv-' + id).textContent = d.toFixed(dec);
  document.getElementById('rate-' + id).textContent = rate;
+}
+
+function calcThio() {
+ const doseEl = document.getElementById('range-thio');
+ const dvEl = document.getElementById('dv-thio');
+ const rateEl = document.getElementById('rate-thio');
+ if (!doseEl || !rateEl) return;
+ const wtEl = document.getElementById('cwt-thio');
+ const wt = wtEl ? parseFloat(wtEl.value) || 60 : getWt();
+ const dose = parseFloat(doseEl.value) || 0;
+ // Fixed dilution: 500mg × 5 vials, each reconstituted with 10ml diluent,
+ // pooled to 50ml → conc fixed at 50mg/ml.
+ const conc = 50;
+ if (dvEl) dvEl.textContent = dose.toFixed(1);
+ rateEl.textContent = ((dose * wt) / conc).toFixed(2);
+ // Digit-only color cue (slider itself stays a fixed color): green for the
+ // typical 3-5mg/kg/hr maintenance range, amber once past 5mg/kg/hr into
+ // the extended/refractory range.
+ const overTypicalMax = dose > 5;
+ const color = overTypicalMax ? '#f59e0b' : '#10b981';
+ if (dvEl && dvEl.parentElement) dvEl.parentElement.style.color = color;
+ rateEl.style.color = color;
 }
 
 function calcNAC() {
@@ -12170,6 +12228,7 @@ function updateAll() {
   if (g('range-labet')) calcInfusion('labet', g('range-labet'), 60, 2000, 'mcg/kg/min');
   if (g('range-prop')) calcInfusion('prop', g('range-prop'), 1, 10, 'mg/kg/hr');
   if (g('range-midaz')) calcInfusion('midaz', g('range-midaz'), 1, 0.3, 'mg/kg/hr');
+  if (g('range-thio')) calcThio();
   if (g('range-ket')) calcInfusion('ket', g('range-ket'), 60, 10000, 'mcg/kg/min');
   if (g('range-gtn')) calcGTN(g('range-gtn'));
   if (g('range-lasix')) calcLasix(g('range-lasix'));
@@ -12190,6 +12249,15 @@ function updateAll() {
 
 function toggleCard(id) { document.getElementById('card-' + id).classList.toggle('open'); }
 function toggleDefibECG(id) { document.getElementById(id).classList.toggle('open'); }
+
+// Closes the ECG expand modal only when the tap was on the dark backdrop
+// itself (not bubbled up from the modal's inner content), since the ✕
+// button already closes it directly via its own inline handler.
+function closeECGModal(event) {
+  if (event.target && event.target.id === 'ecg-modal') {
+    document.getElementById('ecg-modal').classList.remove('open');
+  }
+}
 
 
 function toggleAHT(id) { document.getElementById(id).classList.toggle('open'); }
