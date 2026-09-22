@@ -2766,7 +2766,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-dex">
  <div class="drug-header" onclick="toggleCard('dex')">
  <div class="drug-dot" style="background:#58a6ff"></div>
- <div style="flex:1"><div class="drug-name">Dexmedetomidine</div><div class="drug-dilution">1 amp (2ml=2mg) + 48ml NS &rarr; 50ml<br>Conc: 4mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Dexmedetomidine</div><div class="drug-dilution">1 amp (2ml=200mcg) + 48ml NS &rarr; 50ml<br>Conc: 4mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-dex">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3031,8 +3031,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-nac">
  <div class="drug-header" onclick="toggleCard('nac')">
  <div class="drug-dot" style="background:#eab308"></div>
- <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:13px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
- <div class="drug-rate-preview"><div class="rate-caption">Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308" id="rate-nac">&mdash;</div><div class="rate-unit">mg/hr</div></div></div>
+ <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:13px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" style="position:relative;top:4px" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">S/P Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308;position:relative;top:-2px" id="rate-nac">&mdash;</div><div class="rate-unit" style="position:relative;top:-2px">mg/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="card-wt-row">
@@ -12063,7 +12063,12 @@ function calcNAC() {
 
  const rawAmt = parseFloat(amtEl.value) || 0;
  const amtMg = unit === 'gm' ? rawAmt * 1000 : rawAmt;
- rateEl.textContent = durationHr ? (amtMg / durationHr).toFixed(1) : '—';
+ if (durationHr) {
+  const formatted = (amtMg / durationHr).toFixed(1);
+  rateEl.textContent = formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted;
+ } else {
+  rateEl.textContent = '—';
+ }
 }
 
 function pickNacUnit(e, val) {
