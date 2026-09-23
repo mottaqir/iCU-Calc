@@ -12491,10 +12491,8 @@ var rdacDrugList = [
  { id:'fluconazole', name:'Fluconazole', category:'Antibiotics', type:'calc' },
  { id:'acyclovir', name:'Acyclovir (IV)', category:'Antibiotics', type:'calc' },
  { id:'ganciclovir', name:'Ganciclovir (induction)', category:'Antibiotics', type:'calc' },
- { id:'vancomycin', name:'Vancomycin (IV)', category:'Antibiotics', type:'note',
-   note:'AUC24/MIC 400–600 is the preferred target for serious MRSA infection (2020 consensus) — lower nephrotoxicity than trough-only dosing. Trough-only 15–20 mcg/mL remains used in some contexts (e.g. CNS infection) where AUC monitoring is unavailable. Loading dose 25-30 mg/kg (max 3g) is unchanged regardless of renal function; maintenance interval lengthens as CrCl falls. Do not dose purely from a CrCl bracket — involve pharmacy.' },
- { id:'colistin', name:'Colistin (Colistimethate)', category:'Antibiotics', type:'note',
-   note:'Loading and maintenance dose are calculated from a specific formula (Colistin Base Activity, CBA) using renal function and a target plasma steady-state concentration — not a simple CrCl bracket. Requires pharmacy/ICU dosing protocol.' },
+ { id:'vancomycin', name:'Vancomycin (IV)', category:'Antibiotics', type:'calc', guided:true },
+ { id:'colistin', name:'Colistin (Colistimethate)', category:'Antibiotics', type:'calc', guided:true },
  { id:'ceftriaxone', name:'Ceftriaxone', category:'Antibiotics', type:'note',
    note:'No renal dose adjustment needed (primarily biliary excretion) — standard 1-2 g q24h regardless of CrCl.' },
  { id:'azithromycin', name:'Azithromycin', category:'Antibiotics', type:'note',
@@ -12595,6 +12593,23 @@ var rdacShortInfo = {
 };
 
 var rdacCalcFunctions = {
+ vancomycin: function(crcl, wt, hd, crrt) {
+  var loadTxt = 'Loading 25–30 mg/kg (max 3g) IV unchanged, then:';
+  if (crrt) return { dose:Math.round(15*wt)+'–'+Math.round(20*wt)+' mg IV (15–20 mg/kg)', interval:'q24h, guided by levels', extra:loadTxt+' CRRT clearance approximates CrCl 10-50 — confirm re-dosing with a level rather than the clock. AUC24/MIC 400–600 remains the preferred target.' };
+  if (hd) return { dose:Math.round(15*wt)+'–'+Math.round(25*wt)+' mg IV (15–25 mg/kg)', interval:'After each HD session (or per level)', extra:loadTxt+' No fixed post-HD dose in the source table — dose from a pre-HD level, then re-dose after dialysis. AUC24/MIC 400–600 remains the preferred target.' };
+  if (crcl > 50) return { dose:Math.round(15*wt)+'–'+Math.round(30*wt)+' mg IV (15–30 mg/kg)', interval:'q12h', extra:loadTxt+' AUC24/MIC 400–600 preferred; trough-only 15–20 mcg/mL where AUC monitoring is unavailable.' };
+  if (crcl >= 10) return { dose:Math.round(10*wt)+'–'+Math.round(15*wt)+' mg IV (10–15 mg/kg)', interval:'q24–96h', extra:loadTxt+' The wide interval reflects marked accumulation — dose by trough/AUC level, not by a fixed clock. Do not dose purely from this bracket — involve pharmacy.' };
+  return { dose:Math.round(7.5*wt)+'–'+Math.round(10*wt)+' mg IV (7.5–10 mg/kg)', interval:'q48–72h', extra:loadTxt+' CrCl <10, non-HD — dose strictly by level; involve pharmacy.' };
+ },
+ colistin: function(crcl, wt, hd, crrt) {
+  var loadTxt = 'Loading 300 mg CBA (~9 million units) IV once, then:';
+  if (crrt) return { dose:'250–350 mg CBA/day', interval:'divided q12h', extra:loadTxt+' Approximates the GFR 50-90 tier at usual effluent rates — confirm with pharmacy/CBA protocol.' };
+  if (hd) return { dose:'130 mg CBA/day (non-dialysis day) · 175 mg after dialysis (dialysis day)', interval:'divided q12h', extra:loadTxt+' Give the higher post-dialysis dose only on HD days.' };
+  if (crcl > 50) return { dose:'300 mg CBA/day (~2.4–5 mg/kg/day)', interval:'divided q12h', extra:loadTxt+' Full maintenance dose — matches the GFR 50-90 tier.' };
+  if (crcl >= 30) return { dose:'183–250 mg CBA/day (~2.5 mg/kg/day)', interval:'divided q12h', extra:loadTxt+' GFR 30-50 tier — confirm against a CBA/Garonzik protocol if available.' };
+  if (crcl >= 10) return { dose:'150–183 mg CBA/day (~1.5 mg/kg/day)', interval:'divided q12h', extra:loadTxt+' GFR 10-30 tier — confirm against a CBA/Garonzik protocol if available.' };
+  return { dose:'Not covered by fixed bracket', interval:'', extra:loadTxt+' CrCl <10, non-HD — dose from a Garonzik-formula/target-concentration CBA protocol; requires pharmacy/ICU involvement.' };
+ },
  gentamicin: function(crcl, wt, hd, crrt) {
   if (crrt) return { dose:Math.round(6*wt)+' mg (~5-7 mg/kg) IV', interval:'q24-48h, guided by levels', extra:'CRRT clearance approximates CrCl 20-50; check a random level ~24h after the dose to guide re-dosing.' };
   var d = Math.round(5 * wt);
@@ -12943,7 +12958,7 @@ function rdacBuildDropdown() {
  html += '<div id="rdacDdOptsWrap">';
  rdacMainDropdownList.forEach(function(d) {
   html += '<div class="rdac-dd-opt" data-id="'+d.id+'" data-name="'+d.name.toLowerCase()+'" onclick="rdacSelectDrug(\''+d.id+'\')">'+d.name
-        + (d.type === 'note' ? ' <span class="rdac-dd-tag">guided</span>' : '') + '</div>';
+        + ((d.type === 'note' || d.guided) ? ' <span class="rdac-dd-tag">guided</span>' : '') + '</div>';
  });
  html += '<div id="rdacSearchEmpty" style="display:none;padding:12px;font-size:12px;color:var(--text-faint);text-align:center">No match — full list shown below</div>';
  html += '</div>';
