@@ -332,8 +332,20 @@ body:not([data-theme="light"]) .tab-btn.active {
   display: flex; align-items: flex-start; gap: 10px;
 }
 .drug-dot {
-  width: 6px; height: 6px; border-radius: 50%;
+  /* Title bullet is now a ◉ glyph (colour comes from inline `color`). The 6x6 box and
+     margin are unchanged, so the title text stays exactly where it was; the glyph is
+     centred in the box and simply overflows it by a hair. */
+  width: 10px; height: 6px; margin-right: -4px;
   flex-shrink: 0; margin-top: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px; line-height: 0; font-weight: 400;
+  overflow: visible; position: relative; top: -1.5px;
+}
+/* Inline ⦿ bullet / separator used inside notes and text lines. Sized relative to the
+   surrounding text so it fits whatever font-size it sits in. */
+.bl {
+  display: inline-block; font-size: 5.6px; line-height: 1;
+  font-weight: 400; letter-spacing: 0; vertical-align: 1.2px;
 }
 .drug-name { font-weight: 700; font-family: var(--heading); font-size: 12px; color: var(--text-strong); }
 .brand-name { font-family: var(--sans) !important; font-weight: 400 !important; font-style: normal !important; font-size: 0.88em; color: var(--muted); }
@@ -535,6 +547,14 @@ input[type=range]::-moz-range-progress {
   flex-shrink: 0; background: var(--accent) !important;
   align-self: center; margin-top: 0;
 }
+/* Cardio/Defib tab: title bullet is a ◉ glyph instead of the CSS circle (same 6x6 box). */
+#tab-defib .calc-title-dot {
+  background: none !important; border-radius: 0;
+  width: 10px; margin-right: -4px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent); font-size: 20px; line-height: 0; font-weight: 400;
+  overflow: visible; position: relative; top: -1.5px;
+}
 /* Special Calc cards (title has a sibling pin button): dot becomes an
    expand/collapse chevron (same shape as the dropdown arrows), sized to
    visually balance the star on the right. Rest = points right, expanded = points down. */
@@ -632,8 +652,8 @@ input[type=range]::-moz-range-progress {
 }
 .special-cat-sub-dot {
   display: inline-block;
-  transform: scale(1.85);
-  font-weight: 700;
+  font-size: 5.6px; line-height: 1;
+  font-weight: 400; vertical-align: 1.2px;
 }
 /* Fixed-width, non-text spacer used in place of a literal space after the dot
    once a subtitle wraps to 3\u20134 lines \u2014 see fitCategorySubtitle(). Being an
@@ -2646,7 +2666,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="cat-label">Vasopressors &amp; Inotropes</div>
  <div class="drug-card" id="card-adren">
  <div class="drug-header" onclick="toggleCard('adren')">
- <div class="drug-dot" style="background:#ef4444"></div>
+ <div class="drug-dot" style="color:#ef4444">◉</div>
  <div style="flex:1"><div class="drug-name">Adrenaline / Epinephrine</div><div class="drug-dilution">8 amp [8mg] + 42ml NS &rarr; 50ml<br>Conc: 160mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-adren">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2666,7 +2686,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-nora">
  <div class="drug-header" onclick="toggleCard('nora')">
- <div class="drug-dot" style="background:#ef4444"></div>
+ <div class="drug-dot" style="color:#ef4444">◉</div>
  <div style="flex:1"><div class="drug-name">Noradrenaline / Norepinephrine</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#22c55e" id="rate-nora">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2686,7 +2706,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-vaso">
  <div class="drug-header" onclick="toggleCard('vaso')">
- <div class="drug-dot" style="background:#ef4444"></div>
+ <div class="drug-dot" style="color:#ef4444">◉</div>
  <div style="flex:1"><div class="drug-name">Vasopressin</div><div class="drug-dilution">1 ampule (20units) + 50ml NS &rarr; 50ml<br>Conc: 0.4units/ml | NOT weight-based</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-vaso">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2701,7 +2721,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-dopa">
  <div class="drug-header" onclick="toggleCard('dopa')">
- <div class="drug-dot" style="background:#ef4444"></div>
+ <div class="drug-dot" style="color:#ef4444">◉</div>
  <div style="flex:1"><div class="drug-name">Dopamine</div><div class="drug-dilution">2 amp + 40ml NS &rarr; 50ml (400mg)<br>Conc: 8000mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-dopa">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2721,7 +2741,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-dobu">
  <div class="drug-header" onclick="toggleCard('dobu')">
- <div class="drug-dot" style="background:#ef4444"></div>
+ <div class="drug-dot" style="color:#ef4444">◉</div>
  <div style="flex:1"><div class="drug-name">Dobutamine</div><div class="drug-dilution">2 amp + 40ml NS &rarr; 50ml (500mg)<br>Conc: 10000mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-dobu">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2745,7 +2765,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="cat-label">Sedation &amp; Analgesia</div>
  <div class="drug-card" id="card-fent">
  <div class="drug-header" onclick="toggleCard('fent')">
- <div class="drug-dot" style="background:#58a6ff"></div>
+ <div class="drug-dot" style="color:#58a6ff">◉</div>
  <div style="flex:1"><div class="drug-name">Fentanyl</div><div class="drug-dilution">5 amp + 40ml NS &rarr; 50ml (500mcg)<br>Conc: 10mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-fent">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2765,7 +2785,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-dex">
  <div class="drug-header" onclick="toggleCard('dex')">
- <div class="drug-dot" style="background:#58a6ff"></div>
+ <div class="drug-dot" style="color:#58a6ff">◉</div>
  <div style="flex:1"><div class="drug-name">Dexmedetomidine</div><div class="drug-dilution">1 amp (2ml=200mcg) + 48ml NS &rarr; 50ml<br>Conc: 4mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-dex">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2785,7 +2805,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-prop">
  <div class="drug-header" onclick="toggleCard('prop')">
- <div class="drug-dot" style="background:#58a6ff"></div>
+ <div class="drug-dot" style="color:#58a6ff">◉</div>
  <div style="flex:1"><div class="drug-name">Propofol</div><div class="drug-dilution">Neat (10mg/ml) — no dilution needed<br>Conc: 10mg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-prop">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2805,7 +2825,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-midaz">
  <div class="drug-header" onclick="toggleCard('midaz')">
- <div class="drug-dot" style="background:#58a6ff"></div>
+ <div class="drug-dot" style="color:#58a6ff">◉</div>
  <div style="flex:1"><div class="drug-name">Midazolam</div><div class="drug-dilution">15mg (1 amp 3ml) + 47ml NS &rarr; 50ml<br>Conc: 0.3mg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-midaz">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2825,7 +2845,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-midmor">
  <div class="drug-header" onclick="toggleCard('midmor')">
- <div class="drug-dot" style="background:#58a6ff"></div>
+ <div class="drug-dot" style="color:#58a6ff">◉</div>
  <div style="flex:1"><div class="drug-name">Midazolam + Morphine</div><div class="drug-dilution">2 amp Morphine (20mg) + 2 amp Midazolam<br><span style="white-space:nowrap">(30mg) + 22ml NS &rarr; 30ml</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-midmor">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2840,7 +2860,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-ket">
  <div class="drug-header" onclick="toggleCard('ket')">
- <div class="drug-dot" style="background:#58a6ff"></div>
+ <div class="drug-dot" style="color:#58a6ff">◉</div>
  <div style="flex:1"><div class="drug-name">Ketamine</div><div class="drug-dilution">500mg (1 vial = 10ml) + 40ml NS &rarr; 50ml<br>Conc: 10mg/ml = 10000mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-ket">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2863,7 +2883,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="cat-label">Status Epilepticus / Neuro-critical</div>
  <div class="drug-card" id="card-thio">
  <div class="drug-header" onclick="toggleCard('thio')">
- <div class="drug-dot" style="background:#a78bfa"></div>
+ <div class="drug-dot" style="color:#a78bfa">◉</div>
  <div style="flex:1"><div class="drug-name">Thiopental Sodium <span class="brand-name">(TPS)</span></div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml · Conc: <span id="thio-conc">50</span>mg/ml</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-thio">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2886,7 +2906,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="cat-label">Cardiac &amp; Anti-arrhythmic</div>
  <div class="drug-card" id="card-labet">
  <div class="drug-header" onclick="toggleCard('labet')">
- <div class="drug-dot" style="background:#f59e0b"></div>
+ <div class="drug-dot" style="color:#f59e0b">◉</div>
  <div style="flex:1"><div class="drug-name">Labetalol</div><div class="drug-dilution">2 amp + 30ml 5% DA &rarr; 50ml (100mg)<br>Conc: 2mg/ml = 2000mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-labet">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2906,7 +2926,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-gtn">
  <div class="drug-header" onclick="toggleCard('gtn')">
- <div class="drug-dot" style="background:#f59e0b"></div>
+ <div class="drug-dot" style="color:#f59e0b">◉</div>
  <div style="flex:1"><div class="drug-name">GTN <span class="brand-name">(Glyceryl Trinitrate)</span></div><div class="drug-dilution">1 amp + 40ml NS &rarr; 50ml (50mg)<br>Conc: 1000mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-gtn">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2922,7 +2942,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-amio">
  <div class="drug-header" onclick="toggleCard('amio')">
- <div class="drug-dot" style="background:#f59e0b"></div>
+ <div class="drug-dot" style="color:#f59e0b">◉</div>
  <div style="flex:1"><div class="drug-name">Amiodarone <span class="brand-name">(Maintenance)</span></div><div class="drug-dilution">6 amp + 482ml 5% DA &rarr; 500ml (900mg)<br>Conc: 1.8mg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">Infusion rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-amio">33.3</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2942,7 +2962,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="cat-label">GI Bleed &ndash; Vasoactive Drugs</div>
  <div class="drug-card" id="card-octreo">
  <div class="drug-header" onclick="toggleCard('octreo')">
- <div class="drug-dot" style="background:#a78bfa"></div>
+ <div class="drug-dot" style="color:#a78bfa">◉</div>
  <div style="flex:1"><div class="drug-name">Octreotide</div><div class="drug-dilution">1000mcg (1mg) + NS &rarr; 50ml<br>Conc: 20mcg/ml | NOT weight-based</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-octreo">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2957,7 +2977,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-somato">
  <div class="drug-header" onclick="toggleCard('somato')">
- <div class="drug-dot" style="background:#a78bfa"></div>
+ <div class="drug-dot" style="color:#a78bfa">◉</div>
  <div style="flex:1"><div class="drug-name">Somatostatin</div><div class="drug-dilution">3mg (3000mcg) + 47ml NS &rarr; 50ml<br>Conc: 60mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-somato">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2981,7 +3001,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="cat-label">Electrolytes &amp; Special Infusions</div>
  <div class="drug-card" id="card-kcl">
  <div class="drug-header" onclick="toggleCard('kcl')">
- <div class="drug-dot" style="background:#10b981"></div>
+ <div class="drug-dot" style="color:#10b981">◉</div>
  <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution">25ml KT + 25ml NS &rarr; 50ml<br>Conc: 1mmol/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-kcl">10</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -2996,7 +3016,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-lasix">
  <div class="drug-header" onclick="toggleCard('lasix')">
- <div class="drug-dot" style="background:#10b981"></div>
+ <div class="drug-dot" style="color:#10b981">◉</div>
  <div style="flex:1"><div class="drug-name">Lasix <span class="brand-name">(Furosemide)</span></div><div class="drug-dilution">5 amp + 40ml NS &rarr; 50ml (100mg)<br>Conc: 2mg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-lasix">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -3011,7 +3031,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-card" id="card-ins">
  <div class="drug-header" onclick="toggleCard('ins')">
- <div class="drug-dot" style="background:#10b981"></div>
+ <div class="drug-dot" style="color:#10b981">◉</div>
  <div style="flex:1"><div class="drug-name">Actrapid <span class="brand-name" style="font-size:0.72em">100 IU/ml (Human Insulin R)</span></div><div class="drug-dilution">50units in 50ml NS<br>Conc: 1unit/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-ins">6</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
@@ -3021,7 +3041,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <input type="range" id="range-ins" min="1" max="10" step="1" value="6" oninput="calcFixed('ins',this.value)" style="accent-color:#10b981">
  <div class="range-limits"><span>1</span><span>10</span></div>
  </div>
- <div class="note-box">1ml = 1unit | Rate ml/hr = units/hr directly<br>Before stopping IV insulin, give SC basal insulin (glargine/detemir or NPH) 1&ndash;2 hrs early &mdash; don't stop IV right after one SC dose. Basal dose &asymp; 50&ndash;80% of total insulin given in last 24h. Stopping IV too soon can cause blood sugar to rebound high.<span class="ref-info-btn" onclick="toggleRef('ref-ins')">i</span><div class="ref-popup" id="ref-ins">Ref: ADA Consensus Report, Diabetologia 2024 &bull; SCCM Insulin Infusion Guidelines, Crit Care Med 2012</div></div>
+ <div class="note-box">1ml = 1unit | Rate ml/hr = units/hr directly<br>Before stopping IV insulin, give SC basal insulin (glargine/detemir or NPH) 1&ndash;2 hrs early &mdash; don't stop IV right after one SC dose. Basal dose &asymp; 50&ndash;80% of total insulin given in last 24h. Stopping IV too soon can cause blood sugar to rebound high.<span class="ref-info-btn" onclick="toggleRef('ref-ins')">i</span><div class="ref-popup" id="ref-ins">Ref: ADA Consensus Report, Diabetologia 2024 <span class="bl">⦿</span> SCCM Insulin Infusion Guidelines, Crit Care Med 2012</div></div>
  </div>
  </div>
  </div>
@@ -3030,7 +3050,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="cat-label">Toxicology &amp; Antidotes</div>
  <div class="drug-card" id="card-nac">
  <div class="drug-header" onclick="toggleCard('nac')">
- <div class="drug-dot" style="background:#eab308"></div>
+ <div class="drug-dot" style="color:#eab308">◉</div>
  <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:13px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" style="position:relative;top:4px" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308;position:relative;top:-2px" id="rate-nac">&mdash;</div><div class="rate-unit" style="position:relative;top:-2px">mg/hr</div></div></div>
  </div>
@@ -4181,10 +4201,10 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
   <div class="note-box">
    <strong>Target MAP in ICU:</strong><br>
-   • Septic shock: ≥65 mmHg (higher ≥75–80 if known hypertension or TBI)<br>
-   • Traumatic brain injury (TBI/IICP): ≥80 mmHg to maintain CPP<br>
-   • Post-cardiac arrest: 65–100 mmHg<br>
-   • Post-aortic surgery: 70–80 mmHg<br>
+   <span class="bl">⦿</span> Septic shock: ≥65 mmHg (higher ≥75–80 if known hypertension or TBI)<br>
+   <span class="bl">⦿</span> Traumatic brain injury (TBI/IICP): ≥80 mmHg to maintain CPP<br>
+   <span class="bl">⦿</span> Post-cardiac arrest: 65–100 mmHg<br>
+   <span class="bl">⦿</span> Post-aortic surgery: 70–80 mmHg<br>
    <strong>Vasopressor trigger:</strong> MAP &lt;65 despite adequate fluid resuscitation → Noradrenaline 1st line<br>
    <strong>Pulse Pressure:</strong> &lt;25 mmHg = narrow (low SV / tamponade / hypovolaemia) | &gt;60 mmHg = wide (AR / sepsis / AV fistula)
   </div>
@@ -5630,14 +5650,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #10b98166">
     <div style="font-size:10px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">✅ Indications</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
-     • Type 1 DM (absolute — no endogenous insulin)<br>
-     • Type 2 DM — inadequate oral control, acute illness, surgery<br>
-     • Hyperglycaemia in ICU / critical illness (CBG &gt;10 mmol/L)<br>
-     • DKA / HHS — IV Actrapid infusion<br>
-     • Hyperkalaemia — insulin + dextrose (drives K⁺ intracellular)<br>
-     • TPN / enteral feeding — blood glucose control<br>
-     • Gestational DM / Pregnancy (oral agents contraindicated)<br>
-     • Steroid-induced hyperglycaemia
+     <span class="bl">⦿</span> Type 1 DM (absolute — no endogenous insulin)<br>
+     <span class="bl">⦿</span> Type 2 DM — inadequate oral control, acute illness, surgery<br>
+     <span class="bl">⦿</span> Hyperglycaemia in ICU / critical illness (CBG &gt;10 mmol/L)<br>
+     <span class="bl">⦿</span> DKA / HHS — IV Actrapid infusion<br>
+     <span class="bl">⦿</span> Hyperkalaemia — insulin + dextrose (drives K⁺ intracellular)<br>
+     <span class="bl">⦿</span> TPN / enteral feeding — blood glucose control<br>
+     <span class="bl">⦿</span> Gestational DM / Pregnancy (oral agents contraindicated)<br>
+     <span class="bl">⦿</span> Steroid-induced hyperglycaemia
     </div>
    </div>
 
@@ -5645,13 +5665,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #ef444466">
     <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">❌ Contraindications / Cautions</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
-     • Hypoglycaemia — never give without checking CBG first<br>
-     • Hypokalaemia — correct K⁺ first (insulin drives K⁺ further down)<br>
-     • NPO patient — withhold bolus insulin (keep basal, reduce by 20–50%)<br>
-     • Renal failure — dose reduction needed (↓ insulin clearance → prolonged action)<br>
-     • Hepatic failure — unpredictable glucose; monitor closely<br>
-     • Mixing glargine/detemir with other insulins — NEVER mix<br>
-     • IM injection — erratic absorption; always S/C
+     <span class="bl">⦿</span> Hypoglycaemia — never give without checking CBG first<br>
+     <span class="bl">⦿</span> Hypokalaemia — correct K⁺ first (insulin drives K⁺ further down)<br>
+     <span class="bl">⦿</span> NPO patient — withhold bolus insulin (keep basal, reduce by 20–50%)<br>
+     <span class="bl">⦿</span> Renal failure — dose reduction needed (↓ insulin clearance → prolonged action)<br>
+     <span class="bl">⦿</span> Hepatic failure — unpredictable glucose; monitor closely<br>
+     <span class="bl">⦿</span> Mixing glargine/detemir with other insulins — NEVER mix<br>
+     <span class="bl">⦿</span> IM injection — erratic absorption; always S/C
     </div>
    </div>
 
@@ -5659,14 +5679,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #f59e0b66">
     <div style="font-size:10px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ICU-Specific Pearls</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
-     • Only Regular (Actrapid) insulin is safe IV — never give analogue IV<br>
-     • IV infusion: 50 units Actrapid in 50ml NS = 1 unit/ml<br>
-     • Transition IV → S/C: give first S/C dose 1–2 hr before stopping infusion<br>
-     • NICE-SUGAR trial: target 7.8–10 mmol/L in ICU (intensive control ↑mortality)<br>
-     • Stress hyperglycaemia: common in sepsis, post-op, steroids — treat if CBG &gt;10 consistently<br>
-     • Enteral feeding: give bolus insulin with each feed · Stop if feed interrupted<br>
-     • Hypokalaemia: always check K⁺ before starting insulin infusion<br>
-     • Dawn phenomenon: CBG rises 4–8 AM due to cortisol surge — may need dose adjustment
+     <span class="bl">⦿</span> Only Regular (Actrapid) insulin is safe IV — never give analogue IV<br>
+     <span class="bl">⦿</span> IV infusion: 50 units Actrapid in 50ml NS = 1 unit/ml<br>
+     <span class="bl">⦿</span> Transition IV → S/C: give first S/C dose 1–2 hr before stopping infusion<br>
+     <span class="bl">⦿</span> NICE-SUGAR trial: target 7.8–10 mmol/L in ICU (intensive control ↑mortality)<br>
+     <span class="bl">⦿</span> Stress hyperglycaemia: common in sepsis, post-op, steroids — treat if CBG &gt;10 consistently<br>
+     <span class="bl">⦿</span> Enteral feeding: give bolus insulin with each feed · Stop if feed interrupted<br>
+     <span class="bl">⦿</span> Hypokalaemia: always check K⁺ before starting insulin infusion<br>
+     <span class="bl">⦿</span> Dawn phenomenon: CBG rises 4–8 AM due to cortisol surge — may need dose adjustment
     </div>
    </div>
 
@@ -5675,12 +5695,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">🚨 Hypoglycaemia Management</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
      <strong style="color:#ef4444">CBG &lt; 4.0 mmol/L</strong> = Hypoglycaemia<br>
-     • <strong>Conscious:</strong> 15g fast carbs (glucose tabs / 150ml juice / 3 tsp sugar)<br>
-     • <strong>Unconscious/IV access:</strong> 50ml of 50% Dextrose (D50W) IV stat OR Glucagon 1mg IM/S/C<br>
-     • Recheck CBG in 15 min · Repeat if still &lt;4<br>
-     • Once CBG &gt;4: give long-acting carbs to prevent recurrence<br>
-     • <strong>Severe/prolonged:</strong> 10% Dextrose infusion · Identify cause (missed meal, excess dose, renal failure)<br>
-     • Document and review insulin regimen
+     <span class="bl">⦿</span> <strong>Conscious:</strong> 15g fast carbs (glucose tabs / 150ml juice / 3 tsp sugar)<br>
+     <span class="bl">⦿</span> <strong>Unconscious/IV access:</strong> 50ml of 50% Dextrose (D50W) IV stat OR Glucagon 1mg IM/S/C<br>
+     <span class="bl">⦿</span> Recheck CBG in 15 min · Repeat if still &lt;4<br>
+     <span class="bl">⦿</span> Once CBG &gt;4: give long-acting carbs to prevent recurrence<br>
+     <span class="bl">⦿</span> <strong>Severe/prolonged:</strong> 10% Dextrose infusion · Identify cause (missed meal, excess dose, renal failure)<br>
+     <span class="bl">⦿</span> Document and review insulin regimen
     </div>
    </div>
   </div>
@@ -7554,10 +7574,10 @@ function eiwSwitchPO4(which){
      🔴 Severe plasma leakage → shock (DSS) · respiratory distress<br>
      🔴 Severe bleeding → haematemesis, melaena, massive menorrhagia<br>
      🔴 Severe organ impairment:<br>
-     &nbsp;&nbsp;&nbsp;• Liver: AST/ALT &gt;1000 · encephalopathy<br>
-     &nbsp;&nbsp;&nbsp;• CNS: altered consciousness, seizures<br>
-     &nbsp;&nbsp;&nbsp;• Heart: myocarditis, arrhythmia<br>
-     &nbsp;&nbsp;&nbsp;• Kidney: AKI (Cr rising)<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl">⦿</span> Liver: AST/ALT &gt;1000 · encephalopathy<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl">⦿</span> CNS: altered consciousness, seizures<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl">⦿</span> Heart: myocarditis, arrhythmia<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl">⦿</span> Kidney: AKI (Cr rising)<br>
      🔴 PLT &lt;20,000 with active bleeding → transfuse
     </div>
    </div>
@@ -10555,7 +10575,7 @@ function eiwSwitchPO4(which){
  <!-- ══════════════════ 7 ECG EMERGENCIES ══════════════════ -->
  <div class="calc-card" id="calccard-ecgemerg">
   <div class="calc-title" onclick="toggleCalc('calccard-ecgemerg')">
-   <span class="calc-title-dot"></span>
+   <span class="calc-title-dot">◉</span>
    <span id="ecgemerg-titlewrap"><span id="ecgemerg-maintext">10 ECG Emergencies </span><span id="ecgemerg-caption" style="color:var(--text-faint);font-weight:400">— Recognize Fast. Treat Faster.</span></span>
    <span class="calc-chevron" id="ecgemerg-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
@@ -10652,7 +10672,7 @@ function eiwSwitchPO4(which){
    .aht-sub-divider { font-size:9px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--text-fainter); padding:6px 0 3px; border-top:none; margin-top:2px; }
   </style>
   <div class="calc-title" onclick="toggleCalc('calccard-aht')">
-   <span class="calc-title-dot"></span>
+   <span class="calc-title-dot">◉</span>
    <span>Antihypertensives <span style="color:var(--text-faint);font-weight:400">— ICU Emergency Drugs</span></span>
    <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
@@ -10988,7 +11008,7 @@ function eiwSwitchPO4(which){
  <!-- ══════════════════ AF CARD ══════════════════ -->
  <div class="calc-card" id="calccard-af">
   <div class="calc-title" onclick="toggleCalc('calccard-af')">
-   <span class="calc-title-dot"></span>
+   <span class="calc-title-dot">◉</span>
    <span>AF Management &amp; Rate Control in AF</span>
    <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
@@ -11122,7 +11142,7 @@ function eiwSwitchPO4(which){
  </style>
  <div class="calc-card" id="calccard-wct">
   <div class="calc-title" onclick="toggleCalc('calccard-wct')">
-   <span class="calc-title-dot"></span>
+   <span class="calc-title-dot">◉</span>
    <span>Ventricular Tachycardia (VT) Mx Protocol</span>
    <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
@@ -11168,7 +11188,7 @@ function eiwSwitchPO4(which){
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
     <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">STEP 2 — STABLE vs UNSTABLE</div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
-     <strong style="color:#ef4444">Unstable</strong> — any of: hypotension &bull; altered mental status / syncope &bull; shock / poor perfusion &bull; ongoing ischemic chest pain &bull; acute pulmonary oedema / heart failure
+     <strong style="color:#ef4444">Unstable</strong> — any of: hypotension <span class="bl">⦿</span> altered mental status / syncope <span class="bl">⦿</span> shock / poor perfusion <span class="bl">⦿</span> ongoing ischemic chest pain <span class="bl">⦿</span> acute pulmonary oedema / heart failure
      <div style="margin-left:1.2em;margin-top:4px">
       <strong style="color:var(--text-strong)">→</strong> Synchronized cardioversion immediately
      </div>
@@ -11177,7 +11197,7 @@ function eiwSwitchPO4(which){
      <div style="margin-left:1.2em"><span style="color:#f59e0b">Polymorphic VT (irregular) → treat as VF — unsynchronized defibrillation</span></div>
      <div style="margin-top:10px"><strong style="color:#10b981">Stable</strong> — pulse present, acceptable BP, no shock/syncope/major ischemic symptoms, no pulmonary oedema</div>
      <div style="margin-left:1.2em;margin-top:4px">
-      <strong style="color:var(--text-strong)">→</strong> Monitor closely &bull; 12-lead ECG &bull; correct reversible causes &bull; antiarrhythmic if sustained (see below)
+      <strong style="color:var(--text-strong)">→</strong> Monitor closely <span class="bl">⦿</span> 12-lead ECG <span class="bl">⦿</span> correct reversible causes <span class="bl">⦿</span> antiarrhythmic if sustained (see below)
      </div>
      <div style="margin-left:1.2em">If deteriorates at any point → synchronized cardioversion</div>
     </div>
@@ -11230,7 +11250,7 @@ function eiwSwitchPO4(which){
      <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
       <strong style="color:#ef4444">Prolonged QT (Torsades de Pointes):</strong>
       <div style="padding-left:1.2em"><strong style="color:var(--text-strong)">Magnesium sulfate 1–2g IV</strong> push, may repeat</div>
-      <div style="padding-left:1.2em">Correct K⁺ / Mg²⁺ &bull; stop all QT-prolonging drugs</div>
+      <div style="padding-left:1.2em">Correct K⁺ / Mg²⁺ <span class="bl">⦿</span> stop all QT-prolonging drugs</div>
       <div style="padding-left:1.2em">Consider overdrive pacing or Isoproterenol if recurrent</div>
       <div style="padding-left:1.2em"><span style="color:#f59e0b">Avoid Amiodarone / Procainamide — both prolong QT further</span></div>
       <div style="margin-top:10px"><strong style="color:#10b981">Normal QT polymorphic VT:</strong></div>
@@ -11242,7 +11262,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <div class="note-box">
-    <strong>Reversible triggers to correct in parallel (H's &amp; T's):</strong> Hypoxia &bull; Ischaemia / MI &bull; Hyper/hypokalaemia &bull; Hypomagnesaemia &bull; Acidosis &bull; Drug toxicity &bull; Structural heart disease &bull; Hypovolaemia &bull; Tamponade &bull; Tension pneumothorax<br>
+    <strong>Reversible triggers to correct in parallel (H's &amp; T's):</strong> Hypoxia <span class="bl">⦿</span> Ischaemia / MI <span class="bl">⦿</span> Hyper/hypokalaemia <span class="bl">⦿</span> Hypomagnesaemia <span class="bl">⦿</span> Acidosis <span class="bl">⦿</span> Drug toxicity <span class="bl">⦿</span> Structural heart disease <span class="bl">⦿</span> Hypovolaemia <span class="bl">⦿</span> Tamponade <span class="bl">⦿</span> Tension pneumothorax<br>
     <strong>12-lead ECG once stable</strong> — confirm VT vs SVT with aberrancy
    </div>
 
@@ -11253,7 +11273,7 @@ function eiwSwitchPO4(which){
 
  <div class="calc-card" id="calccard-svt">
   <div class="calc-title" onclick="toggleCalc('calccard-svt')">
-   <span class="calc-title-dot"></span>
+   <span class="calc-title-dot">◉</span>
    <span>Supraventricular Tachycardia (SVT) Mx</span>
    <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
@@ -11320,7 +11340,7 @@ function eiwSwitchPO4(which){
     </div>
    </div>
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px"><span style="font-size:20px;vertical-align:-3px">&bull;</span> ADENOSINE DOSES</div>
+    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px"><span style="font-size:18.5px;font-weight:400;vertical-align:-.12em;line-height:0;display:inline-block">◉</span> ADENOSINE DOSES</div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
      Peripheral vein: <strong style="color:var(--text-strong)">6 → 12 → 12mg</strong><br>
      Central / CCB / BB: <strong style="color:var(--text-strong)">3 → 6 → 6mg</strong><br>
@@ -11334,7 +11354,7 @@ function eiwSwitchPO4(which){
  <!-- BLS & ACLS integrated card -->
  <div class="calc-card" id="calccard-bls">
   <div class="calc-title" onclick="toggleCalc('calccard-bls')">
-   <span class="calc-title-dot"></span>
+   <span class="calc-title-dot">◉</span>
    <span>BLS &amp; ACLS Algorithm (AHA 2025)</span>
    <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
@@ -11382,10 +11402,10 @@ function eiwSwitchPO4(which){
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
     <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">POST-ROSC CARE</div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.8">
-     • SpO₂ 90–98% (PaO₂ 60–105 mmHg) &nbsp;|&nbsp; PaCO₂ 35–45 mmHg &nbsp;|&nbsp; MAP ≥65 mmHg<br>
-     • 12-lead ECG → PCI if STEMI<br>
-     • Temperature control: 32–37.5°C, deliberate strategy for ≥36hr if not following commands<br>
-     • Glucose: avoid hypoglycaemia (&lt;70 mg/dL / 3.9 mmol/L) and hyperglycaemia (&gt;180 mg/dL / 10 mmol/L)<br>
+     <span class="bl">⦿</span> SpO₂ 90–98% (PaO₂ 60–105 mmHg) &nbsp;|&nbsp; PaCO₂ 35–45 mmHg &nbsp;|&nbsp; MAP ≥65 mmHg<br>
+     <span class="bl">⦿</span> 12-lead ECG → PCI if STEMI<br>
+     <span class="bl">⦿</span> Temperature control: 32–37.5°C, deliberate strategy for ≥36hr if not following commands<br>
+     <span class="bl">⦿</span> Glucose: avoid hypoglycaemia (&lt;70 mg/dL / 3.9 mmol/L) and hyperglycaemia (&gt;180 mg/dL / 10 mmol/L)<br>
      <span style="font-size:10.5px;color:var(--text-faint)">2025: Vasopressin removed · ECPR for refractory arrest · Double sequential defibrillation for refractory VF</span>
     </div>
    </div>
@@ -11396,7 +11416,7 @@ function eiwSwitchPO4(which){
 
  <div class="calc-card" id="calccard-cvd" style="margin-bottom:0;">
   <div class="calc-title" onclick="toggleCalc('calccard-cvd')">
-   <span class="calc-title-dot"></span>
+   <span class="calc-title-dot">◉</span>
    <span>Cardioversion &amp; Defibrillation <span style="color:var(--text-faint);font-weight:400">— All Biphasic</span></span>
    <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
   </div>
@@ -11648,7 +11668,7 @@ function eiwSwitchPO4(which){
   </button>
   <!-- Footer text: 2 lines equal width -->
   <div class="footer-text">
-    <div class="ft-line1" id="ftLine1">Ref: WMCCM &bull; Irwin &amp; Rippe &bull; CMDT &bull; ESC &bull; AHA ACLS 2025</div>
+    <div class="ft-line1" id="ftLine1">Ref: WMCCM <span class="bl">⦿</span> Irwin &amp; Rippe <span class="bl">⦿</span> CMDT <span class="bl">⦿</span> ESC <span class="bl">⦿</span> AHA ACLS 2025</div>
     <div class="ft-line2" id="ftLine2"><span id="ftShrink"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Verify doses by Local Protocol.</span><span id="ftNormal">&copy; Dr. Mottaqir Mamun</span></div>
   </div>
   <!-- Hamburger: footer right -->
@@ -11905,8 +11925,8 @@ bolusData.forEach((d, i) => {
  const rightSize = 'font-size:12px';
  html += `<div class="bolus-card" id="${id}">
  <div class="bolus-header" onclick="toggleBolus('${id}')">
- <div class="drug-dot" style="background:${d.color}"></div>
- <div style="flex:1"><div class="drug-name" style="${nameSize}">${d.name}</div><div style="font-size:10px;color:var(--text-fainter)">${d.cat} <span style="font-size:16px;font-weight:700;color:var(--text-faint);vertical-align:middle;line-height:0">&middot;</span> ${d.amp}</div></div>
+ <div class="drug-dot" style="color:${d.color}">◉</div>
+ <div style="flex:1"><div class="drug-name" style="${nameSize}">${d.name}</div><div style="font-size:10px;color:var(--text-fainter)">${d.cat} <span style="font-size:5.6px;font-weight:400;color:var(--text-faint);vertical-align:1.2px;line-height:1;display:inline-block">⦿</span> ${d.amp}</div></div>
  ${d.slidingScale && d.smallHeader ? `<div style="text-align:right;font-size:12px;font-weight:500;color:${d.color};font-family:'Open Sans',sans-serif;white-space:normal;max-width:72px;line-height:1.2;align-self:center;flex-shrink:0">acc. to<br>sliding scale</div>` : headerRight}
  </div>
  <div class="bolus-body">${bodyContent}
@@ -13621,15 +13641,15 @@ function calcDIC() {
  if (score >= 5) {
   interp.textContent = '🔴 Overt DIC'; interp.style.color = '#ef4444';
   box.style.borderColor = '#ef444460';
-  mgmt.innerHTML = '• Treat underlying cause urgently<br>• FFP 10–15 ml/kg if bleeding + PT prolonged<br>• Platelet transfusion if &lt;50×10⁹/L + active bleeding<br>• Cryoprecipitate if fibrinogen &lt;1.5 g/L<br>• Repeat score daily; reassess coagulation 6–12hrly';
+  mgmt.innerHTML = '<span class="bl">⦿</span> Treat underlying cause urgently<br><span class="bl">⦿</span> FFP 10–15 ml/kg if bleeding + PT prolonged<br><span class="bl">⦿</span> Platelet transfusion if &lt;50×10⁹/L + active bleeding<br><span class="bl">⦿</span> Cryoprecipitate if fibrinogen &lt;1.5 g/L<br><span class="bl">⦿</span> Repeat score daily; reassess coagulation 6–12hrly';
  } else if (score >= 3) {
   interp.textContent = '🟡 Probable / Non-overt DIC'; interp.style.color = '#f59e0b';
   box.style.borderColor = '#f59e0b60';
-  mgmt.innerHTML = '• Monitor closely; repeat labs in 12–24hr<br>• Treat predisposing condition<br>• Transfuse only if bleeding or planned invasive procedure<br>• Consider prophylactic LMWH if thrombosis-predominant';
+  mgmt.innerHTML = '<span class="bl">⦿</span> Monitor closely; repeat labs in 12–24hr<br><span class="bl">⦿</span> Treat predisposing condition<br><span class="bl">⦿</span> Transfuse only if bleeding or planned invasive procedure<br><span class="bl">⦿</span> Consider prophylactic LMWH if thrombosis-predominant';
  } else {
   interp.textContent = '✅ DIC unlikely'; interp.style.color = '#10b981';
   box.style.borderColor = '#10b98160';
-  mgmt.innerHTML = '• Continue monitoring if high clinical suspicion<br>• Repeat score in 24–48hr if predisposing condition persists';
+  mgmt.innerHTML = '<span class="bl">⦿</span> Continue monitoring if high clinical suspicion<br><span class="bl">⦿</span> Repeat score in 24–48hr if predisposing condition persists';
  }
 }
 
@@ -13746,11 +13766,11 @@ function calcSIADH() {
   if (diluteUrine) {
    diag.textContent = '💧 Likely Cranial DI';
    conf.textContent = 'Hypernatraemia (Na ' + sna + ') with inappropriately dilute urine (Osm ' + uosm + ' < serum Osm ' + sosm + ') — classic Cranial DI pattern, assuming adequate free water access has been excluded as the cause.';
-   mgmt.innerHTML = '• <strong>Desmopressin (DDAVP)</strong> trial — urine osm rises &gt;50% confirms Cranial DI (vs nephrogenic, which won\'t respond)<br>• Replace free water deficit gradually — <strong>max Na correction 8–10 mmol/L per 24hr</strong> (cerebral oedema risk)<br>• Identify cause: post-neurosurgery/TBI (often triphasic response), pituitary tumour, sarcoidosis, idiopathic<br>• Strict fluid balance + hourly urine output while diagnosis is confirmed<br>• Rule out osmotic diuresis (glucose, urea, mannitol) and nephrogenic DI (lithium, hypercalcaemia, hypokalaemia)';
+   mgmt.innerHTML = '<span class="bl">⦿</span> <strong>Desmopressin (DDAVP)</strong> trial — urine osm rises &gt;50% confirms Cranial DI (vs nephrogenic, which won\'t respond)<br><span class="bl">⦿</span> Replace free water deficit gradually — <strong>max Na correction 8–10 mmol/L per 24hr</strong> (cerebral oedema risk)<br><span class="bl">⦿</span> Identify cause: post-neurosurgery/TBI (often triphasic response), pituitary tumour, sarcoidosis, idiopathic<br><span class="bl">⦿</span> Strict fluid balance + hourly urine output while diagnosis is confirmed<br><span class="bl">⦿</span> Rule out osmotic diuresis (glucose, urea, mannitol) and nephrogenic DI (lithium, hypercalcaemia, hypokalaemia)';
   } else {
    diag.innerHTML = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Hypernatraemia — DI Uncertain';
    conf.textContent = 'Na ' + sna + ' elevated, but urine Osm (' + uosm + ') is not clearly inappropriate for the serum Osm (' + sosm + ') given here — DI less certain from these numbers alone.';
-   mgmt.innerHTML = '• Consider other causes of hypernatraemia: reduced water intake, GI/insensible losses, osmotic diuresis<br>• If polyuria is present despite this, still consider partial DI — water deprivation test or desmopressin trial can clarify<br>• Correct free water deficit gradually (max 8–10 mmol/L per 24hr)<br>• Reassess urine osm once volume status/intake is optimised';
+   mgmt.innerHTML = '<span class="bl">⦿</span> Consider other causes of hypernatraemia: reduced water intake, GI/insensible losses, osmotic diuresis<br><span class="bl">⦿</span> If polyuria is present despite this, still consider partial DI — water deprivation test or desmopressin trial can clarify<br><span class="bl">⦿</span> Correct free water deficit gradually (max 8–10 mmol/L per 24hr)<br><span class="bl">⦿</span> Reassess urine osm once volume status/intake is optimised';
   }
   return;
  }
@@ -13769,7 +13789,7 @@ function calcSIADH() {
   mgmt.style.color = 'var(--text)';
   diag.textContent = 'ℹ️ Serum Na⁺ Normal';
   conf.textContent = 'Na ' + sna + ' is within normal range — SIADH/CSW scoring assumes hyponatraemia and does not apply here.';
-  mgmt.innerHTML = '• If <strong>polyuria</strong> is present despite normal Na, consider <strong>partial/early Cranial DI</strong> — recheck Na and urine Osm trend, or trial desmopressin<br>• If Na is trending down, re-run this tool once it crosses into the hyponatraemic range for SIADH/CSW differentiation<br>• Otherwise, look for other causes of the presenting picture (osmotic diuresis, diuretic effect, post-obstructive diuresis, recovering ATN)';
+  mgmt.innerHTML = '<span class="bl">⦿</span> If <strong>polyuria</strong> is present despite normal Na, consider <strong>partial/early Cranial DI</strong> — recheck Na and urine Osm trend, or trial desmopressin<br><span class="bl">⦿</span> If Na is trending down, re-run this tool once it crosses into the hyponatraemic range for SIADH/CSW differentiation<br><span class="bl">⦿</span> Otherwise, look for other causes of the presenting picture (osmotic diuresis, diuretic effect, post-obstructive diuresis, recovering ATN)';
   return;
  }
 
@@ -13862,23 +13882,23 @@ function calcSIADH() {
  if (score >= 4) {
   dx = '✅ Likely SIADH'; color = '#06b6d4';
   confidence = 'Strong evidence for SIADH (Score: +' + score + ')';
-  management = '• <strong>Fluid restrict:</strong> 500–1000 ml/day (below daily urine output)<br>• Treat underlying cause (drugs, CNS, pulmonary, malignancy)<br>• <strong>Avoid isotonic saline</strong> — worsens hypoNa in euvolaemic SIADH<br>• Chronic/mild: consider demeclocycline or tolvaptan<br>• Severe symptomatic (&lt;120 + Sx): 3% NaCl — target ≤5 mmol/L rise in 1hr, max 10 mmol/L per 24hr';
+  management = '<span class="bl">⦿</span> <strong>Fluid restrict:</strong> 500–1000 ml/day (below daily urine output)<br><span class="bl">⦿</span> Treat underlying cause (drugs, CNS, pulmonary, malignancy)<br><span class="bl">⦿</span> <strong>Avoid isotonic saline</strong> — worsens hypoNa in euvolaemic SIADH<br><span class="bl">⦿</span> Chronic/mild: consider demeclocycline or tolvaptan<br><span class="bl">⦿</span> Severe symptomatic (&lt;120 + Sx): 3% NaCl — target ≤5 mmol/L rise in 1hr, max 10 mmol/L per 24hr';
  } else if (score >= 2) {
   dx = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Probable SIADH'; color = '#3b82f6';
   confidence = 'Moderate evidence for SIADH (Score: +' + score + ') — clinical correlation essential';
-  management = '• Cautious fluid restriction while re-examining volume status<br>• Repeat labs 6–12hr<br>• <strong>Do NOT give IV saline</strong> until volume status confirmed normal/expanded<br>• Treat underlying cause — review all medications';
+  management = '<span class="bl">⦿</span> Cautious fluid restriction while re-examining volume status<br><span class="bl">⦿</span> Repeat labs 6–12hr<br><span class="bl">⦿</span> <strong>Do NOT give IV saline</strong> until volume status confirmed normal/expanded<br><span class="bl">⦿</span> Treat underlying cause — review all medications';
  } else if (score <= -3) {
   dx = '🔴 Likely CSW'; color = '#f97316';
   confidence = 'Strong evidence for CSW (Score: ' + score + ')';
-  management = '• <strong>IV 0.9% NaCl</strong> — volume replacement is the cornerstone<br>• Oral NaCl tablets 1–3g TDS with meals<br>• Fludrocortisone 0.1–0.2 mg/day (reduces renal Na loss — off-label)<br>• <strong>Do NOT fluid restrict</strong> — will worsen haemodynamic instability<br>• Monitor electrolytes 6-hourly; Na correction max 10 mmol/L per 24hr';
+  management = '<span class="bl">⦿</span> <strong>IV 0.9% NaCl</strong> — volume replacement is the cornerstone<br><span class="bl">⦿</span> Oral NaCl tablets 1–3g TDS with meals<br><span class="bl">⦿</span> Fludrocortisone 0.1–0.2 mg/day (reduces renal Na loss — off-label)<br><span class="bl">⦿</span> <strong>Do NOT fluid restrict</strong> — will worsen haemodynamic instability<br><span class="bl">⦿</span> Monitor electrolytes 6-hourly; Na correction max 10 mmol/L per 24hr';
  } else if (score <= -1) {
   dx = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Probable CSW'; color = '#f59e0b';
   confidence = 'Moderate evidence for CSW (Score: ' + score + ') — clinical correlation essential';
-  management = '• Cautious IV fluid trial (NS) and monitor Na response<br>• Na improves → confirms CSW; Na worsens → reconsider SIADH<br>• Reassess volume status: JVP, skin turgor, fluid balance, BP trend<br>• Avoid fluid restriction until diagnosis confirmed';
+  management = '<span class="bl">⦿</span> Cautious IV fluid trial (NS) and monitor Na response<br><span class="bl">⦿</span> Na improves → confirms CSW; Na worsens → reconsider SIADH<br><span class="bl">⦿</span> Reassess volume status: JVP, skin turgor, fluid balance, BP trend<br><span class="bl">⦿</span> Avoid fluid restriction until diagnosis confirmed';
  } else {
   dx = '❓ Indeterminate'; color = '#94a3b8';
   confidence = 'Insufficient differentiation (Score: ' + score + ') — further workup needed';
-  management = '• <strong>FEUA</strong> (Fractional excretion of uric acid): &lt;10% = SIADH, &gt;10% = CSW<br>• <strong>NS challenge:</strong> Na rises → CSW; Na worsens → SIADH<br>• FENa &lt;0.5% — favours pre-renal/CSW<br>• Repeat serum + urine electrolytes after 12hr<br>• Consider endocrinology consult';
+  management = '<span class="bl">⦿</span> <strong>FEUA</strong> (Fractional excretion of uric acid): &lt;10% = SIADH, &gt;10% = CSW<br><span class="bl">⦿</span> <strong>NS challenge:</strong> Na rises → CSW; Na worsens → SIADH<br><span class="bl">⦿</span> FENa &lt;0.5% — favours pre-renal/CSW<br><span class="bl">⦿</span> Repeat serum + urine electrolytes after 12hr<br><span class="bl">⦿</span> Consider endocrinology consult';
  }
 
  resBox.style.border    = '1px solid ' + color + '50';
@@ -16857,7 +16877,7 @@ function renderCategorySubHTML(parts, fixedGap) {
     if (i === 0) {
       inner += firstWord;
     } else {
-      inner += ' <span style="white-space:nowrap"><span class="special-cat-sub-dot">\u00B7</span>' + gap + firstWord + '</span>';
+      inner += ' <span style="white-space:nowrap"><span class="special-cat-sub-dot">\u29BF</span>' + gap + firstWord + '</span>';
     }
     if (rest) inner += ' ' + rest;
   }
@@ -16902,7 +16922,7 @@ function updateCategorySubtitles() {
       if (!card) return '';
       return getCardShortTitle(card).replace(/\s+Score$/i, '');
     }).filter(Boolean);
-    var joined = names.join(' \u00B7 ');
+    var joined = names.join(' \u29BF ');
     subEl.setAttribute('data-base', joined);
     // Render with an oversized separator dot (readable at a glance) while
     // the keyword text itself stays small — a plain textContent join can't
@@ -17044,7 +17064,24 @@ try { hgInit(); } catch(e) {}
     var baseSize = 9; // ft-line2's default font-size
     line2.style.fontSize = baseSize + 'px';
 
-    var target = textWidth(line1.textContent, fontOf(line1));
+    // Line 1 must stay on ONE line: shrink its font if the (smaller) separators still
+    // don't fit, then measure the line as actually rendered.
+    line1.style.whiteSpace = 'nowrap';
+    line1.style.fontSize = '9px';
+    var _cw = line1.parentElement ? line1.parentElement.clientWidth : 0;
+    function _l1w() {
+      try {
+        var _rg = document.createRange();
+        _rg.selectNodeContents(line1);
+        return _rg.getBoundingClientRect().width;
+      } catch (e) { return 0; }
+    }
+    var target = _l1w();
+    if (_cw && target > _cw) {
+      line1.style.fontSize = Math.max(6, 9 * _cw / target * 0.98).toFixed(2) + 'px';
+      target = _l1w();
+    }
+    if (!target) target = textWidth(line1.textContent, fontOf(line1));
     var gapNatural = baseSize * 0.35; // matches #ftNormal's margin-left: 0.35em at baseSize
     var shrinkWidth = textWidth(shrink.textContent, fontOf(shrink, baseSize));
     var normalWidth = textWidth(normal.textContent, fontOf(normal, baseSize));
