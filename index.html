@@ -259,8 +259,8 @@ body:not([data-theme="light"]) .tab-btn.active {
 @property --tab-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
 @keyframes tabGradSpin { to { --tab-angle: 360deg; } }
 .tab-btn-bolus.active    { --tabc: #2d6e32; }
-.tab-btn-infusion.active { --tabc: #c3961e; }
-.tab-btn-special.active  { --tabc: #2d8ca0; }
+.tab-btn-infusion.active { --tabc: #9c7818; }
+.tab-btn-special.active  { --tabc: #226978; }
 .tab-btn-defib.active    { --tabc: #821c1c; }
 .tab-btn:hover:not(.active) { color: var(--text); filter: brightness(1.3); }
 
@@ -315,7 +315,7 @@ body:not([data-theme="light"]) .tab-btn.active {
   text-transform: uppercase;
   font-weight: 700;
   color: var(--muted) !important;
-  margin-bottom: 8px; padding-left: 10px;
+  margin-bottom: 8px; margin-left: 1px; padding-left: 10px;
   border-left: 2px solid var(--border) !important;
 }
 
@@ -336,7 +336,8 @@ body:not([data-theme="light"]) .tab-btn.active {
      is exactly the same size on every device (glyph metrics differ a lot between Android
      and iOS fonts). Colour comes from the inline `color`. Layout width is still 6px so the
      title text does not move; the ring is centred on the old dot's centre. */
-  width: 9.5px; height: 9.5px; margin: 4.25px -1.75px 0;
+  width: 9.5px; height: 9.5px;
+  margin-top: 4.9px; margin-left: -0.75px; margin-right: -1.75px; margin-bottom: 0;
   flex-shrink: 0; border-radius: 50%;
   background: radial-gradient(circle closest-side, currentColor 0 57%, transparent 60% 79%, currentColor 82% 100%);
 }
@@ -345,25 +346,38 @@ body:not([data-theme="light"]) .tab-btn.active {
   display: inline-block; width: 8.5px; height: 8.5px; border-radius: 50%; vertical-align: -1px;
   background: radial-gradient(circle closest-side, currentColor 0 57%, transparent 60% 79%, currentColor 82% 100%);
 }
-/* Inline ⦿ bullet / separator (notes, text lines, footer, subtitles). Drawn with CSS, not a
-   font glyph: the box is exactly the ink, so it is perfectly centred between its two
-   spaces and is the same size on iOS and Android (font ⦿ glyphs differ in size and have
-   uneven side bearings). Ring + small centre dot, coloured by the surrounding text. */
+/* Inline bold vertical-line separator (between items on the SAME line — notes, footer,
+   subtitles). Drawn with CSS, not a font glyph: the box is exactly the ink, so it is
+   perfectly centred between its two spaces and is the same size on iOS and Android (font
+   glyphs differ in size and have uneven side bearings). A short bold stroke, shorter than
+   the line height, coloured by the surrounding text. */
+/* Inline ⦿ separator (between items on the same line — notes, subtitles). Drawn with CSS,
+   not a font glyph, so it is exactly the same size on iOS and Android. A round dot centres
+   far more forgivingly than a thin bar does, so this is the same ring+disc as the leading
+   bullet below rather than a vertical stroke. */
 .bl {
-  display: inline-block; width: 4.6px; height: 4.6px; border-radius: 50%;
-  vertical-align: .5px;
-  background: radial-gradient(circle closest-side, currentColor 0 34%, transparent 40% 66%, currentColor 72% 100%);
+  display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+  vertical-align: calc(.3em - 2px);
+  background: currentColor;
 }
-/* Subtitle separator on Special Calc cards: same ⦿ but an *inline* (non-atomic) box, so the
-   ' ' before it and the NBSP after it are the only line-break/justify points around it:
-   the dot is centred in its gap on every line and never orphaned at a line end. */
+/* Leading bullet point (start of a list line, usually right after <br>) — same look as .bl,
+   kept as a separate class only so the two roles (bullet vs separator) can be told apart
+   and restyled independently later if needed. */
+.bl-dot {
+  display: inline-block; width: 4px; height: 4px; border-radius: 50%;
+  vertical-align: calc(.3em - 2px);
+  background: currentColor;
+}
+/* Subtitle separator on Special Calc cards: same ⦿ as .bl, but an *inline* (non-atomic) box,
+   so the ' ' before it and the NBSP after it are the only line-break/justify points around
+   it: the dot is centred in its gap on every line and never orphaned at a line end. */
 .special-cat-sub-dot {
   /* Small font-size on purpose: the background box is the span's content area, whose centre
      sits at ~.345em above the baseline in every common font (ascent ≈ .93em, descent
-     ≈ .23em). At 5px that is a tiny, predictable offset, so the ring lands on the text's
+     ≈ .23em). At 5px that is a tiny, predictable offset, so the dot lands on the text's
      x-height centre on both iOS and Android (a big font would make it font-dependent). */
   display: inline; font-size: 5px; padding: 0 1.8px; vertical-align: 2.1px;
-  background: radial-gradient(circle closest-side, currentColor 0 34%, transparent 40% 66%, currentColor 72% 96%, transparent 100%) center / 4.6px 4.6px no-repeat;
+  background: radial-gradient(circle closest-side, currentColor 0 99%, transparent 100%) center / 4px 4px no-repeat;
 }
 .drug-name { font-weight: 700; font-family: var(--heading); font-size: 12px; color: var(--text-strong); }
 .brand-name { font-family: var(--sans) !important; font-weight: 400 !important; font-style: normal !important; font-size: 0.88em; color: var(--muted); }
@@ -563,11 +577,12 @@ input[type=range]::-moz-range-progress {
 .calc-title-dot {
   width: 6px; height: 6px; border-radius: 50%;
   flex-shrink: 0; background: var(--accent) !important;
-  align-self: center; margin-top: 0;
+  align-self: center; margin-top: 0; margin-left: 1px;
 }
 /* Cardio/Defib tab: title bullet is a CSS-drawn ◉ (same size on every device). */
 #tab-defib .calc-title-dot {
-  width: 9.5px; height: 9.5px; margin: 0 -1.75px; border-radius: 50%;
+  width: 9.5px; height: 9.5px; border-radius: 50%;
+  margin-top: 0; margin-bottom: 0; margin-left: -0.75px; margin-right: -1.75px;
   color: var(--accent);
   background: radial-gradient(circle closest-side, currentColor 0 57%, transparent 60% 79%, currentColor 82% 100%) !important;
 }
@@ -806,7 +821,7 @@ input[type=range]::-moz-range-progress {
 #tab-defib > .calc-card > .calc-title {
   padding: 11px 2px;
 }
-#tab-defib > .calc-card > .calc-body { padding-left: 2px !important; padding-right: 2px !important; }
+#tab-defib > .calc-card > .calc-body { padding-left: 2px !important; padding-right: 2px !important; text-align: justify; }
 .calc-card.is-expanded > .calc-title .special-cat-chevron { transform: rotate(0deg); }
 
 /* ── Calc Fields ── */
@@ -2093,6 +2108,7 @@ ul.vent-facts code{
   line-height: 1.6; white-space: normal;
   word-break: break-word;
 }
+.ft-sep { display: inline-block; transform: scaleY(.5); }
 .ft-line2 {
   font-size: 9px; color: var(--faint);
   line-height: 1.6; white-space: normal;
@@ -2896,7 +2912,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-thio">
  <div class="drug-header" onclick="toggleCard('thio')">
  <div class="drug-dot" style="color:#a78bfa"></div>
- <div style="flex:1"><div class="drug-name">Thiopental Sodium <span class="brand-name">(TPS)</span></div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml · Conc: <span id="thio-conc">50</span>mg/ml</span></div></div>
+ <div style="flex:1"><div class="drug-name">Thiopental Sodium <span class="brand-name">(TPS)</span></div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml • Conc: <span id="thio-conc">50</span>mg/ml</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-thio">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3242,7 +3258,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <div class="note-box" style="margin-top:8px">
-    <strong>Severity:</strong> Mild ≥13 · Moderate 9–12 · Severe ≤8<br>
+    <strong>Severity:</strong> Mild ≥13 • Moderate 9–12 • Severe ≤8<br>
     <strong>Intubation threshold:</strong> GCS ≤8 — "cannot protect airway"<br>
     <strong>T suffix:</strong> If intubated, switch Verbal to "Intubated" above — the estimated score counts toward the total, marked with T (e.g. GCS 10T).<br>
     <strong>Minimum score:</strong> 3 (not 0). Max: 15.
@@ -3434,14 +3450,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div style="font-size:10px;color:var(--text-faint);margin-top:3px" id="news2-action">Routine monitoring</div>
      </div>
     </div>
-    <div style="margin-top:8px;font-size:10px;color:var(--text-faint)" id="news2-breakdown">RR:0 · SpO₂:0 · O₂:0 · BP:0 · HR:0 · Temp:0 · CNS:0</div>
+    <div style="margin-top:8px;font-size:10px;color:var(--text-faint)" id="news2-breakdown">RR:0 • SpO₂:0 • O₂:0 • BP:0 • HR:0 • Temp:0 • CNS:0</div>
    </div>
 
    <div class="note-box" style="margin-top:8px">
-    <strong>Thresholds:</strong> Score 0–4 = Low · 5–6 = Medium · ≥7 = High<br>
+    <strong>Thresholds:</strong> Score 0–4 = Low • 5–6 = Medium • ≥7 = High<br>
     <strong>Single parameter score 3</strong> = escalate regardless of total<br>
     <strong>Scale 2</strong> = use only for confirmed hypercapnic respiratory failure (target SpO₂ 88–92%)<br>
-    <strong>Response:</strong> Low → 4–6 hrly obs · Medium → hourly + senior review · High → urgent ICU review
+    <strong>Response:</strong> Low → 4–6 hrly obs • Medium → hourly + senior review • High → urgent ICU review
    </div>
   </div>
  </div>
@@ -3464,7 +3480,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div class="field-grid-2">
    <!-- Temperature -->
    <div class="field-row">
-    <div class="field-label">Temperature °C <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-temp')" aria-label="Show scoring reference"><span id="ap-score-temp">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-temp">4=≥41 · 3=39–40.9 · 1=38.5–38.9 · 0=36–38.4 · 1=34–35.9 · 2=32–33.9 · 3=30–31.9 · 4=≤29.9</span></div>
+    <div class="field-label">Temperature °C <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-temp')" aria-label="Show scoring reference"><span id="ap-score-temp">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-temp">4=≥41 • 3=39–40.9 • 1=38.5–38.9 • 0=36–38.4 • 1=34–35.9 • 2=32–33.9 • 3=30–31.9 • 4=≤29.9</span></div>
     <div class="field-inputs">
      <input type="range" min="28" max="42" step="0.1" value="37" id="ap-temp" oninput="syncField('ap-temp',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="28" max="42" step="0.1" value="37" id="ap-temp-n" oninput="syncField('ap-temp',this.value);calcAPACHE()">
@@ -3473,7 +3489,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- MAP -->
    <div class="field-row">
-    <div class="field-label">MAP mmHg <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-map')" aria-label="Show scoring reference"><span id="ap-score-map">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-map">4=≥160 · 3=130–159 · 2=110–129 · 0=70–109 · 2=50–69 · 4=≤49</span></div>
+    <div class="field-label">MAP mmHg <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-map')" aria-label="Show scoring reference"><span id="ap-score-map">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-map">4=≥160 • 3=130–159 • 2=110–129 • 0=70–109 • 2=50–69 • 4=≤49</span></div>
     <div class="field-inputs">
      <input type="range" min="40" max="180" step="1" value="90" id="ap-map" oninput="syncField('ap-map',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="40" max="180" value="90" id="ap-map-n" oninput="syncField('ap-map',this.value);calcAPACHE()">
@@ -3482,7 +3498,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- HR -->
    <div class="field-row">
-    <div class="field-label">Heart Rate bpm <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-hr')" aria-label="Show scoring reference"><span id="ap-score-hr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-hr">4=≥180 · 3=140–179 · 2=110–139 · 0=70–109 · 2=55–69 · 3=40–54 · 4=≤39</span></div>
+    <div class="field-label">Heart Rate bpm <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-hr')" aria-label="Show scoring reference"><span id="ap-score-hr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-hr">4=≥180 • 3=140–179 • 2=110–139 • 0=70–109 • 2=55–69 • 3=40–54 • 4=≤39</span></div>
     <div class="field-inputs">
      <input type="range" min="30" max="200" step="1" value="80" id="ap-hr" oninput="syncField('ap-hr',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="30" max="200" value="80" id="ap-hr-n" oninput="syncField('ap-hr',this.value);calcAPACHE()">
@@ -3491,7 +3507,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- RR -->
    <div class="field-row">
-    <div class="field-label">Respiratory Rate /min <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-rr')" aria-label="Show scoring reference"><span id="ap-score-rr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-rr">4=≥50 · 3=35–49 · 1=25–34 · 0=12–24 · 1=10–11 · 2=6–9 · 4=≤5</span></div>
+    <div class="field-label">Respiratory Rate /min <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-rr')" aria-label="Show scoring reference"><span id="ap-score-rr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-rr">4=≥50 • 3=35–49 • 1=25–34 • 0=12–24 • 1=10–11 • 2=6–9 • 4=≤5</span></div>
     <div class="field-inputs">
      <input type="range" min="4" max="60" step="1" value="16" id="ap-rr" oninput="syncField('ap-rr',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="4" max="60" value="16" id="ap-rr-n" oninput="syncField('ap-rr',this.value);calcAPACHE()">
@@ -3523,15 +3539,15 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       </div>
      </div>
     </div>
-    <span class="ap-ref-text" id="ap-ref-aado2">4=≥500 · 3=350–499 · 2=200–349 · 0=&lt;200</span>
-    <span class="ap-ref-text" id="ap-ref-pao2" style="display:none">4=&lt;55 · 3=55–60 · 1=61–70 · 0=&gt;70</span>
+    <span class="ap-ref-text" id="ap-ref-aado2">4=≥500 • 3=350–499 • 2=200–349 • 0=&lt;200</span>
+    <span class="ap-ref-text" id="ap-ref-pao2" style="display:none">4=&lt;55 • 3=55–60 • 1=61–70 • 0=&gt;70</span>
    </div>
 
    <!-- pH / Na — 2-col grid -->
    <div class="field-grid-2">
    <!-- pH -->
    <div class="field-row">
-    <div class="field-label">Arterial pH <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-ph')" aria-label="Show scoring reference"><span id="ap-score-ph">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-ph">4=≥7.7 · 3=7.6–7.69 · 1=7.5–7.59 · 0=7.33–7.49 · 2=7.25–7.32 · 3=7.15–7.24 · 4=&lt;7.15</span></div>
+    <div class="field-label">Arterial pH <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-ph')" aria-label="Show scoring reference"><span id="ap-score-ph">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-ph">4=≥7.7 • 3=7.6–7.69 • 1=7.5–7.59 • 0=7.33–7.49 • 2=7.25–7.32 • 3=7.15–7.24 • 4=&lt;7.15</span></div>
     <div class="field-inputs">
      <input type="range" min="7.0" max="7.8" step="0.01" value="7.40" id="ap-ph" oninput="syncField('ap-ph',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="7.0" max="7.8" step="0.01" value="7.40" id="ap-ph-n" oninput="syncField('ap-ph',this.value);calcAPACHE()">
@@ -3540,7 +3556,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- Na -->
    <div class="field-row">
-    <div class="field-label">Serum Na⁺ (mmol/L) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-na')" aria-label="Show scoring reference"><span id="ap-score-na">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-na">4=≥180 · 3=160–179 · 2=155–159 · 1=150–154 · 0=130–149 · 2=120–129 · 3=111–119 · 4=≤110</span></div>
+    <div class="field-label">Serum Na⁺ (mmol/L) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-na')" aria-label="Show scoring reference"><span id="ap-score-na">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-na">4=≥180 • 3=160–179 • 2=155–159 • 1=150–154 • 0=130–149 • 2=120–129 • 3=111–119 • 4=≤110</span></div>
     <div class="field-inputs">
      <input type="range" min="100" max="190" step="1" value="138" id="ap-na" oninput="syncField('ap-na',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="100" max="190" value="138" id="ap-na-n" oninput="syncField('ap-na',this.value);calcAPACHE()">
@@ -3561,7 +3577,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- Creatinine -->
    <div class="field-row">
-    <div class="field-label">S. Creatinine (mg/dL) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-cr')" aria-label="Show scoring reference"><span id="ap-score-cr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-cr">4=≥3.5 · 3=2–3.4 · 1=1.5–1.9 · 0=0.6–1.4 · 2=&lt;0.6</span></div>
+    <div class="field-label">S. Creatinine (mg/dL) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-cr')" aria-label="Show scoring reference"><span id="ap-score-cr">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-cr">4=≥3.5 • 3=2–3.4 • 1=1.5–1.9 • 0=0.6–1.4 • 2=&lt;0.6</span></div>
     <div class="field-inputs">
      <input type="range" min="0.2" max="5" step="0.1" value="1.0" id="ap-cr" oninput="syncField('ap-cr',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="0.2" max="5" step="0.1" value="1.0" id="ap-cr-n" oninput="syncField('ap-cr',this.value);calcAPACHE()">
@@ -3573,7 +3589,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div class="field-grid-2">
    <!-- K -->
    <div class="field-row">
-    <div class="field-label">Serum K⁺ (mmol/L) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-k')" aria-label="Show scoring reference"><span id="ap-score-k">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-k">4=≥7 · 3=6–6.9 · 1=5.5–5.9 · 0=3.5–5.4 · 1=3–3.4 · 2=2.5–2.9 · 4=&lt;2.5</span></div>
+    <div class="field-label">Serum K⁺ (mmol/L) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-k')" aria-label="Show scoring reference"><span id="ap-score-k">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-k">4=≥7 • 3=6–6.9 • 1=5.5–5.9 • 0=3.5–5.4 • 1=3–3.4 • 2=2.5–2.9 • 4=&lt;2.5</span></div>
     <div class="field-inputs">
      <input type="range" min="1.5" max="8" step="0.1" value="4.0" id="ap-k" oninput="syncField('ap-k',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="1.5" max="8" step="0.1" value="4.0" id="ap-k-n" oninput="syncField('ap-k',this.value);calcAPACHE()">
@@ -3582,7 +3598,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 
    <!-- WBC -->
    <div class="field-row">
-    <div class="field-label">WBC (×10³/mm³) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-wbc')" aria-label="Show scoring reference"><span id="ap-score-wbc">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-wbc">4=≥40 · 2=20–39.9 · 1=15–19.9 · 0=3–14.9 · 2=1–2.9 · 4=&lt;1</span></div>
+    <div class="field-label">WBC (×10³/mm³) <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-wbc')" aria-label="Show scoring reference"><span id="ap-score-wbc">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-wbc">4=≥40 • 2=20–39.9 • 1=15–19.9 • 0=3–14.9 • 2=1–2.9 • 4=&lt;1</span></div>
     <div class="field-inputs">
      <input type="range" min="0.5" max="50" step="0.5" value="8" id="ap-wbc" oninput="syncField('ap-wbc',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="0.5" max="50" step="0.5" value="8" id="ap-wbc-n" oninput="syncField('ap-wbc',this.value);calcAPACHE()">
@@ -3596,7 +3612,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div class="field-grid-2">
    <!-- Haematocrit -->
    <div class="field-row">
-    <div class="field-label">Haematocrit % <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-hct')" aria-label="Show scoring reference"><span id="ap-score-hct">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-hct">4=≥60 · 2=50–59.9 · 1=46–49.9 · 0=30–45.9 · 2=20–29.9 · 4=&lt;20</span></div>
+    <div class="field-label">Haematocrit % <button type="button" class="ap-ref-btn" style="background:#ef444418;color:#ef4444;border:1px solid #ef444455" onclick="toggleApRef(this,'ap-ref-hct')" aria-label="Show scoring reference"><span id="ap-score-hct">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-hct">4=≥60 • 2=50–59.9 • 1=46–49.9 • 0=30–45.9 • 2=20–29.9 • 4=&lt;20</span></div>
     <div class="field-inputs">
      <input type="range" min="10" max="70" step="1" value="38" id="ap-hct" oninput="syncField('ap-hct',this.value);calcAPACHE()" style="accent-color:#ef4444">
      <input type="number" min="10" max="70" value="38" id="ap-hct-n" oninput="syncField('ap-hct',this.value);calcAPACHE()">
@@ -3619,7 +3635,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="border-radius:4px;padding:10px 2px 10px;margin-bottom:10px">
    <div style="font-size:10px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:8px;border-left:3px solid #f59e0b">B — Age Points</div>
    <div class="field-row" style="margin-bottom:0">
-    <div class="field-label">Age (years) <button type="button" class="ap-ref-btn" style="background:#f59e0b18;color:#f59e0b;border:1px solid #f59e0b55" onclick="toggleApRef(this,'ap-ref-age')" aria-label="Show scoring reference"><span id="ap-score-age">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-age">0=&lt;44 · 2=45–54 · 3=55–64 · 5=65–74 · 6=≥75</span></div>
+    <div class="field-label">Age (years) <button type="button" class="ap-ref-btn" style="background:#f59e0b18;color:#f59e0b;border:1px solid #f59e0b55" onclick="toggleApRef(this,'ap-ref-age')" aria-label="Show scoring reference"><span id="ap-score-age">0</span><svg viewBox="0 0 24 24" width="10" height="10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button><span class="ap-ref-text" id="ap-ref-age">0=&lt;44 • 2=45–54 • 3=55–64 • 5=65–74 • 6=≥75</span></div>
     <div class="field-inputs">
      <input type="range" min="18" max="90" step="1" value="50" id="ap-age" oninput="syncField('ap-age',this.value);calcAPACHE()" style="accent-color:#f59e0b">
      <input type="number" min="18" max="90" value="50" id="ap-age-n" oninput="syncField('ap-age',this.value);calcAPACHE()">
@@ -3631,7 +3647,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="border-radius:4px;padding:10px 2px 10px;margin-bottom:10px">
    <div style="font-size:10px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:8px;border-left:3px solid #10b981">C — Chronic Health Points</div>
    <div style="margin-bottom:0">
-    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Severe organ insufficiency or immunocompromised?<br><span style="font-size:10px;color:var(--text-fainter)">(Liver cirrhosis · Portal HTN · NYHA IV · Severe COPD · Chronic dialysis · Immunosuppressed)</span></div>
+    <div style="font-size:11px;color:var(--text-muted);margin-bottom:6px">Severe organ insufficiency or immunocompromised?<br><span style="font-size:10px;color:var(--text-fainter)">(Liver cirrhosis • Portal HTN • NYHA IV • Severe COPD • Chronic dialysis • Immunosuppressed)</span></div>
     <div style="display:flex;gap:6px;flex-wrap:wrap">
      <label class="radio-label" style="font-size:12px"><input type="radio" name="ap-chronic" value="0" onchange="calcAPACHE()" checked style="accent-color:#10b981"> None (0)</label>
      <label class="radio-label" style="font-size:12px"><input type="radio" name="ap-chronic" value="2" onchange="calcAPACHE()" style="accent-color:#10b981"> Elective post-op (+2)</label>
@@ -3652,12 +3668,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div style="font-size:10px;color:var(--text-faint);margin-top:3px">Illness severity band</div>
      </div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px" id="apache-breakdown">A:0 · B:0 · C:0</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-bottom:4px" id="apache-breakdown">A:0 • B:0 • C:0</div>
     <div style="font-size:12px;font-weight:600;margin-top:4px" id="apache-interp"></div>
    </div>
 
    <div class="note-box" style="margin-top:8px">
-    <strong>Score bands:</strong> &lt;10 = ~15% mortality · 10–14 = ~25% · 15–19 = ~40% · 20–24 = ~55% · 25–29 = ~75% · ≥30 = &gt;85%<br>
+    <strong>Score bands:</strong> &lt;10 = ~15% mortality • 10–14 = ~25% • 15–19 = ~40% • 20–24 = ~55% • 25–29 = ~75% • ≥30 = &gt;85%<br>
     <strong>Limitations:</strong> Validated on ICU admission data (first 24hr worst values). Not for serial monitoring. Under-predicts mortality in burns, post-cardiac arrest. Over-predicts in trauma.
    </div>
   </div>
@@ -3935,8 +3951,8 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <!-- Unit toggle -->
   <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
    <span style="font-size:10px;color:var(--text-faint);flex-shrink:0">Units:</span>
-   <button onclick="setCaUnit('si')" id="ca-unit-si" style="flex:1;padding:5px 0;border-radius: 4px;border:1px solid #06b6d4;background:var(--accent)22;color:var(--accent);font-size:10.5px;font-weight:700;cursor:pointer">mmol/L · g/L</button>
-   <button onclick="setCaUnit('us')" id="ca-unit-us" style="flex:1;padding:5px 0;border-radius: 4px;border:1px solid var(--border-strong);background:transparent;color:var(--text-faint);font-size:10.5px;font-weight:600;cursor:pointer">mg/dL · g/dL</button>
+   <button onclick="setCaUnit('si')" id="ca-unit-si" style="flex:1;padding:5px 0;border-radius: 4px;border:1px solid #06b6d4;background:var(--accent)22;color:var(--accent);font-size:10.5px;font-weight:700;cursor:pointer">mmol/L • g/L</button>
+   <button onclick="setCaUnit('us')" id="ca-unit-us" style="flex:1;padding:5px 0;border-radius: 4px;border:1px solid var(--border-strong);background:transparent;color:var(--text-faint);font-size:10.5px;font-weight:600;cursor:pointer">mg/dL • g/dL</button>
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px">
    <div style="background:var(--surface-deep);border-radius: 4px;padding:5px 2px">
@@ -3998,7 +4014,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
   <div class="note-box">
    <strong>Formula:</strong> [(140−Age) × Wt × (0.85 if ♀)] ÷ (72 × S.Cr)<br>
-   <strong>CKD Staging (KDIGO):</strong> G1 ≥90 · G2 60–89 · G3a 45–59 · G3b 30–44 · G4 15–29 · G5 &lt;15 ml/min<br>
+   <strong>CKD Staging (KDIGO):</strong> G1 ≥90 • G2 60–89 • G3a 45–59 • G3b 30–44 • G4 15–29 • G5 &lt;15 ml/min<br>
    <strong>Drug dose adjustments:</strong> Vancomycin, aminoglycosides, LMWH, metformin, digoxin, dabigatran — all need CrCl-based adjustment<br>
    <strong>Use IBW</strong> if obese (BMI &gt;30); use ABW if cachectic. Formula validated for stable creatinine — unreliable in AKI.<br>
    <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> CG formula tends to overestimate in elderly and underestimate in muscle-wasted patients. eGFR (CKD-EPI) preferred for CKD staging; CG preferred for drug dosing.
@@ -4086,7 +4102,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <!-- Common features -->
    <div style="background:transparent;border:1px solid #ef444430;border-radius: 4px;padding:8px 8px;margin-bottom:8px">
     <div style="font-size:10px;font-weight:700;color:#ef4444;letter-spacing:0.4px;margin-bottom:5px">ALL SHOCK: MAP &lt;65 or SBP &lt;90 + End-organ hypoperfusion</div>
-    <div style="font-size:11px;color:var(--text-muted)">Cool/mottled skin · Oliguria (&lt;0.5 ml/kg/hr) · AMS · Elevated lactate (&gt;2) · Tachycardia</div>
+    <div style="font-size:11px;color:var(--text-muted)">Cool/mottled skin • Oliguria (&lt;0.5 ml/kg/hr) • AMS • Elevated lactate (&gt;2) • Tachycardia</div>
    </div>
 
    <!-- 4-column differentiator -->
@@ -4096,7 +4112,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div style="background:transparent;border:1px solid #f59e0b55;border-radius: 4px;padding:9px 10px">
      <div style="font-size:10px;font-weight:700;color:#f59e0b;letter-spacing:0.8px;margin-bottom:5px">DISTRIBUTIVE</div>
      <div style="font-size:10.5px;color:var(--text-muted);line-height:1.65">
-      <b>Causes:</b> Sepsis · Anaphylaxis · Neurogenic · SIRS<br>
+      <b>Causes:</b> Sepsis • Anaphylaxis • Neurogenic • SIRS<br>
       <b>Skin:</b> Warm &amp; flushed (early) → cool (late)<br>
       <b>HR:</b> ↑↑ &nbsp;|&nbsp; <b>BP:</b> ↓ &nbsp;|&nbsp; <b>CO:</b> ↑ (hyperdynamic)<br>
       <b>SVR:</b> ↓↓ &nbsp;|&nbsp; <b>PCWP:</b> low/normal<br>
@@ -4110,12 +4126,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div style="background:transparent;border:1px solid #ef444455;border-radius: 4px;padding:9px 10px">
      <div style="font-size:10px;font-weight:700;color:#ef4444;letter-spacing:0.8px;margin-bottom:5px">CARDIOGENIC</div>
      <div style="font-size:10.5px;color:var(--text-muted);line-height:1.65">
-      <b>Causes:</b> AMI · Acute HF · Myocarditis · Arrhythmia · Valve failure<br>
+      <b>Causes:</b> AMI • Acute HF • Myocarditis • Arrhythmia • Valve failure<br>
       <b>Skin:</b> Cold, clammy, pale<br>
       <b>HR:</b> ↑ &nbsp;|&nbsp; <b>BP:</b> ↓ &nbsp;|&nbsp; <b>CO:</b> ↓↓<br>
       <b>SVR:</b> ↑↑ &nbsp;|&nbsp; <b>PCWP:</b> ↑↑ (pulm. oedema)<br>
       <b>JVP:</b> ↑ &nbsp;|&nbsp; <b>S3/crackles</b><br>
-      <b>Rx:</b> Dobutamine + Noradrenaline · Diuresis · PCI if STEMI<br>
+      <b>Rx:</b> Dobutamine + Noradrenaline • Diuresis • PCI if STEMI<br>
       <span style="color:#ef4444;font-size:10px"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Avoid aggressive fluids — may worsen oedema</span>
      </div>
     </div>
@@ -4124,13 +4140,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div style="background:transparent;border:1px solid #3b82f655;border-radius: 4px;padding:9px 10px">
      <div style="font-size:10px;font-weight:700;color:#3b82f6;letter-spacing:0.8px;margin-bottom:5px">OBSTRUCTIVE</div>
      <div style="font-size:10.5px;color:var(--text-muted);line-height:1.65">
-      <b>Causes:</b> Massive PE · Tension PTX · Cardiac Tamponade · Severe AS<br>
+      <b>Causes:</b> Massive PE • Tension PTX • Cardiac Tamponade • Severe AS<br>
       <b>Skin:</b> Cool, clammy<br>
       <b>HR:</b> ↑↑ &nbsp;|&nbsp; <b>BP:</b> ↓ &nbsp;|&nbsp; <b>CO:</b> ↓<br>
       <b>SVR:</b> ↑ &nbsp;|&nbsp; <b>JVP:</b> ↑↑<br>
       <b>Tamponade:</b> Beck's triad (↓BP + ↑JVP + muffled heart)<br>
       <b>Tension PTX:</b> Absent breath sounds + tracheal deviation<br>
-      <b>Rx:</b> Remove obstruction (thrombolysis/embolectomy · needle decompression · pericardiocentesis)
+      <b>Rx:</b> Remove obstruction (thrombolysis/embolectomy • needle decompression • pericardiocentesis)
      </div>
     </div>
 
@@ -4138,12 +4154,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div style="background:transparent;border:1px solid #06b6d455;border-radius: 4px;padding:9px 10px">
      <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.8px;margin-bottom:5px">HYPOVOLAEMIC</div>
      <div style="font-size:10.5px;color:var(--text-muted);line-height:1.65">
-      <b>Causes:</b> Haemorrhage · GI loss · Burns · 3rd spacing<br>
+      <b>Causes:</b> Haemorrhage • GI loss • Burns • 3rd spacing<br>
       <b>Skin:</b> Cold, pale, dry (non-haemorrhagic)<br>
       <b>HR:</b> ↑↑ &nbsp;|&nbsp; <b>BP:</b> ↓ &nbsp;|&nbsp; <b>CO:</b> ↓<br>
       <b>SVR:</b> ↑↑ &nbsp;|&nbsp; <b>PCWP:</b> ↓↓<br>
       <b>JVP:</b> ↓↓ &nbsp;|&nbsp; <b>Hct:</b> normal initially then ↓<br>
-      <b>Rx:</b> IV fluids / blood products · STOP source of loss<br>
+      <b>Rx:</b> IV fluids / blood products • STOP source of loss<br>
       <span style="color:var(--accent);font-size:10px"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Haemorrhage: 1:1:1 pRBC:FFP:Plt (massive transfusion protocol)</span>
      </div>
     </div>
@@ -4213,10 +4229,10 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
   <div class="note-box">
    <strong>Target MAP in ICU:</strong><br>
-   <span class="bl"></span> Septic shock: ≥65 mmHg (higher ≥75–80 if known hypertension or TBI)<br>
-   <span class="bl"></span> Traumatic brain injury (TBI/IICP): ≥80 mmHg to maintain CPP<br>
-   <span class="bl"></span> Post-cardiac arrest: 65–100 mmHg<br>
-   <span class="bl"></span> Post-aortic surgery: 70–80 mmHg<br>
+   <span class="bl-dot"></span> Septic shock: ≥65 mmHg (higher ≥75–80 if known hypertension or TBI)<br>
+   <span class="bl-dot"></span> Traumatic brain injury (TBI/IICP): ≥80 mmHg to maintain CPP<br>
+   <span class="bl-dot"></span> Post-cardiac arrest: 65–100 mmHg<br>
+   <span class="bl-dot"></span> Post-aortic surgery: 70–80 mmHg<br>
    <strong>Vasopressor trigger:</strong> MAP &lt;65 despite adequate fluid resuscitation → Noradrenaline 1st line<br>
    <strong>Pulse Pressure:</strong> &lt;25 mmHg = narrow (low SV / tamponade / hypovolaemia) | &gt;60 mmHg = wide (AR / sepsis / AV fistula)
   </div>
@@ -4255,7 +4271,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="font-size:10px;color:var(--text-faint);margin-top:6px">FWD (L) = TBW × [(Current Na ÷ Target Na) − 1] &nbsp;|&nbsp; TBW = fraction × Wt</div>
   </div>
   <div class="note-box">
-   <strong>TBW fraction:</strong> Male 0.6 (0.5 if elderly) · Female 0.5 (0.45 if elderly)<br>
+   <strong>TBW fraction:</strong> Male 0.6 (0.5 if elderly) • Female 0.5 (0.45 if elderly)<br>
    <strong>Correction rate:</strong> Lower Na no faster than 8–10 mEq/L per 24h (chronic hypernatraemia) — faster correction risks cerebral oedema<br>
    <strong>Replacement:</strong> Give ~half the calculated deficit in the first 24h (plus ongoing insensible/urinary free water losses), remainder over the next 24–48h<br>
    <strong>Monitor:</strong> Serum Na q2–4hrly during active correction; use D5W or enteral free water<br>
@@ -4739,7 +4755,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
 
   <div class="note-box">
-   <strong>Three-tier:</strong> Low 0–1 (≈1–3% PE prevalence) · Moderate 2–6 (≈16–28%) · High ≥7 (≈38–78%)<br>
+   <strong>Three-tier:</strong> Low 0–1 (≈1–3% PE prevalence) • Moderate 2–6 (≈16–28%) • High ≥7 (≈38–78%)<br>
    <strong>Two-tier (dichotomised):</strong> Score ≤4 = "PE Unlikely" → D-dimer; Score &gt;4 = "PE Likely" → proceed to CTPA<br>
    <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> <strong>Disclaimer:</strong> A validated D-dimer is still required to rule out PE in the "Unlikely" group — a low Wells score alone does not exclude PE. Source: Wells PS, et al. Thromb Haemost 2000; Ann Intern Med 2001. Dichotomised criteria: Christopher Study Investigators, JAMA 2006.
   </div>
@@ -5021,7 +5037,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   <div class="ucv-sub-card" id="ucvs-vccomp" style="margin-top:6px">
    <div class="ucv-sub-header" onclick="ucvToggle('vccomp')"><span style="border-left:3px solid #3b82f6">Static / Dynamic Compliance + Airway Resistance</span><span class="ucv-sub-chevron">▼</span></div>
    <div class="ucv-sub-body" style="display:none">
-    <div class="vc-formula">Cstat = Vt/(Pplat−PEEP) · Cdyn = Vt/(Ppeak−PEEP) · Raw = (Ppeak−Pplat)/Flow</div>
+    <div class="vc-formula">Cstat = Vt/(Pplat−PEEP) • Cdyn = Vt/(Ppeak−PEEP) • Raw = (Ppeak−Pplat)/Flow</div>
     <div class="vc-desc">Falling compliance suggests pneumothorax, worsening ARDS, or abdominal splinting. Rising resistance suggests secretions or bronchospasm.</div>
     <div class="vc-grid">
      <div class="vc-field"><label for="vc-comp-vt">Vt (mL)</label><input type="number" step="1" id="vc-comp-vt" oninput="vcCalcComp()" placeholder="420"></div>
@@ -5445,7 +5461,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
   </div>
 
   <div class="note-box">
-   <strong>euDKA key triggers:</strong> SGLT2 inhibitors (most common) · Fasting/low carb · Pregnancy · Alcohol · Vomiting · Reduced insulin dose<br>
+   <strong>euDKA key triggers:</strong> SGLT2 inhibitors (most common) • Fasting/low carb • Pregnancy • Alcohol • Vomiting • Reduced insulin dose<br>
    <strong>Pitfall:</strong> Normal glucose misleads — always check pH, ketones, AG in any sick diabetic on SGLT2i<br>
    <strong>HHS hallmark:</strong> Profound dehydration (average 9–10L deficit) + hyperosmolarity ± AMS — acidosis mild/absent<br>
    <strong>Overlap:</strong> ~30% of HHS has some ketosis; DKA can have high osmolality — always treat the dominant picture<br>
@@ -5488,7 +5504,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      <div class="ins-type-row"><span>Aspart (NovoRapid)</span><span>10–20 min</span><span>40–50 min</span><span>3–5 hr</span></div>
      <div class="ins-type-row"><span>Glulisine (Apidra)</span><span>10–15 min</span><span>30–90 min</span><span>3–5 hr</span></div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Give immediately before meal · Do NOT give if patient not eating</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Give immediately before meal • Do NOT give if patient not eating</div>
    </div>
    <!-- Short -->
    <div style="margin-bottom:8px">
@@ -5499,7 +5515,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      </div>
      <div class="ins-type-row"><span>Actrapid / Humulin R</span><span>30–60 min</span><span>2–4 hr</span><span>6–8 hr</span></div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 IV infusion in ICU · S/C 30 min before meal · Only insulin safe IV</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 IV infusion in ICU • S/C 30 min before meal • Only insulin safe IV</div>
    </div>
    <!-- Intermediate -->
    <div style="margin-bottom:8px">
@@ -5510,7 +5526,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      </div>
      <div class="ins-type-row"><span>NPH / Insulatard / Humulin N</span><span>1–3 hr</span><span>6–10 hr</span><span>12–18 hr</span></div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Cloudy — mix gently · Twice daily typical · Avoid in ICU (unpredictable absorption)</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Cloudy — mix gently • Twice daily typical • Avoid in ICU (unpredictable absorption)</div>
    </div>
    <!-- Long -->
    <div style="margin-bottom:8px">
@@ -5522,7 +5538,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      <div class="ins-type-row"><span>Glargine (Lantus/Basaglar)</span><span>2–4 hr</span><span>Peakless</span><span>20–24 hr</span></div>
      <div class="ins-type-row"><span>Detemir (Levemir)</span><span>1–3 hr</span><span>Flat</span><span>12–24 hr</span></div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Clear — do NOT mix with other insulins · Once daily (Glargine), once/twice (Detemir) · S/C only</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Clear — do NOT mix with other insulins • Once daily (Glargine), once/twice (Detemir) • S/C only</div>
    </div>
    <!-- Ultra-long -->
    <div style="margin-bottom:8px">
@@ -5533,7 +5549,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      </div>
      <div class="ins-type-row"><span>Degludec (Tresiba)</span><span>1 hr</span><span>Peakless</span><span>&gt;42 hr</span></div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Flexible dosing time · Very long t½ — hypoglycaemia prolonged if occurs</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Flexible dosing time • Very long t½ — hypoglycaemia prolonged if occurs</div>
    </div>
    <!-- Premixed -->
    <div style="margin-bottom:4px">
@@ -5545,7 +5561,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
      <div class="ins-type-row"><span>Mixtard 30/70</span><span>30 min</span><span>2–8 hr</span><span>Up to 24 hr</span></div>
      <div class="ins-type-row"><span>NovoMix 30</span><span>10–20 min</span><span>1–4 hr</span><span>Up to 24 hr</span></div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Cloudy · Mix gently · Twice daily · Avoid in acute illness / ICU</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Cloudy • Mix gently • Twice daily • Avoid in acute illness / ICU</div>
    </div>
   </div>
 
@@ -5608,10 +5624,10 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div id="ins-calc-alert" style="display:none;border-radius: 4px;padding:8px 10px;font-size:12px;font-weight:600;margin-bottom:8px;text-align:center"></div>
 
    <div class="note-box">
-    <strong>TDD formula:</strong> 0.4–0.5 units/kg (sensitive) · 0.5 units/kg (normal) · 0.6–0.7 units/kg (resistant)<br>
+    <strong>TDD formula:</strong> 0.4–0.5 units/kg (sensitive) • 0.5 units/kg (normal) • 0.6–0.7 units/kg (resistant)<br>
     <strong>Basal-Bolus split:</strong> 50% basal (long-acting) + 50% bolus (rapid/short-acting ÷ 3 meals)<br>
     <strong>ISF (Insulin Sensitivity Factor):</strong> 100 ÷ TDD = how much 1 unit drops CBG (mmol/L)<br>
-    <strong>Correction:</strong> (Current CBG − Target 7.0) ÷ ISF · Round to nearest whole unit<br>
+    <strong>Correction:</strong> (Current CBG − Target 7.0) ÷ ISF • Round to nearest whole unit<br>
     <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> These are starting estimates. Titrate based on CBG trends. T1DM needs specialist input.
    </div>
   </div>
@@ -5647,10 +5663,10 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    </div>
 
    <div class="note-box">
-    <strong>Frequency:</strong> Check CBG before each meal + bedtime (QID) · ICU: 1–2 hourly if on IV insulin<br>
-    <strong>Target CBG in ICU:</strong> 7.8–10 mmol/L (ADA/SCCM) · Avoid &lt;6.1 (↑mortality)<br>
+    <strong>Frequency:</strong> Check CBG before each meal + bedtime (QID) • ICU: 1–2 hourly if on IV insulin<br>
+    <strong>Target CBG in ICU:</strong> 7.8–10 mmol/L (ADA/SCCM) • Avoid &lt;6.1 (↑mortality)<br>
     <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> <strong>ADA 2026:</strong> Sole correction/sliding-scale insulin is discouraged for most hospitalised patients — prefer scheduled basal ± prandial/correction therapy. Critically ill patients generally need a validated IV insulin infusion protocol, not sliding scale alone. Use this table as a correction-dose reference within a broader regimen, not as standalone treatment.<br>
-    <strong>Hypoglycaemia (CBG &lt;4):</strong> 15g fast carbs (conscious) · 50ml 50% Dextrose IV (unconscious) · Recheck in 15 min
+    <strong>Hypoglycaemia (CBG &lt;4):</strong> 15g fast carbs (conscious) • 50ml 50% Dextrose IV (unconscious) • Recheck in 15 min
    </div>
   </div>
 
@@ -5662,14 +5678,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #10b98166">
     <div style="font-size:10px;font-weight:700;color:#10b981;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">✅ Indications</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
-     <span class="bl"></span> Type 1 DM (absolute — no endogenous insulin)<br>
-     <span class="bl"></span> Type 2 DM — inadequate oral control, acute illness, surgery<br>
-     <span class="bl"></span> Hyperglycaemia in ICU / critical illness (CBG &gt;10 mmol/L)<br>
-     <span class="bl"></span> DKA / HHS — IV Actrapid infusion<br>
-     <span class="bl"></span> Hyperkalaemia — insulin + dextrose (drives K⁺ intracellular)<br>
-     <span class="bl"></span> TPN / enteral feeding — blood glucose control<br>
-     <span class="bl"></span> Gestational DM / Pregnancy (oral agents contraindicated)<br>
-     <span class="bl"></span> Steroid-induced hyperglycaemia
+     <span class="bl-dot"></span> Type 1 DM (absolute — no endogenous insulin)<br>
+     <span class="bl-dot"></span> Type 2 DM — inadequate oral control, acute illness, surgery<br>
+     <span class="bl-dot"></span> Hyperglycaemia in ICU / critical illness (CBG &gt;10 mmol/L)<br>
+     <span class="bl-dot"></span> DKA / HHS — IV Actrapid infusion<br>
+     <span class="bl-dot"></span> Hyperkalaemia — insulin + dextrose (drives K⁺ intracellular)<br>
+     <span class="bl-dot"></span> TPN / enteral feeding — blood glucose control<br>
+     <span class="bl-dot"></span> Gestational DM / Pregnancy (oral agents contraindicated)<br>
+     <span class="bl-dot"></span> Steroid-induced hyperglycaemia
     </div>
    </div>
 
@@ -5677,13 +5693,13 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #ef444466">
     <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">❌ Contraindications / Cautions</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
-     <span class="bl"></span> Hypoglycaemia — never give without checking CBG first<br>
-     <span class="bl"></span> Hypokalaemia — correct K⁺ first (insulin drives K⁺ further down)<br>
-     <span class="bl"></span> NPO patient — withhold bolus insulin (keep basal, reduce by 20–50%)<br>
-     <span class="bl"></span> Renal failure — dose reduction needed (↓ insulin clearance → prolonged action)<br>
-     <span class="bl"></span> Hepatic failure — unpredictable glucose; monitor closely<br>
-     <span class="bl"></span> Mixing glargine/detemir with other insulins — NEVER mix<br>
-     <span class="bl"></span> IM injection — erratic absorption; always S/C
+     <span class="bl-dot"></span> Hypoglycaemia — never give without checking CBG first<br>
+     <span class="bl-dot"></span> Hypokalaemia — correct K⁺ first (insulin drives K⁺ further down)<br>
+     <span class="bl-dot"></span> NPO patient — withhold bolus insulin (keep basal, reduce by 20–50%)<br>
+     <span class="bl-dot"></span> Renal failure — dose reduction needed (↓ insulin clearance → prolonged action)<br>
+     <span class="bl-dot"></span> Hepatic failure — unpredictable glucose; monitor closely<br>
+     <span class="bl-dot"></span> Mixing glargine/detemir with other insulins — NEVER mix<br>
+     <span class="bl-dot"></span> IM injection — erratic absorption; always S/C
     </div>
    </div>
 
@@ -5691,14 +5707,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #f59e0b66">
     <div style="font-size:10px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ICU-Specific Pearls</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
-     <span class="bl"></span> Only Regular (Actrapid) insulin is safe IV — never give analogue IV<br>
-     <span class="bl"></span> IV infusion: 50 units Actrapid in 50ml NS = 1 unit/ml<br>
-     <span class="bl"></span> Transition IV → S/C: give first S/C dose 1–2 hr before stopping infusion<br>
-     <span class="bl"></span> NICE-SUGAR trial: target 7.8–10 mmol/L in ICU (intensive control ↑mortality)<br>
-     <span class="bl"></span> Stress hyperglycaemia: common in sepsis, post-op, steroids — treat if CBG &gt;10 consistently<br>
-     <span class="bl"></span> Enteral feeding: give bolus insulin with each feed · Stop if feed interrupted<br>
-     <span class="bl"></span> Hypokalaemia: always check K⁺ before starting insulin infusion<br>
-     <span class="bl"></span> Dawn phenomenon: CBG rises 4–8 AM due to cortisol surge — may need dose adjustment
+     <span class="bl-dot"></span> Only Regular (Actrapid) insulin is safe IV — never give analogue IV<br>
+     <span class="bl-dot"></span> IV infusion: 50 units Actrapid in 50ml NS = 1 unit/ml<br>
+     <span class="bl-dot"></span> Transition IV → S/C: give first S/C dose 1–2 hr before stopping infusion<br>
+     <span class="bl-dot"></span> NICE-SUGAR trial: target 7.8–10 mmol/L in ICU (intensive control ↑mortality)<br>
+     <span class="bl-dot"></span> Stress hyperglycaemia: common in sepsis, post-op, steroids — treat if CBG &gt;10 consistently<br>
+     <span class="bl-dot"></span> Enteral feeding: give bolus insulin with each feed • Stop if feed interrupted<br>
+     <span class="bl-dot"></span> Hypokalaemia: always check K⁺ before starting insulin infusion<br>
+     <span class="bl-dot"></span> Dawn phenomenon: CBG rises 4–8 AM due to cortisol surge — may need dose adjustment
     </div>
    </div>
 
@@ -5707,12 +5723,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
     <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px">🚨 Hypoglycaemia Management</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
      <strong style="color:#ef4444">CBG &lt; 4.0 mmol/L</strong> = Hypoglycaemia<br>
-     <span class="bl"></span> <strong>Conscious:</strong> 15g fast carbs (glucose tabs / 150ml juice / 3 tsp sugar)<br>
-     <span class="bl"></span> <strong>Unconscious/IV access:</strong> 50ml of 50% Dextrose (D50W) IV stat OR Glucagon 1mg IM/S/C<br>
-     <span class="bl"></span> Recheck CBG in 15 min · Repeat if still &lt;4<br>
-     <span class="bl"></span> Once CBG &gt;4: give long-acting carbs to prevent recurrence<br>
-     <span class="bl"></span> <strong>Severe/prolonged:</strong> 10% Dextrose infusion · Identify cause (missed meal, excess dose, renal failure)<br>
-     <span class="bl"></span> Document and review insulin regimen
+     <span class="bl-dot"></span> <strong>Conscious:</strong> 15g fast carbs (glucose tabs / 150ml juice / 3 tsp sugar)<br>
+     <span class="bl-dot"></span> <strong>Unconscious/IV access:</strong> 50ml of 50% Dextrose (D50W) IV stat OR Glucagon 1mg IM/S/C<br>
+     <span class="bl-dot"></span> Recheck CBG in 15 min • Repeat if still &lt;4<br>
+     <span class="bl-dot"></span> Once CBG &gt;4: give long-acting carbs to prevent recurrence<br>
+     <span class="bl-dot"></span> <strong>Severe/prolonged:</strong> 10% Dextrose infusion • Identify cause (missed meal, excess dose, renal failure)<br>
+     <span class="bl-dot"></span> Document and review insulin regimen
     </div>
    </div>
   </div>
@@ -5939,7 +5955,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div class="eiw-card-icon" id="eiw-na-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Na<span class="eiw-ion">⁺</span></div>
       <div>
         <div class="eiw-card-title">Sodium (Na<span class="eiw-ion">⁺</span>)</div>
-        <div class="eiw-card-subtitle" id="eiw-na-subtitle">Hyponatremia · Correction Protocol</div>
+        <div class="eiw-card-subtitle" id="eiw-na-subtitle">Hyponatremia • Correction Protocol</div>
       </div>
     </div>
     <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -5967,14 +5983,14 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
           <div class="eiw-step-text"><b>Assess volume status first</b> — the key branch point
-            <div class="eiw-dose">Euvolemic → SIADH · Hypovolemic → CSW or extrarenal loss · Hypervolemic → CHF, cirrhosis, nephrotic syndrome</div>
+            <div class="eiw-dose">Euvolemic → SIADH • Hypovolemic → CSW or extrarenal loss • Hypervolemic → CHF, cirrhosis, nephrotic syndrome</div>
           </div>
         </div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">2</div>
           <div class="eiw-step-text"><b>SIADH vs CSW</b> — both euvolemic-looking hyponatremia post-neurosurgery
-            <div class="eiw-dose">SIADH → euvolemic, restrict fluids · CSW → hypovolemic, low CVP → replace salt + volume, never restrict</div>
+            <div class="eiw-dose">SIADH → euvolemic, restrict fluids • CSW → hypovolemic, low CVP → replace salt + volume, never restrict</div>
           </div>
         </div>
 
@@ -6008,7 +6024,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Overcorrection is a medical emergency — treat it as urgently as the original hyponatremia</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: European Hyponatraemia Guideline · US/Expert Panel Hyponatremia Guideline 2013 · CJASN 2024</div>
+        <div class="eiw-ref-tag">REF: European Hyponatraemia Guideline • US/Expert Panel Hyponatremia Guideline 2013 • CJASN 2024</div>
       </div>
     </div>
   </div>
@@ -6028,21 +6044,21 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
           <div class="eiw-step-text"><b>Assess volume status</b>
-            <div class="eiw-dose">Hypovolemic → extrarenal/renal loss · Euvolemic → DI, insensible loss · Hypervolemic → iatrogenic saline, mineralocorticoid excess</div>
+            <div class="eiw-dose">Hypovolemic → extrarenal/renal loss • Euvolemic → DI, insensible loss • Hypervolemic → iatrogenic saline, mineralocorticoid excess</div>
           </div>
         </div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">2</div>
           <div class="eiw-step-text"><b>Check urine osmolality</b>
-            <div class="eiw-dose">&gt;800 → appropriate ADH response · 300–800 → partial DI/osmotic diuresis · &lt;300 → DI</div>
+            <div class="eiw-dose">&gt;800 → appropriate ADH response • 300–800 → partial DI/osmotic diuresis • &lt;300 → DI</div>
           </div>
         </div>
 
         <div class="eiw-step">
           <div class="eiw-step-num">3</div>
           <div class="eiw-step-text"><b>If DI suspected</b> — DDAVP trial
-            <div class="eiw-dose">Urine osm ↑&gt;50% → Central DI · No response → Nephrogenic DI</div>
+            <div class="eiw-dose">Urine osm ↑&gt;50% → Central DI • No response → Nephrogenic DI</div>
           </div>
         </div>
 
@@ -6078,7 +6094,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Recheck Na<span class="eiw-ion">⁺</span> every 4–6h during active correction</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: Standard ICU electrolyte workup protocols · Desmopressin ICU dosing (Wellington ICU Drug Manual)</div>
+        <div class="eiw-ref-tag">REF: Standard ICU electrolyte workup protocols • Desmopressin ICU dosing (Wellington ICU Drug Manual)</div>
       </div>
     </div>
   </div>
@@ -6090,7 +6106,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div class="eiw-card-icon" id="eiw-k-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">K<span class="eiw-ion">⁺</span></div>
       <div>
         <div class="eiw-card-title">Potassium (K<span class="eiw-ion">⁺</span>)</div>
-        <div class="eiw-card-subtitle" id="eiw-k-subtitle">Hypokalemia · NHS SPS 2025</div>
+        <div class="eiw-card-subtitle" id="eiw-k-subtitle">Hypokalemia • NHS SPS 2025</div>
       </div>
     </div>
     <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -6147,7 +6163,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div class="eiw-step">
         <div class="eiw-step-num">5</div>
         <div class="eiw-step-text"><b>RRT / Dialysis</b> if refractory to medical Rx
-          <div class="eiw-dose">Indications: persistent K<span class="eiw-ion">⁺</span> &gt;6.5 despite Rx · concurrent severe metabolic acidosis (pH &lt;7.1–7.2) · AKI/oliguric CKD · fluid overload · ECG changes not resolving · hyperkalaemic cardiac arrest</div>
+          <div class="eiw-dose">Indications: persistent K<span class="eiw-ion">⁺</span> &gt;6.5 despite Rx • concurrent severe metabolic acidosis (pH &lt;7.1–7.2) • AKI/oliguric CKD • fluid overload • ECG changes not resolving • hyperkalaemic cardiac arrest</div>
         </div>
       </div>
 
@@ -6169,7 +6185,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
         <div class="eiw-pearl-item">Don't wait for a "magic K<span class="eiw-ion">⁺</span> number" alone — combined refractory hyperkalaemia + severe metabolic acidosis on ABG is itself an independent RRT trigger, even if K<span class="eiw-ion">⁺</span> is borderline</div>
       </div>
 
-      <div class="eiw-ref-tag">REF: UKKA Hyperkalaemia Guideline 2023 · KDIGO 2024 CKD · RRT for Critically Unwell Adults Guideline</div>
+      <div class="eiw-ref-tag">REF: UKKA Hyperkalaemia Guideline 2023 • KDIGO 2024 CKD • RRT for Critically Unwell Adults Guideline</div>
     </div>
   </div>
   </div><!-- /panel-hyper -->
@@ -6188,7 +6204,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
         <div class="eiw-step">
           <div class="eiw-step-num">1</div>
           <div class="eiw-step-text"><b>Classify severity</b>
-            <div class="eiw-dose">Mild 3.0–3.4 · Moderate 2.5–2.9 · Severe &lt;2.5 mmol/L</div>
+            <div class="eiw-dose">Mild 3.0–3.4 • Moderate 2.5–2.9 • Severe &lt;2.5 mmol/L</div>
           </div>
         </div>
 
@@ -6225,7 +6241,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Correct hypokalemia before/alongside hyperglycemia (DKA) management — insulin will drop K<span class="eiw-ion">⁺</span> further</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: NHS SPS Acute Hypokalaemia Guideline · RCH Clinical Practice Guidelines</div>
+        <div class="eiw-ref-tag">REF: NHS SPS Acute Hypokalaemia Guideline • RCH Clinical Practice Guidelines</div>
       </div>
     </div>
   </div><!-- /panel-hypo -->
@@ -6237,7 +6253,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div class="eiw-card-icon" id="eiw-ca-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span></div>
       <div>
         <div class="eiw-card-title">Calcium (Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span>)</div>
-        <div class="eiw-card-subtitle" id="eiw-ca-subtitle">Hypocalcemia · Emergency Mx</div>
+        <div class="eiw-card-subtitle" id="eiw-ca-subtitle">Hypocalcemia • Emergency Mx</div>
       </div>
     </div>
     <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -6308,7 +6324,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Recheck ionized Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> every 4–6h during active treatment; levels plateau ~10h post-infusion</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: NCBI StatPearls Calcium Gluconate · GGC Medicines Hypocalcaemia Guideline · JPEN 2005 (critically ill dosing)</div>
+        <div class="eiw-ref-tag">REF: NCBI StatPearls Calcium Gluconate • GGC Medicines Hypocalcaemia Guideline • JPEN 2005 (critically ill dosing)</div>
       </div>
     </div>
   </div>
@@ -6374,7 +6390,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Treat the underlying cause (malignancy, hyperparathyroidism) — antiresorptive therapy alone doesn't address root cause</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: Endocrine Society Hypercalcemia of Malignancy Guideline 2023 · Society for Endocrinology Emergency Guidance · EMCrit IBCC</div>
+        <div class="eiw-ref-tag">REF: Endocrine Society Hypercalcemia of Malignancy Guideline 2023 • Society for Endocrinology Emergency Guidance • EMCrit IBCC</div>
       </div>
     </div>
   </div>
@@ -6387,7 +6403,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div class="eiw-card-icon" id="eiw-mg-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span></div>
       <div>
         <div class="eiw-card-title">Magnesium (Mg<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span>)</div>
-        <div class="eiw-card-subtitle" id="eiw-mg-subtitle">Hypomagnesemia · Emergency Mx</div>
+        <div class="eiw-card-subtitle" id="eiw-mg-subtitle">Hypomagnesemia • Emergency Mx</div>
       </div>
     </div>
     <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -6457,7 +6473,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Torsades treatment dose is fixed (1–2g push) — don't wait for lab confirmation of low Mg in an unstable arrhythmia</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: EMCrit IBCC Hypomagnesemia · RCHT Hypomagnesaemia Guideline 2024 · Medscape Hypomagnesemia Management</div>
+        <div class="eiw-ref-tag">REF: EMCrit IBCC Hypomagnesemia • RCHT Hypomagnesaemia Guideline 2024 • Medscape Hypomagnesemia Management</div>
       </div>
     </div>
   </div>
@@ -6516,7 +6532,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Dialysis can drop calcium too, worsening symptoms — monitor Ca<span class="eiw-ion eiw-ion-num">²</span><span class="eiw-ion">⁺</span> alongside Mg during/after dialysis</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: NCBI StatPearls Hypermagnesemia · Merck Manual Hypermagnesemia · AHA Class IIb (cardiac arrest w/ hypermagnesemia)</div>
+        <div class="eiw-ref-tag">REF: NCBI StatPearls Hypermagnesemia • Merck Manual Hypermagnesemia • AHA Class IIb (cardiac arrest w/ hypermagnesemia)</div>
       </div>
     </div>
   </div>
@@ -6529,7 +6545,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
       <div class="eiw-card-icon" id="eiw-po4-icon" style="background:var(--accent-dim); border-color:color-mix(in srgb, var(--accent) 35%, transparent); color:var(--accent);">PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion eiw-ion-num">³</span><span class="eiw-ion">⁻</span></div>
       <div>
         <div class="eiw-card-title">Phosphate (PO<span class="eiw-ion eiw-ion-sub">₄</span><span class="eiw-ion eiw-ion-num">³</span><span class="eiw-ion">⁻</span>)</div>
-        <div class="eiw-card-subtitle" id="eiw-po4-subtitle">Hypophosphatemia · Emergency Mx</div>
+        <div class="eiw-card-subtitle" id="eiw-po4-subtitle">Hypophosphatemia • Emergency Mx</div>
       </div>
     </div>
     <svg class="eiw-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -6600,7 +6616,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">No reliable formula predicts total deficit — treat and recheck levels serially rather than calculating a fixed dose</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: EMCrit IBCC Refeeding Syndrome · UCSF Hospitalist Handbook · ASPEN Refeeding Syndrome Consensus</div>
+        <div class="eiw-ref-tag">REF: EMCrit IBCC Refeeding Syndrome • UCSF Hospitalist Handbook • ASPEN Refeeding Syndrome Consensus</div>
       </div>
     </div>
   </div>
@@ -6658,7 +6674,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
           <div class="eiw-pearl-item">Post-dialysis rebound hyperphosphatemia is common in TLS — recheck levels and consider CVVH to maintain control if recurring</div>
         </div>
 
-        <div class="eiw-ref-tag">REF: StatPearls Tumor Lysis Syndrome · Karger KBPR TLS Management · Medscape Hyperphosphatemia Management</div>
+        <div class="eiw-ref-tag">REF: StatPearls Tumor Lysis Syndrome • Karger KBPR TLS Management • Medscape Hyperphosphatemia Management</div>
       </div>
     </div>
   </div>
@@ -6684,7 +6700,7 @@ function eiwSwitchK(which){
     icon.style.background = 'var(--sp-danger-bg)';
     icon.style.borderColor = 'var(--sp-danger-border)';
     icon.style.color = 'var(--sp-danger-text)';
-    subtitle.textContent = 'Hyperkalemia · UKKA 2023';
+    subtitle.textContent = 'Hyperkalemia • UKKA 2023';
   } else {
     panelHypo.classList.add('eiw-visible');
     panelHyper.classList.remove('eiw-visible');
@@ -6693,7 +6709,7 @@ function eiwSwitchK(which){
     icon.style.background = 'var(--accent-dim)';
     icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
     icon.style.color = 'var(--accent)';
-    subtitle.textContent = 'Hypokalemia · NHS SPS 2025';
+    subtitle.textContent = 'Hypokalemia • NHS SPS 2025';
   }
 }
 
@@ -6732,7 +6748,7 @@ function eiwSwitchNa(which){
     icon.style.background = 'var(--sp-danger-bg)';
     icon.style.borderColor = 'var(--sp-danger-border)';
     icon.style.color = 'var(--sp-danger-text)';
-    subtitle.textContent = 'Hypernatremia · Quick Workup';
+    subtitle.textContent = 'Hypernatremia • Quick Workup';
   } else {
     panelHypo.classList.add('eiw-visible');
     panelHyper.classList.remove('eiw-visible');
@@ -6741,7 +6757,7 @@ function eiwSwitchNa(which){
     icon.style.background = 'var(--accent-dim)';
     icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
     icon.style.color = 'var(--accent)';
-    subtitle.textContent = 'Hyponatremia · Correction Protocol';
+    subtitle.textContent = 'Hyponatremia • Correction Protocol';
   }
 }
 
@@ -6761,7 +6777,7 @@ function eiwSwitchCa(which){
     icon.style.background = 'var(--sp-danger-bg)';
     icon.style.borderColor = 'var(--sp-danger-border)';
     icon.style.color = 'var(--sp-danger-text)';
-    subtitle.textContent = 'Hypercalcemia · Endocrine Society 2023';
+    subtitle.textContent = 'Hypercalcemia • Endocrine Society 2023';
   } else {
     panelHypo.classList.add('eiw-visible');
     panelHyper.classList.remove('eiw-visible');
@@ -6770,7 +6786,7 @@ function eiwSwitchCa(which){
     icon.style.background = 'var(--accent-dim)';
     icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
     icon.style.color = 'var(--accent)';
-    subtitle.textContent = 'Hypocalcemia · Emergency Mx';
+    subtitle.textContent = 'Hypocalcemia • Emergency Mx';
   }
 }
 
@@ -6790,7 +6806,7 @@ function eiwSwitchMg(which){
     icon.style.background = 'var(--sp-danger-bg)';
     icon.style.borderColor = 'var(--sp-danger-border)';
     icon.style.color = 'var(--sp-danger-text)';
-    subtitle.textContent = 'Hypermagnesemia · Emergency Mx';
+    subtitle.textContent = 'Hypermagnesemia • Emergency Mx';
   } else {
     panelHypo.classList.add('eiw-visible');
     panelHyper.classList.remove('eiw-visible');
@@ -6799,7 +6815,7 @@ function eiwSwitchMg(which){
     icon.style.background = 'var(--accent-dim)';
     icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
     icon.style.color = 'var(--accent)';
-    subtitle.textContent = 'Hypomagnesemia · Emergency Mx';
+    subtitle.textContent = 'Hypomagnesemia • Emergency Mx';
   }
 }
 
@@ -6819,7 +6835,7 @@ function eiwSwitchPO4(which){
     icon.style.background = 'var(--sp-danger-bg)';
     icon.style.borderColor = 'var(--sp-danger-border)';
     icon.style.color = 'var(--sp-danger-text)';
-    subtitle.textContent = 'Hyperphosphatemia · Emergency Mx';
+    subtitle.textContent = 'Hyperphosphatemia • Emergency Mx';
   } else {
     panelHypo.classList.add('eiw-visible');
     panelHyper.classList.remove('eiw-visible');
@@ -6828,7 +6844,7 @@ function eiwSwitchPO4(which){
     icon.style.background = 'var(--accent-dim)';
     icon.style.borderColor = 'color-mix(in srgb, var(--accent) 35%, transparent)';
     icon.style.color = 'var(--accent)';
-    subtitle.textContent = 'Hypophosphatemia · Emergency Mx';
+    subtitle.textContent = 'Hypophosphatemia • Emergency Mx';
   }
 }
  </script>
@@ -7293,9 +7309,9 @@ function eiwSwitchPO4(which){
   <div class="gl-section" style="margin-top:10px">
    <div class="gl-section-title"><span class="gl-ico">🏥</span> ICU-Specific Causes</div>
    <div class="hemo-cause-grid">
-    <div class="hemo-cause-box"><strong>Mechanical</strong><br>ECMO circuit · IABP · prosthetic valve · CRRT circuit · severe MAHA (DIC, TTP/HUS, HELLP, malignant HTN)</div>
-    <div class="hemo-cause-box"><strong>Immune</strong><br>Acute/delayed transfusion reaction · autoimmune haemolytic anaemia · drug-induced (piperacillin-tazobactam, cephalosporins, vancomycin)</div>
-    <div class="hemo-cause-box"><strong>Infective</strong><br>Sepsis-associated haemolysis · severe malaria · <em>Clostridium perfringens</em> bacteraemia</div>
+    <div class="hemo-cause-box"><strong>Mechanical</strong><br>ECMO circuit • IABP • prosthetic valve • CRRT circuit • severe MAHA (DIC, TTP/HUS, HELLP, malignant HTN)</div>
+    <div class="hemo-cause-box"><strong>Immune</strong><br>Acute/delayed transfusion reaction • autoimmune haemolytic anaemia • drug-induced (piperacillin-tazobactam, cephalosporins, vancomycin)</div>
+    <div class="hemo-cause-box"><strong>Infective</strong><br>Sepsis-associated haemolysis • severe malaria • <em>Clostridium perfringens</em> bacteraemia</div>
     <div class="hemo-cause-box"><strong>Oxidative</strong><br>G6PD deficiency unmasked by drugs (dapsone, sulfonamides, nitrofurantoin) or acute infection</div>
    </div>
   </div>
@@ -7527,7 +7543,7 @@ function eiwSwitchPO4(which){
       </div>
      </div>
     </div>
-    <div style="font-size:10px;color:var(--text-faint);margin-top:6px">Normal HCT: Male 40–50% · Female 36–46% · Rise ≥20% from baseline = significant haemoconcentration</div>
+    <div style="font-size:10px;color:var(--text-faint);margin-top:6px">Normal HCT: Male 40–50% • Female 36–46% • Rise ≥20% from baseline = significant haemoconcentration</div>
    </div>
 
    <!-- Add reading -->
@@ -7557,7 +7573,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <div class="note-box" style="margin-top:8px">
-    <strong>Monitoring frequency:</strong> Check HCT every 4–6 hrs in warning phase · Every 2 hrs if deteriorating<br>
+    <strong>Monitoring frequency:</strong> Check HCT every 4–6 hrs in warning phase • Every 2 hrs if deteriorating<br>
     <strong><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Rise ≥20% from baseline</strong> = significant plasma leakage → fluid resuscitation<br>
     <strong><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Rapid fall in HCT</strong> without clinical improvement = internal haemorrhage<br>
     <strong>Recovery sign:</strong> HCT falling + urine output improving + pulse settling
@@ -7583,19 +7599,19 @@ function eiwSwitchPO4(which){
    <div style="font-size:10px;font-weight:700;color:#ef4444;text-transform:uppercase;letter-spacing:1.2px;margin:12px 0 8px;padding-left:8px;border-left:3px solid #ef4444">🚨 Severe Dengue Signs — ICU / Immediate Action</div>
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 10px;margin-bottom:8px">
     <div style="font-size:11.5px;color:var(--text);line-height:1.8">
-     🔴 Severe plasma leakage → shock (DSS) · respiratory distress<br>
+     🔴 Severe plasma leakage → shock (DSS) • respiratory distress<br>
      🔴 Severe bleeding → haematemesis, melaena, massive menorrhagia<br>
      🔴 Severe organ impairment:<br>
-     &nbsp;&nbsp;&nbsp;<span class="bl"></span> Liver: AST/ALT &gt;1000 · encephalopathy<br>
-     &nbsp;&nbsp;&nbsp;<span class="bl"></span> CNS: altered consciousness, seizures<br>
-     &nbsp;&nbsp;&nbsp;<span class="bl"></span> Heart: myocarditis, arrhythmia<br>
-     &nbsp;&nbsp;&nbsp;<span class="bl"></span> Kidney: AKI (Cr rising)<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl-dot"></span> Liver: AST/ALT &gt;1000 • encephalopathy<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl-dot"></span> CNS: altered consciousness, seizures<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl-dot"></span> Heart: myocarditis, arrhythmia<br>
+     &nbsp;&nbsp;&nbsp;<span class="bl-dot"></span> Kidney: AKI (Cr rising)<br>
      🔴 PLT &lt;20,000 with active bleeding → transfuse
     </div>
    </div>
 
    <div class="note-box">
-    <strong>Fluid resuscitation (DSS):</strong> NS or RL 10ml/kg over 1hr → reassess · repeat if needed · reduce when HCT falling + pulse settling<br>
+    <strong>Fluid resuscitation (DSS):</strong> NS or RL 10ml/kg over 1hr → reassess • repeat if needed • reduce when HCT falling + pulse settling<br>
     <strong>Avoid:</strong> Aspirin, NSAIDs, IM injections, unnecessary IV fluids in non-shock phase
    </div>
   </div>
@@ -7608,8 +7624,8 @@ function eiwSwitchPO4(which){
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #10b98150">
     <div style="font-size:11px;font-weight:700;color:#10b981;margin-bottom:5px">✅ Dengue Without Warning Signs</div>
     <div style="font-size:11px;color:var(--text);line-height:1.7">
-     Fever 2–7 days + 2 of: nausea/vomiting · rash · aches/pains · tourniquet test positive · leucopenia · any warning sign<br>
-     <strong style="color:#10b981">→ Outpatient management · Daily review · Oral hydration</strong>
+     Fever 2–7 days + 2 of: nausea/vomiting • rash • aches/pains • tourniquet test positive • leucopenia • any warning sign<br>
+     <strong style="color:#10b981">→ Outpatient management • Daily review • Oral hydration</strong>
     </div>
    </div>
 
@@ -7618,7 +7634,7 @@ function eiwSwitchPO4(which){
     <div style="font-size:11px;font-weight:700;color:#f59e0b;margin-bottom:5px"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Dengue With Warning Signs</div>
     <div style="font-size:11px;color:var(--text);line-height:1.7">
      Any warning sign present (see previous tab)<br>
-     <strong style="color:#f59e0b">→ Admit · IV fluids · HCT 4–6 hrly · PLT monitoring · Watch for shock</strong>
+     <strong style="color:#f59e0b">→ Admit • IV fluids • HCT 4–6 hrly • PLT monitoring • Watch for shock</strong>
     </div>
    </div>
 
@@ -7627,7 +7643,7 @@ function eiwSwitchPO4(which){
     <div style="font-size:11px;font-weight:700;color:#ef4444;margin-bottom:5px">🔴 Severe Dengue</div>
     <div style="font-size:11px;color:var(--text);line-height:1.7">
      Severe plasma leakage / severe bleeding / severe organ involvement<br>
-     <strong style="color:#ef4444">→ ICU admission · Aggressive fluid management · Organ support</strong>
+     <strong style="color:#ef4444">→ ICU admission • Aggressive fluid management • Organ support</strong>
     </div>
    </div>
 
@@ -7638,7 +7654,7 @@ function eiwSwitchPO4(which){
      <div style="padding:7px 10px;border-bottom:1px solid var(--border);background:#f9731612;font-size:11px;font-weight:700;color:#f97316">Day 1–3</div>
      <div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text)">Febrile phase — high fever, myalgia, headache</div>
      <div style="padding:7px 10px;border-bottom:1px solid var(--border);background:#ef444418;font-size:11px;font-weight:700;color:#ef4444">Day 4–6</div>
-     <div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text)"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Critical phase — fever defervesces, plasma leakage, risk of shock · Most deaths occur here</div>
+     <div style="padding:7px 10px;border-bottom:1px solid var(--border);font-size:11px;color:var(--text)"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Critical phase — fever defervesces, plasma leakage, risk of shock • Most deaths occur here</div>
      <div style="padding:7px 10px;background:#10b98112;font-size:11px;font-weight:700;color:#10b981">Day 7–10</div>
      <div style="padding:7px 10px;font-size:11px;color:var(--text)">Recovery phase — reabsorption, bradycardia, rash, fluid overload risk</div>
     </div>
@@ -7651,13 +7667,13 @@ function eiwSwitchPO4(which){
      <span>PLT Count (×10³)</span><span>Risk &amp; Action</span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;padding:5px 10px;border-bottom:1px solid var(--border);font-size:11px">
-     <span style="color:#10b981">&gt;100</span><span style="color:#10b981">Low risk · Monitor</span>
+     <span style="color:#10b981">&gt;100</span><span style="color:#10b981">Low risk • Monitor</span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;padding:5px 10px;border-bottom:1px solid var(--border);font-size:11px">
-     <span style="color:#f59e0b">50–100</span><span style="color:#f59e0b">Caution · Avoid invasive procedures</span>
+     <span style="color:#f59e0b">50–100</span><span style="color:#f59e0b">Caution • Avoid invasive procedures</span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;padding:5px 10px;border-bottom:1px solid var(--border);font-size:11px">
-     <span style="color:#f97316">20–50</span><span style="color:#f97316">High risk · Bed rest · No IM injections</span>
+     <span style="color:#f97316">20–50</span><span style="color:#f97316">High risk • Bed rest • No IM injections</span>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;padding:5px 10px;font-size:11px">
      <span style="color:#ef4444">&lt;20</span><span style="color:#ef4444">Spontaneous bleeding risk → consider transfusion</span>
@@ -7685,21 +7701,21 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div class="ucv-row">
-     <div class="ucv-param">PaO₂<div class="ucv-normal">Normal: 80–100 mmHg · 10.6–13.3 kPa</div></div>
+     <div class="ucv-param">PaO₂<div class="ucv-normal">Normal: 80–100 mmHg • 10.6–13.3 kPa</div></div>
      <input class="ucv-input" type="number" id="ucv-pao2-a" placeholder="mmHg" oninput="ucvConvert('pao2','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-pao2-b" placeholder="kPa" oninput="ucvConvert('pao2','b')" step="0.01">
      <button class="ucv-clear" onclick="ucvClear('pao2')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">PaCO₂<div class="ucv-normal">Normal: 35–45 mmHg · 4.7–6.0 kPa</div></div>
+     <div class="ucv-param">PaCO₂<div class="ucv-normal">Normal: 35–45 mmHg • 4.7–6.0 kPa</div></div>
      <input class="ucv-input" type="number" id="ucv-paco2-a" placeholder="mmHg" oninput="ucvConvert('paco2','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-paco2-b" placeholder="kPa" oninput="ucvConvert('paco2','b')" step="0.01">
      <button class="ucv-clear" onclick="ucvClear('paco2')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">Lactate<div class="ucv-normal">Normal: &lt;18 mg/dL · &lt;2 mmol/L</div></div>
+     <div class="ucv-param">Lactate<div class="ucv-normal">Normal: &lt;18 mg/dL • &lt;2 mmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-lact-a" placeholder="mg/dL" oninput="ucvConvert('lact','a')" step="0.01">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-lact-b" placeholder="mmol/L" oninput="ucvConvert('lact','b')" step="0.01">
@@ -7715,21 +7731,21 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div class="ucv-row">
-     <div class="ucv-param">Calcium (Ca²⁺)<div class="ucv-normal">Normal: 8.5–10.5 mg/dL · 2.1–2.6 mmol/L</div></div>
+     <div class="ucv-param">Calcium (Ca²⁺)<div class="ucv-normal">Normal: 8.5–10.5 mg/dL • 2.1–2.6 mmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-ca-a" placeholder="mg/dL" oninput="ucvConvert('ca','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-ca-b" placeholder="mmol/L" oninput="ucvConvert('ca','b')" step="0.01">
      <button class="ucv-clear" onclick="ucvClear('ca')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">Magnesium (Mg²⁺)<div class="ucv-normal">Normal: 1.7–2.2 mg/dL · 0.7–0.9 mmol/L</div></div>
+     <div class="ucv-param">Magnesium (Mg²⁺)<div class="ucv-normal">Normal: 1.7–2.2 mg/dL • 0.7–0.9 mmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-mg-a" placeholder="mg/dL" oninput="ucvConvert('mg','a')" step="0.01">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-mg-b" placeholder="mmol/L" oninput="ucvConvert('mg','b')" step="0.01">
      <button class="ucv-clear" onclick="ucvClear('mg')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">Phosphate (PO₄)<div class="ucv-normal">Normal: 2.5–4.5 mg/dL · 0.8–1.5 mmol/L</div></div>
+     <div class="ucv-param">Phosphate (PO₄)<div class="ucv-normal">Normal: 2.5–4.5 mg/dL • 0.8–1.5 mmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-phos-a" placeholder="mg/dL" oninput="ucvConvert('phos','a')" step="0.01">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-phos-b" placeholder="mmol/L" oninput="ucvConvert('phos','b')" step="0.01">
@@ -7745,14 +7761,14 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div class="ucv-row">
-     <div class="ucv-param">BNP<div class="ucv-normal">Normal: &lt;100 pg/mL · &lt;28.9 pmol/L</div></div>
+     <div class="ucv-param">BNP<div class="ucv-normal">Normal: &lt;100 pg/mL • &lt;28.9 pmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-bnp-a" placeholder="pg/mL" oninput="ucvConvert('bnp','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-bnp-b" placeholder="pmol/L" oninput="ucvConvert('bnp','b')" step="0.01">
      <button class="ucv-clear" onclick="ucvClear('bnp')">✕</button>
     </div>
     <div class="ucv-row ucv-row-3">
-     <div class="ucv-param">Troponin I<div class="ucv-normal">Normal: &lt;0.04 ng/mL · &lt;40 pg/mL · &lt;0.04 µg/L</div></div>
+     <div class="ucv-param">Troponin I<div class="ucv-normal">Normal: &lt;0.04 ng/mL • &lt;40 pg/mL • &lt;0.04 µg/L</div></div>
      <input class="ucv-input" type="number" id="ucv-tni-a" placeholder="ng/mL" oninput="ucvTri('tni','ng')" step="0.001">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-tni-pg" placeholder="pg/mL" oninput="ucvTri('tni','pg')" step="0.1">
@@ -7761,7 +7777,7 @@ function eiwSwitchPO4(which){
      <button class="ucv-clear" onclick="ucvTriClear('tni')">✕</button>
     </div>
     <div class="ucv-row ucv-row-3">
-     <div class="ucv-param">CK-MB<div class="ucv-normal">Normal: &lt;5 ng/mL · &lt;5000 pg/mL · &lt;5 µg/L</div></div>
+     <div class="ucv-param">CK-MB<div class="ucv-normal">Normal: &lt;5 ng/mL • &lt;5000 pg/mL • &lt;5 µg/L</div></div>
      <input class="ucv-input" type="number" id="ucv-ckmb-a" placeholder="ng/mL" oninput="ucvTri('ckmb','ng')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-ckmb-pg" placeholder="pg/mL" oninput="ucvTri('ckmb','pg')" step="1">
@@ -7770,7 +7786,7 @@ function eiwSwitchPO4(which){
      <button class="ucv-clear" onclick="ucvTriClear('ckmb')">✕</button>
     </div>
     <div class="ucv-row ucv-row-3">
-     <div class="ucv-param">hs-Troponin I<div class="ucv-normal">Normal: &lt;26 ng/L · &lt;26 pg/mL · &lt;0.026 µg/L</div></div>
+     <div class="ucv-param">hs-Troponin I<div class="ucv-normal">Normal: &lt;26 ng/L • &lt;26 pg/mL • &lt;0.026 µg/L</div></div>
      <input class="ucv-input" type="number" id="ucv-hstni-a" placeholder="ng/L" oninput="ucvTri('hstni','ng')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-hstni-pg" placeholder="pg/mL" oninput="ucvTri('hstni','pg')" step="0.1">
@@ -7788,21 +7804,21 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div class="ucv-row">
-     <div class="ucv-param">Creatinine<div class="ucv-normal">Normal: 0.6–1.2 mg/dL · 53–106 µmol/L</div></div>
+     <div class="ucv-param">Creatinine<div class="ucv-normal">Normal: 0.6–1.2 mg/dL • 53–106 µmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-creat-a" placeholder="mg/dL" oninput="ucvConvert('creat','a')" step="0.01">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-creat-b" placeholder="µmol/L" oninput="ucvConvert('creat','b')" step="0.1">
      <button class="ucv-clear" onclick="ucvClear('creat')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">Urea<div class="ucv-normal">Normal: 15–40 mg/dL · 2.5–6.7 mmol/L</div></div>
+     <div class="ucv-param">Urea<div class="ucv-normal">Normal: 15–40 mg/dL • 2.5–6.7 mmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-urea-a" placeholder="mg/dL" oninput="ucvConvert('urea','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-urea-b" placeholder="mmol/L" oninput="ucvConvert('urea','b')" step="0.01">
      <button class="ucv-clear" onclick="ucvClear('urea')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">BUN<div class="ucv-normal">Normal: 7–20 mg/dL · 2.5–7.1 mmol/L</div></div>
+     <div class="ucv-param">BUN<div class="ucv-normal">Normal: 7–20 mg/dL • 2.5–7.1 mmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-bun-a" placeholder="mg/dL" oninput="ucvConvert('bun','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-bun-b" placeholder="mmol/L" oninput="ucvConvert('bun','b')" step="0.01">
@@ -7818,21 +7834,21 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div class="ucv-row">
-     <div class="ucv-param">Bilirubin (Total)<div class="ucv-normal">Normal: 0.2–1.2 mg/dL · 3–21 µmol/L</div></div>
+     <div class="ucv-param">Bilirubin (Total)<div class="ucv-normal">Normal: 0.2–1.2 mg/dL • 3–21 µmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-bili-a" placeholder="mg/dL" oninput="ucvConvert('bili','a')" step="0.01">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-bili-b" placeholder="µmol/L" oninput="ucvConvert('bili','b')" step="0.1">
      <button class="ucv-clear" onclick="ucvClear('bili')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">Albumin<div class="ucv-normal">Normal: 3.5–5.0 g/dL · 35–50 g/L</div></div>
+     <div class="ucv-param">Albumin<div class="ucv-normal">Normal: 3.5–5.0 g/dL • 35–50 g/L</div></div>
      <input class="ucv-input" type="number" id="ucv-alb-a" placeholder="g/dL" oninput="ucvConvert('alb','a')" step="0.01">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-alb-b" placeholder="g/L" oninput="ucvConvert('alb','b')" step="0.1">
      <button class="ucv-clear" onclick="ucvClear('alb')">✕</button>
     </div>
     <div class="ucv-row">
-     <div class="ucv-param">ALP (Alkaline Phosphatase)<div class="ucv-normal">Normal: 44–147 U/L · 0.73–2.45 µkat/L</div></div>
+     <div class="ucv-param">ALP (Alkaline Phosphatase)<div class="ucv-normal">Normal: 44–147 U/L • 0.73–2.45 µkat/L</div></div>
      <input class="ucv-input" type="number" id="ucv-alp-a" placeholder="U/L" oninput="ucvConvert('alp','a')" step="1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-alp-b" placeholder="µkat/L" oninput="ucvConvert('alp','b')" step="0.01">
@@ -7848,7 +7864,7 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div class="ucv-row">
-     <div class="ucv-param">Glucose<div class="ucv-normal">Normal: 70–100 mg/dL · 3.9–5.6 mmol/L</div></div>
+     <div class="ucv-param">Glucose<div class="ucv-normal">Normal: 70–100 mg/dL • 3.9–5.6 mmol/L</div></div>
      <input class="ucv-input" type="number" id="ucv-gluc-a" placeholder="mg/dL" oninput="ucvConvert('gluc','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-gluc-b" placeholder="mmol/L" oninput="ucvConvert('gluc','b')" step="0.01">
@@ -7864,7 +7880,7 @@ function eiwSwitchPO4(which){
    </div>
    <div class="ucv-sub-body" style="display:none">
     <div class="ucv-row">
-     <div class="ucv-param">HbA1c<div class="ucv-normal">Target: &lt;7% (NGSP) · &lt;53 mmol/mol (IFCC)</div></div>
+     <div class="ucv-param">HbA1c<div class="ucv-normal">Target: &lt;7% (NGSP) • &lt;53 mmol/mol (IFCC)</div></div>
      <input class="ucv-input" type="number" id="ucv-hba1c-a" placeholder="%" oninput="ucvConvert('hba1c','a')" step="0.1">
      <span class="ucv-arrow">⇌</span>
      <input class="ucv-input" type="number" id="ucv-hba1c-b" placeholder="mmol/mol" oninput="ucvConvert('hba1c','b')" step="0.1">
@@ -8012,7 +8028,7 @@ function eiwSwitchPO4(which){
    <!-- Notes - its own container -->
    <div class="note-box">
     <strong>Number of examiners (Bangladesh/regional):</strong> 2 independent physicians required; at least one senior neurologist/neurosurgeon or intensivist. Examiners must not be part of transplant team.<br>
-    <strong>Observation period (2023 AAN/AAP/CNS/SCCM):</strong> ≥24h minimum after hypoxic-ischaemic brain injury (adults/≥24mo) before starting BD/DNC evaluation · for other causes, guideline specifies no fixed number — observe a <em>sufficient</em> time based on injury pathophysiology to establish irreversibility and exclude confounders. Verify local/legal minimums for your jurisdiction — may differ from this clinical guideline.<br>
+    <strong>Observation period (2023 AAN/AAP/CNS/SCCM):</strong> ≥24h minimum after hypoxic-ischaemic brain injury (adults/≥24mo) before starting BD/DNC evaluation • for other causes, guideline specifies no fixed number — observe a <em>sufficient</em> time based on injury pathophysiology to establish irreversibility and exclude confounders. Verify local/legal minimums for your jurisdiction — may differ from this clinical guideline.<br>
     <strong>Spinal reflexes may persist</strong> (Lazarus sign, limb withdrawal) — do NOT invalidate BD diagnosis as these are spinal cord reflexes<br>
     <strong>Paediatric:</strong> Different criteria apply (&lt;37 wks GA → not applicable; neonates → 7 days observation; infants → 2 exams 24h apart)<br>
     <strong>Organ donation:</strong> Brain death = legal death in most jurisdictions. Haemodynamic management critical for organ preservation: MAP 60–80, Na 130–150, glucose 5–10 mmol/L, temp 36–37°C, DDAVP for diabetes insipidus<br>
@@ -8336,7 +8352,7 @@ function eiwSwitchPO4(which){
   <div class="note-box">
    <strong>CKD definition (KDIGO):</strong> abnormality of kidney structure or function persisting &gt;3 months — eGFR &lt;60 and/or markers of kidney damage (ACR ≥30 mg/g, urine sediment, tubular disorders, histology, structural or transplant).<br>
    <strong>CKD-EPI 2021 (race-free):</strong> 142 × min(Scr/κ,1)<sup>α</sup> × max(Scr/κ,1)<sup>−1.200</sup> × 0.9938<sup>Age</sup> × 1.012 [♀] — κ = 0.7 ♀ / 0.9 ♂; α = −0.241 ♀ / −0.302 ♂<br>
-   <strong>ACR:</strong> mg/mmol × 8.84 = mg/g. A1 &lt;30 · A2 30–300 · A3 &gt;300 mg/g<br>
+   <strong>ACR:</strong> mg/mmol × 8.84 = mg/g. A1 &lt;30 • A2 30–300 • A3 &gt;300 mg/g<br>
    <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Do not stage during AKI or a non-steady creatinine state — eGFR is unreliable in critical illness. CKD needs the abnormality to persist &gt;3 months.
   </div>
  </div>
@@ -8719,7 +8735,7 @@ function eiwSwitchPO4(which){
     <div class="gl-sub-body" id="gls-vent-body">
      <div class="vent-sheet">
 
-      <!-- CARD 1 · Basics -->
+      <!-- CARD 1 • Basics -->
       <details class="vent-card">
        <summary class="vent-card-summary">
         <span class="vent-card-eyebrow vent-eyebrow-blue">Concept<span class="vent-sep">—</span><span class="vent-title-part">Basics</span></span>
@@ -8751,7 +8767,7 @@ function eiwSwitchPO4(which){
        </ul>
       </details>
 
-      <!-- CARD 2 · Lung Protective Ventilation -->
+      <!-- CARD 2 • Lung Protective Ventilation -->
       <details class="vent-card">
        <summary class="vent-card-summary">
         <span class="vent-card-eyebrow vent-eyebrow-yellow">Strategy<span class="vent-sep">—</span><span class="vent-title-part">Lung Protective Ventilation</span></span>
@@ -8788,7 +8804,7 @@ function eiwSwitchPO4(which){
        </div>
       </details>
 
-      <!-- CARD 4 · CO2 & Acidosis Workup -->
+      <!-- CARD 4 • CO2 & Acidosis Workup -->
       <details class="vent-card">
        <summary class="vent-card-summary">
         <span class="vent-card-eyebrow vent-eyebrow-green">Algorithm<span class="vent-sep">—</span><span class="vent-title-part">CO₂ &amp; Acidosis Workup</span></span>
@@ -8801,11 +8817,11 @@ function eiwSwitchPO4(which){
         <li><b>3. Mechanics:</b> peak vs plateau + waveform — resistance vs compliance vs air trapping.</li>
         <li><b>4. Physiology:</b> air trapping, dead space, sepsis/fever, shock, metabolic load.</li>
         <li><b>Winter's formula:</b> expected PaCO₂ ≈ <code>1.5×HCO3 + 8</code> (±2).</li>
-        <li><b>Acute resp. acidosis:</b> HCO3 rises ~1 per 10 mmHg ΔPaCO₂ · <b>chronic:</b> ~3.5 per 10.</li>
+        <li><b>Acute resp. acidosis:</b> HCO3 rises ~1 per 10 mmHg ΔPaCO₂ • <b>chronic:</b> ~3.5 per 10.</li>
        </ul>
       </details>
 
-      <!-- CARD 5 · Red Flags & Troubleshooting -->
+      <!-- CARD 5 • Red Flags & Troubleshooting -->
       <details class="vent-card">
        <summary class="vent-card-summary">
         <span class="vent-card-eyebrow vent-eyebrow-red">Alert<span class="vent-sep">—</span><span class="vent-title-part">Red Flags &amp; Troubleshooting</span></span>
@@ -9058,7 +9074,7 @@ function eiwSwitchPO4(which){
         <span class="gl-collapse-chevron" id="glc-mentzer-chevron">▼</span>
        </div>
        <div class="gl-collapse-body" id="glc-mentzer-body" style="display:none">
-       <div class="gl-formula gl-amber"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">Mentzer = MCV ÷ RBC count (millions/μL)</div><div class="gl-formula-note">&gt;13 → IDA more likely · &lt;13 → Thalassaemia trait more likely. Unreliable if both coexist.</div></div>
+       <div class="gl-formula gl-amber"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">Mentzer = MCV ÷ RBC count (millions/μL)</div><div class="gl-formula-note">&gt;13 → IDA more likely • &lt;13 → Thalassaemia trait more likely. Unreliable if both coexist.</div></div>
        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 2px">
         <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;text-transform:uppercase;letter-spacing:0.4px">MCV (fL)</div>
@@ -9215,7 +9231,7 @@ function eiwSwitchPO4(which){
     </div>
     <div class="gl-sub-body" id="gls-abx-body">
 
-     <div class="gl-note">Spectrum · empiric therapy by site · organism-directed lookup — quick clinical reference. <b>Not a de-escalation ladder.</b></div>
+     <div class="gl-note">Spectrum • empiric therapy by site • organism-directed lookup — quick clinical reference. <b>Not a de-escalation ladder.</b></div>
 
      <div class="gl-tabs">
       <div class="gl-tab gl-active" onclick="glTab('abx','spectrum',this)">Spectrum</div>
@@ -9455,7 +9471,7 @@ function eiwSwitchPO4(which){
        { name:"Piperacillin-tazobactam", n:"3.375–4.5g q8h ext-inf(4h); severe 4.5g q6h", m:"2.25g q6h (CrCl20–40); severe 3.375g q6h", s:"2.25g q8h (CrCl<20)", ihd:"2.25g q12h (severe 3.375g q12h ext-inf)", crrt:"3.375g q6h or ext-inf 3.375–4.5g q8h(4h)", note:"Extended infusion preferred for Pseudomonas/severe sepsis" },
        { name:"Aztreonam", n:"1–2g q8h (severe/meningitis 2g q6–8h)", m:"1g q8h (severe 1g q6–8h)", s:"500mg q8h (severe 1g q12h)", ihd:"1g q24h (severe 1g q12h), dose after HD", crrt:"2g load, then 1g q8h or 2g q12h", note:"Safe in severe PCN allergy" },
        { name:"Ceftazidime-avibactam", n:"2.5g q8h", m:"1.25g q8h (31–50) / 0.94g q12h (16–30)", s:"0.94g q24h (6–15) / q48h (&lt;5)", ihd:"0.94g q24–48h, dose after HD", crrt:"1.25g q8h (2.5g q8h if MIC&gt;4/deep-seated)", note:"SHC-restricted — stewardship approval usually needed" },
-       { name:"Cefoperazone-sulbactam", n:"2–4g (1:1) IV q12h", m:"No change (cefoperazone hepatobiliary)", s:"Extend to q24h if CrCl&lt;15 (sulbactam accumulates)", ihd:"Dose after HD", crrt:"Usual dose q12h", note:"Max sulbactam 4g/day · standard reference, not Stanford PDF" },
+       { name:"Cefoperazone-sulbactam", n:"2–4g (1:1) IV q12h", m:"No change (cefoperazone hepatobiliary)", s:"Extend to q24h if CrCl&lt;15 (sulbactam accumulates)", ihd:"Dose after HD", crrt:"Usual dose q12h", note:"Max sulbactam 4g/day • standard reference, not Stanford PDF" },
      ]},
      { group:"Carbapenems", drugs:[
        { name:"Meropenem", n:"1g q8h (CF/CNS 2g q8h)", m:"1g q12h (26–50) / 0.5g q12h (10–25); CF/CNS double", s:"0.5g q24h (CF/CNS 1g q24h)", ihd:"500mg q24h after HD (CF/CNS 1g q24h)", crrt:"1g q8h (CF/CNS 2g q12h)", note:"3-hr extended infusion" },
@@ -9467,28 +9483,28 @@ function eiwSwitchPO4(which){
        { name:"Trimethoprim-sulfamethoxazole", n:"Per indication (e.g. 15mg/kg/day TMP for PJP)", m:"50% of dose (CrCl15–30)", s:"Not recommended; PJP essential: 5–7.5mg/kg TMP q24h", ihd:"25–50% usual dose, dose after HD", crrt:"5–10mg/kg/day TMP ÷ q12h (higher for PJP/Steno)", note:"" },
        { name:"Moxifloxacin", n:"400mg IV/PO q24h", m:"No change", s:"No change", ihd:"No change", crrt:"No change", note:"Hepatically cleared" },
        { name:"Linezolid", n:"600mg IV/PO q12h", m:"No change", s:"No change", ihd:"No change", crrt:"No change", note:"" },
-       { name:"Tigecycline", n:"100mg IV load, then 50mg q12h", m:"No change", s:"No change", ihd:"No change", crrt:"No change", note:"Hepatobiliary elimination — no renal adjustment · Child-Pugh C: 25mg q12h after load · standard reference" },
+       { name:"Tigecycline", n:"100mg IV load, then 50mg q12h", m:"No change", s:"No change", ihd:"No change", crrt:"No change", note:"Hepatobiliary elimination — no renal adjustment • Child-Pugh C: 25mg q12h after load • standard reference" },
        { name:"Clarithromycin", n:"500mg PO/IV q12h (XR: 1000mg q24h)", m:"No change", s:"Reduce dose 50% if CrCl&lt;30 (e.g. 250mg q12h or 500mg q24h)", ihd:"As CrCl&lt;30 tier, dose after HD", crrt:"As CrCl&lt;30 tier", note:"Standard reference, not Stanford PDF" },
-       { name:"Fosfomycin", n:"IV: 4–8g q8h (severe/MDR) · PO: 3g single dose (cystitis)", m:"IV: extend interval / reduce dose", s:"IV: further reduction — involve pharmacy", ihd:"IV: dose post-HD", crrt:"IV: usual dose, monitor levels if available", note:"PO single-dose needs no renal adjustment · standard reference" },
+       { name:"Fosfomycin", n:"IV: 4–8g q8h (severe/MDR) • PO: 3g single dose (cystitis)", m:"IV: extend interval / reduce dose", s:"IV: further reduction — involve pharmacy", ihd:"IV: dose post-HD", crrt:"IV: usual dose, monitor levels if available", note:"PO single-dose needs no renal adjustment • standard reference" },
      ]},
      { group:"Aminoglycosides (level-guided)", drugs:[
-       { name:"Amikacin", n:"15–20mg/kg IV q24h (extended-interval, level-guided)", m:"Same load; extend interval to ~q36h per level", s:"Same load; extend interval to ~q48h+ per level", ihd:"Dose post-HD only; redose per level", crrt:"15mg/kg q24–48h per level", note:"Trough &lt;5, peak 56–64 target — confirm local nomogram · standard reference" },
-       { name:"Gentamicin", n:"5–7mg/kg IV q24h (extended-interval, level-guided)", m:"Same load; extend interval to ~q36h per level", s:"Same load; extend interval to ~q48h+ per level", ihd:"Dose post-HD only; redose per level", crrt:"3–5mg/kg q24–48h per level", note:"Hartford nomogram · synergy dosing lower (1mg/kg q8h) · standard reference" },
+       { name:"Amikacin", n:"15–20mg/kg IV q24h (extended-interval, level-guided)", m:"Same load; extend interval to ~q36h per level", s:"Same load; extend interval to ~q48h+ per level", ihd:"Dose post-HD only; redose per level", crrt:"15mg/kg q24–48h per level", note:"Trough &lt;5, peak 56–64 target — confirm local nomogram • standard reference" },
+       { name:"Gentamicin", n:"5–7mg/kg IV q24h (extended-interval, level-guided)", m:"Same load; extend interval to ~q36h per level", s:"Same load; extend interval to ~q48h+ per level", ihd:"Dose post-HD only; redose per level", crrt:"3–5mg/kg q24–48h per level", note:"Hartford nomogram • synergy dosing lower (1mg/kg q8h) • standard reference" },
      ]},
      { group:"Anti-MRSA / MDR gram-negative agents", drugs:[
-       { name:"Colistin (colistimethate)", n:"Load 5mg/kg CBA (~300mg CBA/9MIU), then 2.5–5mg/kg/day CBA ÷ q12h", m:"Reduce maintenance proportionally (Garonzik formula)", s:"~130–150mg CBA q24h", ihd:"130–150mg CBA q24–48h, dosed post-HD", crrt:"300–400mg CBA/day ÷ q12h", note:"Dosed in colistin base activity (CBA) — confirm mg vs IU labeling locally · standard reference" },
-       { name:"Polymyxin B", n:"Load 2–2.5mg/kg, then 1.25–1.5mg/kg IV q12h", m:"No change", s:"No change", ihd:"No change", crrt:"No change", note:"Given as active drug, not renally cleared — no adjustment at any CrCl or on RRT per 2019 int'l consensus guidelines; preferred over colistin where AKI risk is a concern · standard reference" },
-       { name:"Teicoplanin", n:"Load 400mg(6–12mg/kg) q12h ×3, then 400mg q24h", m:"CrCl40–60: halve maintenance after day 4", s:"CrCl&lt;40: reduce to 1/3 maintenance after day 4", ihd:"As CrCl&lt;40 tier, dose after HD", crrt:"Loading unchanged; maintenance as CrCl&lt;40 tier", note:"Trough &gt;20mg/L for endocarditis/severe infection — TDM advised · standard reference" },
+       { name:"Colistin (colistimethate)", n:"Load 5mg/kg CBA (~300mg CBA/9MIU), then 2.5–5mg/kg/day CBA ÷ q12h", m:"Reduce maintenance proportionally (Garonzik formula)", s:"~130–150mg CBA q24h", ihd:"130–150mg CBA q24–48h, dosed post-HD", crrt:"300–400mg CBA/day ÷ q12h", note:"Dosed in colistin base activity (CBA) — confirm mg vs IU labeling locally • standard reference" },
+       { name:"Polymyxin B", n:"Load 2–2.5mg/kg, then 1.25–1.5mg/kg IV q12h", m:"No change", s:"No change", ihd:"No change", crrt:"No change", note:"Given as active drug, not renally cleared — no adjustment at any CrCl or on RRT per 2019 int'l consensus guidelines; preferred over colistin where AKI risk is a concern • standard reference" },
+       { name:"Teicoplanin", n:"Load 400mg(6–12mg/kg) q12h ×3, then 400mg q24h", m:"CrCl40–60: halve maintenance after day 4", s:"CrCl&lt;40: reduce to 1/3 maintenance after day 4", ihd:"As CrCl&lt;40 tier, dose after HD", crrt:"Loading unchanged; maintenance as CrCl&lt;40 tier", note:"Trough &gt;20mg/L for endocarditis/severe infection — TDM advised • standard reference" },
      ]},
      { group:"Antifungals", drugs:[
        { name:"Caspofungin", n:"70mg load, then 50mg q24h (endocarditis 150mg q24h)", m:"No change", s:"No change", ihd:"No change", crrt:"No change", note:"No adjustment for Child-Pugh B/C" },
        { name:"Voriconazole", n:"IV 6mg/kg q12h ×2, then 4mg/kg q12h", m:"No formal change", s:"Prefer PO if CrCl&lt;50 (IV cyclodextrin accumulates)", ihd:"Same caution", crrt:"Same caution", note:"TDM strongly recommended" },
-       { name:"Fluconazole", n:"Mild:200mg→100–200mg q24h · Severe:800mg→400–800mg q24h", m:"Mild:200mg→100mg q24h · Severe:800mg→200–400mg q24h", s:"Same as CrCl≤50 tier", ihd:"Dose after HD on HD days", crrt:"Higher: load 800–1200mg, then 400–800mg q24h", note:"C. glabrata (SDD) needs higher dose / ID consult" },
+       { name:"Fluconazole", n:"Mild:200mg→100–200mg q24h • Severe:800mg→400–800mg q24h", m:"Mild:200mg→100mg q24h • Severe:800mg→200–400mg q24h", s:"Same as CrCl≤50 tier", ihd:"Dose after HD on HD days", crrt:"Higher: load 800–1200mg, then 400–800mg q24h", note:"C. glabrata (SDD) needs higher dose / ID consult" },
      ]},
      { group:"Antivirals", drugs:[
-       { name:"Acyclovir (IV)", n:"General 5mg/kg q8h · Severe(CNS) 10mg/kg q8h", m:"General 5mg/kg q12h · Severe 10mg/kg q12h (25–50)", s:"General 5mg/kg q24h · Severe 10mg/kg q24h (&lt;25)", ihd:"General 2.5mg/kg q24h · Severe 5mg/kg q24h, after HD", crrt:"General 5–10mg/kg q12h · Severe 10mg/kg q12h", note:"Use adjusted BW if obese" },
-       { name:"Oseltamivir", n:"Treatment 75mg q12h · Prophylaxis 75mg q24h", m:"Tx 75mg×1 then 30mg q12h (30–60)", s:"Tx 30mg q24h (10–30) / q48h (≤10)", ihd:"Tx 30mg×1, then 30mg post-HD only", crrt:"As normal dose (75mg q12h)", note:"" },
-       { name:"Entecavir", n:"0.5mg PO q24h (1mg if lamivudine-experienced/decompensated)", m:"CrCl30–49: 0.25mg q24h or 0.5mg q48h", s:"CrCl10–29: 0.15mg q24h or 0.5mg q72h", ihd:"0.05mg q24h or 0.5mg q7days, dose after HD", crrt:"Approximate using CrCl&lt;10 tier", note:"Hepatitis B antiviral, not antibacterial · standard reference" },
+       { name:"Acyclovir (IV)", n:"General 5mg/kg q8h • Severe(CNS) 10mg/kg q8h", m:"General 5mg/kg q12h • Severe 10mg/kg q12h (25–50)", s:"General 5mg/kg q24h • Severe 10mg/kg q24h (&lt;25)", ihd:"General 2.5mg/kg q24h • Severe 5mg/kg q24h, after HD", crrt:"General 5–10mg/kg q12h • Severe 10mg/kg q12h", note:"Use adjusted BW if obese" },
+       { name:"Oseltamivir", n:"Treatment 75mg q12h • Prophylaxis 75mg q24h", m:"Tx 75mg×1 then 30mg q12h (30–60)", s:"Tx 30mg q24h (10–30) / q48h (≤10)", ihd:"Tx 30mg×1, then 30mg post-HD only", crrt:"As normal dose (75mg q12h)", note:"" },
+       { name:"Entecavir", n:"0.5mg PO q24h (1mg if lamivudine-experienced/decompensated)", m:"CrCl30–49: 0.25mg q24h or 0.5mg q48h", s:"CrCl10–29: 0.15mg q24h or 0.5mg q72h", ihd:"0.05mg q24h or 0.5mg q7days, dose after HD", crrt:"Approximate using CrCl&lt;10 tier", note:"Hepatitis B antiviral, not antibacterial • standard reference" },
      ]},
    ];
 
@@ -9680,9 +9696,9 @@ function eiwSwitchPO4(which){
 <div class="gl-section dg-collapse"><div class="dg-collapse-header" onclick="dgToggle(this)"><div class="gl-section-title"><span class="gl-ico">📅</span> Disease Phases — Natural History</div><span class="dg-collapse-chevron"></span></div><div class="dg-collapse-body">
 
 <div class="dg-phase-row">
-<div class="dg-phase dg-ph-f"><h4>🌡️ Febrile Phase</h4><p>Day 1–5 · High fever, myalgia, rash · Leucopenia, mild thrombocytopenia</p></div>
-<div class="dg-phase dg-ph-c"><h4><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Critical Phase</h4><p>Day 3–6 (DHF only) · Plasma leakage 24–48 hrs · Equilibrium phase may follow</p></div>
-<div class="dg-phase dg-ph-r"><h4>✅ Convalescent Phase</h4><p>2–5 days · Reabsorption of fluid · Fluid overload risk ↑</p></div>
+<div class="dg-phase dg-ph-f"><h4>🌡️ Febrile Phase</h4><p>Day 1–5 • High fever, myalgia, rash • Leucopenia, mild thrombocytopenia</p></div>
+<div class="dg-phase dg-ph-c"><h4><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Critical Phase</h4><p>Day 3–6 (DHF only) • Plasma leakage 24–48 hrs • Equilibrium phase may follow</p></div>
+<div class="dg-phase dg-ph-r"><h4>✅ Convalescent Phase</h4><p>2–5 days • Reabsorption of fluid • Fluid overload risk ↑</p></div>
 </div>
 <div class="dg-note dg-n-red">🚨 <b>Classic DF has NO critical phase.</b> Critical phase in DHF starts around Day 3–5 at defervescence and lasts only 24–48 hrs. Identifying its onset and end is the cornerstone of safe fluid management. An equilibrium phase may occur before convalescence.</div>
 </div></div>
@@ -9719,10 +9735,10 @@ function eiwSwitchPO4(which){
 </div>
 <div class="dg-stl">High-Risk Groups — Admit Even Without Warning Signs</div>
 <div class="dg-card"><ul>
-<li>Pregnant women · Elderly (&gt;65 yrs) · Obesity</li>
-<li>Diabetes mellitus · Hypertension, CAD, heart failure</li>
-<li>Chronic renal / liver disease · Haemolytic diseases, thalassaemia</li>
-<li>Immunocompromised · On steroids, NSAIDs, anticoagulants</li>
+<li>Pregnant women • Elderly (&gt;65 yrs) • Obesity</li>
+<li>Diabetes mellitus • Hypertension, CAD, heart failure</li>
+<li>Chronic renal / liver disease • Haemolytic diseases, thalassaemia</li>
+<li>Immunocompromised • On steroids, NSAIDs, anticoagulants</li>
 <li>Adverse social circumstances</li>
 </ul></div>
 </div></div>
@@ -9732,7 +9748,7 @@ function eiwSwitchPO4(which){
 <div class="dg-card dg-green"><h4>✅ DO</h4><ul><li>Adequate bed rest under mosquito net</li><li>Oral fluids (ORS, coconut water, fruit juice, soup): 2400 ml/day (2 ml/kg/hr up to 50 kg)</li><li>Paracetamol only: max <b>3 g/day</b> adults; 60 mg/kg/24hr children</li><li>Tepid sponging</li><li>Monitor urine every 3–4 hrs</li><li>Review daily with CBC from Day 3 (with SGOT/SGPT)</li><li>Avoid dark-coloured food/drinks (confusion with melaena)</li></ul></div>
 <div class="dg-card dg-red"><h4>❌ AVOID</h4><ul><li>Aspirin, Mefenamic acid, Ibuprofen, NSAIDs, COX-2 inhibitors</li><li>Steroids</li><li>Antibiotics (unless proven co-infection)</li><li>IM injections</li><li>Plain water only (use electrolyte fluids)</li><li>Warfarin/aspirin/clopidogrel — temporarily withhold</li></ul></div>
 </div>
-<div class="dg-note dg-n-red">🚨 <b>Return immediately if:</b> Deterioration at defervescence · Unable to take orals · Severe abdominal pain · Lethargy/restlessness · Any bleeding · No urine 4–6 hrs · Cold/clammy extremities · Breathing difficulty</div>
+<div class="dg-note dg-n-red">🚨 <b>Return immediately if:</b> Deterioration at defervescence • Unable to take orals • Severe abdominal pain • Lethargy/restlessness • Any bleeding • No urine 4–6 hrs • Cold/clammy extremities • Breathing difficulty</div>
 </div></div>
 <div class="gl-section dg-collapse"><div class="dg-collapse-header" onclick="dgToggle(this)"><div class="gl-section-title"><span class="gl-ico">🏥</span> Inpatient Monitoring Protocol</div><span class="dg-collapse-chevron"></span></div><div class="dg-collapse-body">
 
@@ -9743,7 +9759,7 @@ function eiwSwitchPO4(which){
 <tr><td>CBC/HCT</td><td>2×/day if plt &lt;100,000</td><td>3-hourly; before/after each bolus</td><td>Daily; stop when plt rising</td></tr>
 <tr><td>Blood glucose</td><td>If indicated</td><td>Frequently in DHF</td><td>If reduced oral intake</td></tr>
 </table></div>
-<div class="dg-note dg-n-amber"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> <b>Early warning of critical phase:</b> Platelets &lt;100,000 · HCT ↑&gt;10% · ↓Urine output · New tender hepatomegaly · Pulse &gt;100/min (without fever) disproportionate to temp · Prolonged CRFT</div>
+<div class="dg-note dg-n-amber"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> <b>Early warning of critical phase:</b> Platelets &lt;100,000 • HCT ↑&gt;10% • ↓Urine output • New tender hepatomegaly • Pulse &gt;100/min (without fever) disproportionate to temp • Prolonged CRFT</div>
 </div></div>
 <div class="gl-section dg-collapse"><div class="dg-collapse-header" onclick="dgToggle(this)"><div class="gl-section-title"><span class="gl-ico">💧</span> Fluid Management — Critical Phase (Adults)</div><span class="dg-collapse-chevron"></span></div><div class="dg-collapse-body">
 
@@ -9758,7 +9774,7 @@ function eiwSwitchPO4(which){
 <div class="dg-card dg-teal"><h4>Crystalloids (First Choice)</h4><ul><li><b>0.9% NaCl (NS)</b> — preferred</li><li><b>Hartmann's solution</b> — preferred</li><li>5% DRL / 5% DRA</li><li>0.45% NS — children &lt;6 months</li></ul></div>
 <div class="dg-card dg-amber"><h4>Colloids (Rescue)</h4><ul><li>Dextran-40 (max 30 ml/kg/day)</li><li>6% HES (Voluven/Plasmasol)</li><li>Human Albumin, Plasma, Haemaccel</li><li>Blood &amp; blood components</li></ul></div>
 </div>
-<div class="dg-note dg-n-amber"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> <b>Colloids indicated:</b> Shock not responding to 2 crystalloid boluses with rising HCT · Fluid quota nearly exceeded · Shock + fluid overload · Pulse pressure &lt;10 mmHg</div>
+<div class="dg-note dg-n-amber"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> <b>Colloids indicated:</b> Shock not responding to 2 crystalloid boluses with rising HCT • Fluid quota nearly exceeded • Shock + fluid overload • Pulse pressure &lt;10 mmHg</div>
 </div></div>
 <div class="gl-section dg-collapse"><div class="dg-collapse-header" onclick="dgToggle(this)"><div class="gl-section-title"><span class="gl-ico">🚨</span> Dengue Shock Syndrome — Classification &amp; Management</div><span class="dg-collapse-chevron"></span></div><div class="dg-collapse-body">
 
@@ -9780,7 +9796,7 @@ function eiwSwitchPO4(which){
 <div class="dg-step"><div class="dg-step-num">5</div><div class="dg-step-txt"><h5>Not improved / HCT rising</h5><p>→ Colloid (Dextran-40/6% HES) 10 ml/kg/hr</p></div></div>
 <div class="dg-step"><div class="dg-step-num">6</div><div class="dg-step-txt"><h5>HCT falling + deteriorating (bleeding)</h5><p>→ FWB 10 ml/kg or PCV 5 ml/kg in 1–2 hrs</p></div></div>
 </div>
-<div class="dg-note dg-n-red">🚨 <b>Profound shock (no BP/pulse):</b> NS 10–20 ml/kg bolus (500 ml adults) in 15–30 min + O₂ · NaHCO₃ 1–2 mEq/kg if acidosis · No response → Colloid → Blood → ABCS → plan dialysis/organ support</div>
+<div class="dg-note dg-n-red">🚨 <b>Profound shock (no BP/pulse):</b> NS 10–20 ml/kg bolus (500 ml adults) in 15–30 min + O₂ • NaHCO₃ 1–2 mEq/kg if acidosis • No response → Colloid → Blood → ABCS → plan dialysis/organ support</div>
 <div class="dg-stl">Refractory Shock — ABCS</div>
 <div class="dg-grid">
 <div class="dg-card dg-red"><h4>A = Acidosis</h4><p>VBG + serum lactate</p></div>
@@ -10092,7 +10108,7 @@ function eiwSwitchPO4(which){
 </ul></div>
 </div></div>
 <div class="note-box" style="margin-top:4px">
-<strong>Source:</strong> Communicable Disease Control Division · Directorate General of Health Services · MoHFW Bangladesh — National Guideline for Clinical Management of Dengue, 5th Edition 2025.
+<strong>Source:</strong> Communicable Disease Control Division • Directorate General of Health Services • MoHFW Bangladesh — National Guideline for Clinical Management of Dengue, 5th Edition 2025.
       </div>
 </div>
 </div>
@@ -10219,7 +10235,7 @@ function eiwSwitchPO4(which){
        <div class="gl-note">If β-OHB is unavailable, HCO₃⁻ ≥18 mmol/L can substitute as the DKA resolution criterion.</div>
       </div>
 
-      <div class="gl-note" style="opacity:.7;font-style:italic;">Source: ADA/EASD/AACE/JBDS/DTS International Consensus Report on Hyperglycaemic Crises in Adults, Diabetes Care 2024;47(8):1257–1275 · ADA Standards of Care 2025 (Section 16) · CCJM 2025;92(3):152–158. Educational use only.</div>
+      <div class="gl-note" style="opacity:.7;font-style:italic;">Source: ADA/EASD/AACE/JBDS/DTS International Consensus Report on Hyperglycaemic Crises in Adults, Diabetes Care 2024;47(8):1257–1275 • ADA Standards of Care 2025 (Section 16) • CCJM 2025;92(3):152–158. Educational use only.</div>
 
      </div>
 
@@ -10232,7 +10248,7 @@ function eiwSwitchPO4(which){
 
       <div class="gl-step"><div class="gl-step-num">3</div><div class="gl-step-content"><div class="gl-step-title">IV Fluid Resuscitation</div><div class="gl-step-body">First 2–4 h: isotonic saline or balanced crystalloid at 500–1,000 mL/h — balanced solutions now preferred (~5 h faster resolution). Switch to 0.45% NaCl once volume restored if corrected Na⁺ normal/high; continue 0.9% NaCl if low. Typical deficit ~6 L; replace 50% in first 8–12 h. Reduce bolus to 250 mL in cardiac/renal compromise or elderly.</div></div></div>
 
-      <div class="gl-step"><div class="gl-step-num">4</div><div class="gl-step-content"><div class="gl-step-title">Potassium — Check Before Insulin</div><div class="gl-step-body"><span class="gl-badge gl-badge-danger">K⁺ &lt;3.5</span> hold insulin, replace ~10 mmol/h until K⁺ &gt;3.5 · <span class="gl-badge gl-badge-warn">K⁺ 3.5–5.0</span> add 20–30 mmol/L IV fluid, start insulin · <span class="gl-badge gl-badge-ok">K⁺ &gt;5.0</span> start insulin, withhold K⁺, recheck 2 h. Target 4.0–5.0 mmol/L throughout.</div></div></div>
+      <div class="gl-step"><div class="gl-step-num">4</div><div class="gl-step-content"><div class="gl-step-title">Potassium — Check Before Insulin</div><div class="gl-step-body"><span class="gl-badge gl-badge-danger">K⁺ &lt;3.5</span> hold insulin, replace ~10 mmol/h until K⁺ &gt;3.5 • <span class="gl-badge gl-badge-warn">K⁺ 3.5–5.0</span> add 20–30 mmol/L IV fluid, start insulin • <span class="gl-badge gl-badge-ok">K⁺ &gt;5.0</span> start insulin, withhold K⁺, recheck 2 h. Target 4.0–5.0 mmol/L throughout.</div></div></div>
 
       <div class="gl-step"><div class="gl-step-num">5</div><div class="gl-step-content"><div class="gl-step-title">Insulin Therapy</div><div class="gl-step-body">Severe DKA (ICU): fixed-rate IV infusion 0.1 units/kg/h — no bolus. Mild/uncomplicated moderate DKA: SC rapid-acting analogue q1–2h now acceptable (2024). Continue home basal insulin at usual dose. Target glucose ~200 mg/dL (11 mmol/L).<div class="gl-note">When glucose &lt;250 mg/dL: add 5–10% dextrose to IV so insulin can continue until ketonaemia resolves — do not reduce insulin just to chase glucose.</div></div></div></div>
 
@@ -10371,7 +10387,7 @@ function eiwSwitchPO4(which){
        <div class="gl-section-title"><span class="gl-ico">🫁</span> Refractory SE (40–60 min)</div>
        <div class="gl-note">Seizure persists despite adequate 1st- + 2nd-line therapy.</div>
        <div class="gl-alert gl-alert-danger">🔴 Intubate — RSI, secure the airway proactively. Don't wait for desaturation.</div>
-       <div class="gl-step"><div class="gl-step-num">1</div><div class="gl-step-content"><div class="gl-step-title">Start continuous IV anesthetic infusion</div><div class="gl-step-body">Midazolam 0.05–2 mg/kg/hr · Propofol 1–10 mg/kg/hr · Pentobarbital 0.5–5 mg/kg/hr.</div></div></div>
+       <div class="gl-step"><div class="gl-step-num">1</div><div class="gl-step-content"><div class="gl-step-title">Start continuous IV anesthetic infusion</div><div class="gl-step-body">Midazolam 0.05–2 mg/kg/hr • Propofol 1–10 mg/kg/hr • Pentobarbital 0.5–5 mg/kg/hr.</div></div></div>
        <div class="gl-step"><div class="gl-step-num">2</div><div class="gl-step-content"><div class="gl-step-title">Titrate to effect</div><div class="gl-step-body">Target seizure suppression or a burst-suppression pattern.</div></div></div>
        <div class="gl-step"><div class="gl-step-num">3</div><div class="gl-step-content"><div class="gl-step-title">Monitor</div><div class="gl-step-body">Continuous EEG if available.</div></div></div>
       </div>
@@ -10509,7 +10525,7 @@ function eiwSwitchPO4(which){
        <div class="gl-formula-eq">Additional bolus 2 g IV over 5 min</div>
       </div>
       <div class="gl-note">Continue MgSO₄ for 24h post-delivery or post last seizure. Duration &lt;24h antepartum reasonable in select severe pre-eclampsia if imminent delivery.</div>
-      <div class="gl-alert gl-alert-warn"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Toxicity monitoring — check hourly: Deep tendon reflexes present · RR ≥12/min · Urine output ≥25–30 mL/hr · Therapeutic level 4–7 mEq/L</div>
+      <div class="gl-alert gl-alert-warn"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Toxicity monitoring — check hourly: Deep tendon reflexes present • RR ≥12/min • Urine output ≥25–30 mL/hr • Therapeutic level 4–7 mEq/L</div>
       <div class="gl-section">
        <div class="gl-section-title"><span class="gl-ico">📉</span> Toxicity — Approx. Levels</div>
        <div class="gl-ratio-row"><div class="gl-ratio-val">~8–10 mEq/L</div><div class="gl-ratio-meaning">Loss of DTRs</div></div>
@@ -10809,7 +10825,7 @@ function eiwSwitchPO4(which){
    <div class="aht-header" onclick="toggleAHT('aht-vasodilator')">
     <div style="flex:1">
      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">Vasodilators</div>
-     <div style="font-size:10px;color:var(--text-faint)">Isosorbide · GTN · SNP · Hydralazine</div>
+     <div style="font-size:10px;color:var(--text-faint)">Isosorbide • GTN • SNP • Hydralazine</div>
     </div>
     <span class="aht-class-badge" style="background:#ef444420;color:#ef4444">Vasodilator</span>
     <span class="aht-chevron"></span>
@@ -10885,7 +10901,7 @@ function eiwSwitchPO4(which){
    <div class="aht-header" onclick="toggleAHT('aht-betablocker')">
     <div style="flex:1">
      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">Beta-Blockers</div>
-     <div style="font-size:10px;color:var(--text-faint)">Atenolol · Metoprolol · Labetalol · Esmolol</div>
+     <div style="font-size:10px;color:var(--text-faint)">Atenolol • Metoprolol • Labetalol • Esmolol</div>
     </div>
     <span class="aht-class-badge" style="background:#8b5cf620;color:#8b5cf6">β-Blocker</span>
     <span class="aht-chevron"></span>
@@ -10963,7 +10979,7 @@ function eiwSwitchPO4(which){
    <div class="aht-header" onclick="toggleAHT('aht-ccb')">
     <div style="flex:1">
      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">Calcium Channel Blockers</div>
-     <div style="font-size:10px;color:var(--text-faint)">Amlodipine · Diltiazem · Verapamil · Nicardipine</div>
+     <div style="font-size:10px;color:var(--text-faint)">Amlodipine • Diltiazem • Verapamil • Nicardipine</div>
     </div>
     <span class="aht-class-badge" style="background:#f59e0b20;color:#f59e0b">CCB</span>
     <span class="aht-chevron"></span>
@@ -11039,7 +11055,7 @@ function eiwSwitchPO4(which){
    <div class="aht-header" onclick="toggleAHT('aht-other')">
     <div style="flex:1">
      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">Other / Special Situations</div>
-     <div style="font-size:10px;color:var(--text-faint)">ACEi/ARB · Phentolamine · MgSO₄ · Enalaprilat</div>
+     <div style="font-size:10px;color:var(--text-faint)">ACEi/ARB • Phentolamine • MgSO₄ • Enalaprilat</div>
     </div>
     <span class="aht-class-badge" style="background:#10b98120;color:#10b981">Special</span>
     <span class="aht-chevron"></span>
@@ -11200,7 +11216,7 @@ function eiwSwitchPO4(which){
      <strong style="color:#60a5fa">Diltiazem IV</strong> 0.25 mg/kg over 2 min → infusion 5–15 mg/hr → oral 60–120mg TDS<br>
      &nbsp;&nbsp;<em style="font-size:10px">Good for reactive airway disease; CI in WPW + AF, HF with reduced EF</em><br>
      <strong style="color:#60a5fa">Verapamil IV</strong> 5–10mg over 2 min → repeat after 10 min → oral 40–120mg TDS<br>
-     &nbsp;&nbsp;<em style="font-size:10px">CI: WPW, concurrent IV β-blocker, decompensated HF, VT</em><br>
+     &nbsp;&nbsp;<em style="font-size:10px"><strong style="color:#ef4444">CI:</strong> WPW, concurrent IV β-blocker, decompensated HF, VT</em><br>
      <strong style="color:#60a5fa">Digoxin IV</strong> 0.5mg over 30 min → 0.25mg q6h (max 1mg/24h) → oral 0.125–0.25mg OD<br>
      &nbsp;&nbsp;<em style="font-size:10px">Preferred in HFrEF (EF &lt;40%) + AF; slow onset; narrow TI — monitor level &amp; K+</em><br>
      <strong style="color:#60a5fa">Amiodarone IV</strong> 150mg over 20–30 min → 1mg/min × 6hr → 0.5mg/min × 18hr<br>
@@ -11238,7 +11254,7 @@ function eiwSwitchPO4(which){
    </div>
 
    <div class="note-box">
-    <strong>AF in ICU — common precipitants:</strong> Sepsis · Hypoxia · Electrolyte imbalance (K⁺/Mg²⁺) · Pain · Fluid overload · Post-cardiac surgery<br>
+    <strong>AF in ICU — common precipitants:</strong> Sepsis • Hypoxia • Electrolyte imbalance (K⁺/Mg²⁺) • Pain • Fluid overload • Post-cardiac surgery<br>
     <strong>Correct reversible causes first</strong> — many AF episodes revert with treatment of underlying cause<br>
     <strong>Anticoagulation options:</strong> DOAC (rivaroxaban/apixaban preferred) | Warfarin (INR 2–3) | LMWH bridging if INR subtherapeutic | Heparin infusion in unstable/procedural settings
    </div>
@@ -11497,7 +11513,7 @@ function eiwSwitchPO4(which){
      <strong style="color:var(--text-strong)">4.</strong> Ratio: <strong style="color:var(--text-strong)">30:2</strong> &nbsp;|&nbsp; Untrained → Hands-only CPR<br>
      <strong style="color:var(--text-strong)">5.</strong> AED: Attach → Analyse → Shock if advised → Resume CPR immediately<br>
      <strong style="color:var(--text-strong)">6.</strong> Advanced airway placed: 10 breaths/min async<br>
-     <span style="font-size:10.5px;color:var(--text-faint)">2025: CPR feedback devices recommended · Passive O₂ during compressions acceptable</span>
+     <span style="font-size:10.5px;color:var(--text-faint)">2025: CPR feedback devices recommended • Passive O₂ during compressions acceptable</span>
     </div>
    </div>
 
@@ -11519,8 +11535,8 @@ function eiwSwitchPO4(which){
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.8">
      CPR → Adrenaline 1mg IV ASAP → repeat every 3–5 min<br>
      Search &amp; treat reversible causes:<br>
-     <strong style="color:var(--text-strong)">5H:</strong> Hypoxia · Hypovolaemia · H⁺ (acidosis) · Hypo/Hyperkalaemia · Hypothermia<br>
-     <strong style="color:var(--text-strong)">5T:</strong> Tension PTX · Tamponade · Toxins · Thrombosis PE · Thrombosis MI
+     <strong style="color:var(--text-strong)">5H:</strong> Hypoxia • Hypovolaemia • H⁺ (acidosis) • Hypo/Hyperkalaemia • Hypothermia<br>
+     <strong style="color:var(--text-strong)">5T:</strong> Tension PTX • Tamponade • Toxins • Thrombosis PE • Thrombosis MI
     </div>
    </div>
 
@@ -11528,11 +11544,11 @@ function eiwSwitchPO4(which){
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px;margin-bottom:8px">
     <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px">POST-ROSC CARE</div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.8">
-     <span class="bl"></span> SpO₂ 90–98% (PaO₂ 60–105 mmHg) &nbsp;|&nbsp; PaCO₂ 35–45 mmHg &nbsp;|&nbsp; MAP ≥65 mmHg<br>
-     <span class="bl"></span> 12-lead ECG → PCI if STEMI<br>
-     <span class="bl"></span> Temperature control: 32–37.5°C, deliberate strategy for ≥36hr if not following commands<br>
-     <span class="bl"></span> Glucose: avoid hypoglycaemia (&lt;70 mg/dL / 3.9 mmol/L) and hyperglycaemia (&gt;180 mg/dL / 10 mmol/L)<br>
-     <span style="font-size:10.5px;color:var(--text-faint)">2025: Vasopressin removed · ECPR for refractory arrest · Double sequential defibrillation for refractory VF</span>
+     <span class="bl-dot"></span> SpO₂ 90–98% (PaO₂ 60–105 mmHg) &nbsp;|&nbsp; PaCO₂ 35–45 mmHg &nbsp;|&nbsp; MAP ≥65 mmHg<br>
+     <span class="bl-dot"></span> 12-lead ECG → PCI if STEMI<br>
+     <span class="bl-dot"></span> Temperature control: 32–37.5°C, deliberate strategy for ≥36hr if not following commands<br>
+     <span class="bl-dot"></span> Glucose: avoid hypoglycaemia (&lt;70 mg/dL / 3.9 mmol/L) and hyperglycaemia (&gt;180 mg/dL / 10 mmol/L)<br>
+     <span style="font-size:10.5px;color:var(--text-faint)">2025: Vasopressin removed • ECPR for refractory arrest • Double sequential defibrillation for refractory VF</span>
     </div>
    </div>
 
@@ -11794,7 +11810,7 @@ function eiwSwitchPO4(which){
   </button>
   <!-- Footer text: 2 lines equal width -->
   <div class="footer-text">
-    <div class="ft-line1" id="ftLine1">Ref: WMCCM <span class="bl"></span> Irwin &amp; Rippe <span class="bl"></span> CMDT <span class="bl"></span> ESC <span class="bl"></span> AHA ACLS 2025</div>
+    <div class="ft-line1" id="ftLine1">Ref: WMCCM <span class="ft-sep">|</span> Irwin &amp; Rippe <span class="ft-sep">|</span> CMDT <span class="ft-sep">|</span> ESC <span class="ft-sep">|</span> AHA ACLS 2025</div>
     <div class="ft-line2" id="ftLine2"><span id="ftShrink"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Verify doses by Local Protocol.</span><span id="ftNormal">&copy; Dr. Mottaqir Mamun</span></div>
   </div>
   <!-- Hamburger: footer right -->
@@ -11817,22 +11833,22 @@ function toggleRef(id) {
 const bolusData = [
  // ── Cardiac & Anti-arrhythmic ──
  { name:"Amiodarone", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 3ml = 150mg", doseMin:null, doseMax:null, unit:"150mg fixed bolus", headerLabel:"150 – 300 mg", onset:"5-10 min", duration:"Variable", note:"Inj. 150mg (1 amp) in 20ml 5% DA IV over 20-30 min. N.B. Maximum 2 bolus doses. If AF not corrected after 2nd bolus → start maintenance infusion." },
- { name:"Adenosine <span class=\"brand-name\">(Adecard)</span>", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 2ml = 6mg", doseMin:null, doseMax:null, unit:"mg rapid push", headerLabel:"6 – 12 mg", onset:"30 sec", duration:"2 min", note:"Standard (any peripheral line, incl. patients on CCB/BB): 6-12-12mg | Central line only: 3-6-6mg (reduced dose recognised for central administration) | FLUSH 20ml NS | CI: Asthma, Heart block" },
+ { name:"Adenosine <span class=\"brand-name\">(Adecard)</span>", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 2ml = 6mg", doseMin:null, doseMax:null, unit:"mg rapid push", headerLabel:"6 – 12 mg", onset:"30 sec", duration:"2 min", note:"Standard (any peripheral line, incl. patients on CCB/BB): 6-12-12mg | Central line only: 3-6-6mg (reduced dose recognised for central administration) | FLUSH 20ml NS | <span style='color:#ef4444'>CI:</span> Asthma, Heart block" },
  { name:"Verapamil <span class=\"brand-name\">(Veracal)</span>", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 2ml = 5mg", doseMin:0.075, doseMax:0.15, unit:"mg/kg IV push over 30sec-2min", onset:"5 min", duration:"2-8 hr", note:"EASY: 5-10mg | SVT only (NOT WPW) | If BP down: Ca gluconate 10% 10ml over 10min" },
- { name:"Labetalol", group:"Cardiac & Anti-arrhythmic", cat:"Anti-hypertensive", color:"#f59e0b", amp:"1 amp = 10ml = 50mg", doseMin:0.25, doseMax:0.5, unit:"mg/kg IV over 10 min", onset:"5-10 min", duration:"3-6 hr", note:"Usual dose: 20-80mg slow IV | Repeat every 10 min PRN | Max cumulative: 300mg | CI: Asthma, bradycardia, heart block, decompensated HF" },
+ { name:"Labetalol", group:"Cardiac & Anti-arrhythmic", cat:"Anti-hypertensive", color:"#f59e0b", amp:"1 amp = 10ml = 50mg", doseMin:0.25, doseMax:0.5, unit:"mg/kg IV over 10 min", onset:"5-10 min", duration:"3-6 hr", note:"Usual dose: 20-80mg slow IV | Repeat every 10 min PRN | Max cumulative: 300mg | <span style='color:#ef4444'>CI:</span> Asthma, bradycardia, heart block, decompensated HF" },
  // ── Sedation & Analgesia ──
  { name:"Midazolam", group:"Sedation & Analgesia", cat:"Sedation", color:"#58a6ff", amp:"5mg/5cc OR 15mg/3cc amp", doseMin:0.02, doseMax:0.1, unit:"mg/kg slow IV", onset:"2-3 min", duration:"15-30 min", note:"IV bolus slowly over 2 min | Titrate to effect | Reduce dose in elderly & hepatic impairment" },
  { name:"Fentanyl", group:"Sedation & Analgesia", cat:"Analgesia", color:"#58a6ff", amp:"1 amp = 2ml = 100mcg", doseMin:0.3, doseMax:1.5, unit:"mcg/kg slow IV", onset:"2-5 min", duration:"30-60 min", note:"Give slowly over 3-5 min | Bolus: 0.3-1.5mcg/kg | Reduce in elderly & renal impairment" },
  { name:"Propofol", group:"Sedation & Analgesia", cat:"Sedation", color:"#58a6ff", amp:"200mg/20ml vial (10mg/ml)", doseMin:1, doseMax:2.5, unit:"mg/kg", onset:"60 sec", duration:"-", note:"For 70kg: 70-175mg" },
  // ── Induction & Neuromuscular Blockers (RSI) ──
- { name:"Ketamine", group:"Induction & NMB (RSI)", cat:"Induction / Dissociative", color:"#ef4444", amp:"500mg/10ml vial (50mg/ml)", doseMin:1, doseMax:2, unit:"mg/kg IV induction", onset:"30-60 sec", duration:"10-15 min", note:"RSI/induction: 1-2mg/kg IV | Sub-dissociative analgesia: 0.1-0.3mg/kg IV | Preferred in haemodynamic instability, bronchospasm/asthma | Raises BP &amp; HR — caution in IHD, uncontrolled HTN | Emergence reactions — co-administer Midazolam | CI: severe uncontrolled hypertension, eclampsia" },
+ { name:"Ketamine", group:"Induction & NMB (RSI)", cat:"Induction / Dissociative", color:"#ef4444", amp:"500mg/10ml vial (50mg/ml)", doseMin:1, doseMax:2, unit:"mg/kg IV induction", onset:"30-60 sec", duration:"10-15 min", note:"RSI/induction: 1-2mg/kg IV | Sub-dissociative analgesia: 0.1-0.3mg/kg IV | Preferred in haemodynamic instability, bronchospasm/asthma | Raises BP &amp; HR — caution in IHD, uncontrolled HTN | Emergence reactions — co-administer Midazolam | <span style='color:#ef4444'>CI:</span> severe uncontrolled hypertension, eclampsia" },
  { name:"Suxamethonium", group:"Induction & NMB (RSI)", cat:"NMB (RSI)", color:"#ef4444", amp:"100mg/2ml amp (50mg/ml)", doseMin:1, doseMax:2, unit:"mg/kg", onset:"45-60 sec", duration:"5 min", note:"RSI drug of choice" },
  { name:"Atracurium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"25mg/2.5ml amp (10mg/ml)", doseMin:0.5, doseMax:0.5, unit:"mg/kg", onset:"90 sec", duration:"-", note:"Safe in hepatic & renal impairment" },
  { name:"Vecuronium <span class=\"brand-name\">(Norcuron)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"10mg dry powder + 10ml NS", doseMin:0.08, doseMax:0.1, unit:"mg/kg (intubation)", onset:"90-120 sec", duration:"30 min", note:"Maintenance: 0.02-0.03mg/kg | 70kg ~ half amp" },
- { name:"Pipecuronium <span class=\"brand-name\">(Arduan)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"4mg dry powder + 2ml NS", doseMin:0.06, doseMax:0.08, unit:"mg/kg", onset:"90-120 sec", duration:"60 min", note:"Renal failure: 0.04mg/kg | CI: Myasthenia Gravis | Antidote: Neostigmine" },
- { name:"Thiopental Sodium <span class=\"brand-name\">(TPS)</span>", group:"Status Epilepticus / Neuro-critical", cat:"Barbiturate coma", color:"#a78bfa", amp:"<span onclick=\"event.stopPropagation()\"><span class=\"mini-select\" id=\"mini-thiob-vial\"><button type=\"button\" class=\"mini-select-trigger\" id=\"mini-thiob-vial-trigger\" onclick=\"toggleMiniSelect(event,'mini-thiob-vial')\">500mg</button><span class=\"mini-select-panel\" data-owner=\"mini-thiob-vial\"><span class=\"mini-select-option selected\" onclick=\"pickThiobVial(event,500)\">500mg</span><span class=\"mini-select-option\" onclick=\"pickThiobVial(event,1000)\">1000mg</span></span></span> vial + 10ml<br><span style=\"white-space:nowrap\">WFI or 5% DA or 0.9% NS = <span id=\"thiob-conc\">50</span>mg/ml</span></span>", doseMin:2, doseMax:5, unit:"IV loading bolus", onset:"<30 sec", duration:"5-10 min", note:"ICU use is mainly refractory status epilepticus or barbiturate coma for raised ICP &mdash; NOT routine RSI/induction. Loading 2-5mg/kg (barbiturate coma protocols cite 2-3mg/kg; status epilepticus protocols cite 3-5mg/kg) &mdash; source table's 3-6mg/kg is the general-anaesthesia induction dose. Follow bolus with maintenance infusion (see Infusion Drugs), titrated to EEG burst suppression/seizure control. Significant myocardial depression/hypotension &mdash; caution in haemodynamic instability | CI: porphyria, status asthmaticus, severe shock" },
+ { name:"Pipecuronium <span class=\"brand-name\">(Arduan)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"4mg dry powder + 2ml NS", doseMin:0.06, doseMax:0.08, unit:"mg/kg", onset:"90-120 sec", duration:"60 min", note:"Renal failure: 0.04mg/kg | <span style='color:#ef4444'>CI:</span> Myasthenia Gravis | Antidote: Neostigmine" },
+ { name:"Thiopental Sodium <span class=\"brand-name\">(TPS)</span>", group:"Status Epilepticus / Neuro-critical", cat:"Barbiturate coma", color:"#a78bfa", amp:"<span onclick=\"event.stopPropagation()\"><span class=\"mini-select\" id=\"mini-thiob-vial\"><button type=\"button\" class=\"mini-select-trigger\" id=\"mini-thiob-vial-trigger\" onclick=\"toggleMiniSelect(event,'mini-thiob-vial')\">500mg</button><span class=\"mini-select-panel\" data-owner=\"mini-thiob-vial\"><span class=\"mini-select-option selected\" onclick=\"pickThiobVial(event,500)\">500mg</span><span class=\"mini-select-option\" onclick=\"pickThiobVial(event,1000)\">1000mg</span></span></span> vial + 10ml<br><span style=\"white-space:nowrap\">WFI or 5% DA or 0.9% NS = <span id=\"thiob-conc\">50</span>mg/ml</span></span>", doseMin:2, doseMax:5, unit:"IV loading bolus", onset:"<30 sec", duration:"5-10 min", note:"ICU use is mainly refractory status epilepticus or barbiturate coma for raised ICP &mdash; NOT routine RSI/induction. Loading 2-5mg/kg (barbiturate coma protocols cite 2-3mg/kg; status epilepticus protocols cite 3-5mg/kg) &mdash; source table's 3-6mg/kg is the general-anaesthesia induction dose. Follow bolus with maintenance infusion (see Infusion Drugs), titrated to EEG burst suppression/seizure control. Significant myocardial depression/hypotension &mdash; caution in haemodynamic instability | <span style='color:#ef4444'>CI:</span> porphyria, status asthmaticus, severe shock" },
  // ── GI Bleed – Vasoactive Drugs ──
- { name:"Terlipressin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasopressor", color:"#a78bfa", amp:"1 mg vial<br><span style=\"white-space:nowrap\">(lyophilized) + 8.5ml diluent</span>", doseMin:null, doseMax:null, unit:"IV bolus, every 4–6 hr", headerLabel:"1 – 2 mg", onset:"~30 min", duration:"4-6 hr", note:"For acute variceal bleeding &amp; hepatorenal syndrome | Give as slow IV bolus over 1 min | Reduce dose/frequency in elderly &amp; cardiovascular disease | Monitor for peripheral/cardiac ischaemia &amp; hyponatraemia | CI: uncontrolled hypertension, septic shock, pregnancy" },
+ { name:"Terlipressin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasopressor", color:"#a78bfa", amp:"1 mg vial<br><span style=\"white-space:nowrap\">(lyophilized) + 8.5ml diluent</span>", doseMin:null, doseMax:null, unit:"IV bolus, every 4–6 hr", headerLabel:"1 – 2 mg", onset:"~30 min", duration:"4-6 hr", note:"For acute variceal bleeding &amp; hepatorenal syndrome | Give as slow IV bolus over 1 min | Reduce dose/frequency in elderly &amp; cardiovascular disease | Monitor for peripheral/cardiac ischaemia &amp; hyponatraemia | <span style='color:#ef4444'>CI:</span> uncontrolled hypertension, septic shock, pregnancy" },
  { name:"Somatostatin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasoactive", color:"#a78bfa", amp:"3 mg vial (lyophilized) + solvent", doseMin:null, doseMax:null, unit:"IV slow bolus over 3–5 min", headerLabel:"250 mcg", onset:"1-2 min", duration:"~3 min (very short half-life)", note:"For acute variceal bleeding | <span style='font-size:0.8em;vertical-align:0.10em'>&#9888;&#65039;</span> Bolus alone is not enough — follow immediately with continuous infusion 250 mcg/hr, or effect wears off within minutes | May repeat bolus once in first hour if bleeding continues | Watch for hyperglycaemia, bradycardia, abdominal cramps" },
  { name:"Octreotide", group:"GI Bleed – Vasoactive Drugs", cat:"Somatostatin Analogue", color:"#a78bfa", amp:"1 amp = 1ml = 50mcg", doseMin:null, doseMax:null, unit:"IV bolus", headerLabel:"50 mcg", onset:"few min", duration:"~1.5-2 hr", note:"For acute variceal bleeding | Follow bolus with continuous infusion 25–50 mcg/hr | Longer acting than Somatostatin, less frequent redosing needed | Monitor blood glucose (can cause hyper- or hypoglycaemia)" },
  // ── Anti-epileptic & Endocrine ──
@@ -12866,7 +12882,7 @@ var rdacCalcFunctions = {
  colistin: function(crcl, wt, hd, crrt) {
   var loadTxt = 'Loading 300 mg CBA (~9 million units) IV once, then:';
   if (crrt) return { dose:'250–350 mg CBA/day', interval:'divided q12h', extra:loadTxt+' Approximates the GFR 50-90 tier at usual effluent rates — confirm with pharmacy/CBA protocol.' };
-  if (hd) return { dose:'130 mg CBA/day (non-dialysis day) · 175 mg after dialysis (dialysis day)', interval:'divided q12h', extra:loadTxt+' Give the higher post-dialysis dose only on HD days.' };
+  if (hd) return { dose:'130 mg CBA/day (non-dialysis day) • 175 mg after dialysis (dialysis day)', interval:'divided q12h', extra:loadTxt+' Give the higher post-dialysis dose only on HD days.' };
   if (crcl > 50) return { dose:'300 mg CBA/day (~2.4–5 mg/kg/day)', interval:'divided q12h', extra:loadTxt+' Full maintenance dose — matches the GFR 50-90 tier.' };
   if (crcl >= 30) return { dose:'183–250 mg CBA/day (~2.5 mg/kg/day)', interval:'divided q12h', extra:loadTxt+' GFR 30-50 tier — confirm against a CBA/Garonzik protocol if available.' };
   if (crcl >= 10) return { dose:'150–183 mg CBA/day (~1.5 mg/kg/day)', interval:'divided q12h', extra:loadTxt+' GFR 10-30 tier — confirm against a CBA/Garonzik protocol if available.' };
@@ -13367,7 +13383,7 @@ function rdacRenderDose() {
   return;
  }
  var result = rdacCalcFunctions[rdacSelectedId](crcl, wt, hd, crrt);
- out.innerHTML = '<div class="rdac-dose-label">Recommended Dose'+modeTag+'</div><span class="rdac-dose-value">'+result.dose+(result.interval ? ' · '+result.interval : '')+'</span>'
+ out.innerHTML = '<div class="rdac-dose-label">Recommended Dose'+modeTag+'</div><span class="rdac-dose-value">'+result.dose+(result.interval ? ' • '+result.interval : '')+'</span>'
    + (result.extra ? '<div class="rdac-dose-note">'+result.extra+'</div>' : '');
 }
 
@@ -13883,15 +13899,15 @@ function calcDIC() {
  if (score >= 5) {
   interp.textContent = '🔴 Overt DIC'; interp.style.color = '#ef4444';
   box.style.borderColor = '#ef444460';
-  mgmt.innerHTML = '<span class="bl"></span> Treat underlying cause urgently<br><span class="bl"></span> FFP 10–15 ml/kg if bleeding + PT prolonged<br><span class="bl"></span> Platelet transfusion if &lt;50×10⁹/L + active bleeding<br><span class="bl"></span> Cryoprecipitate if fibrinogen &lt;1.5 g/L<br><span class="bl"></span> Repeat score daily; reassess coagulation 6–12hrly';
+  mgmt.innerHTML = '<span class="bl-dot"></span> Treat underlying cause urgently<br><span class="bl-dot"></span> FFP 10–15 ml/kg if bleeding + PT prolonged<br><span class="bl-dot"></span> Platelet transfusion if &lt;50×10⁹/L + active bleeding<br><span class="bl-dot"></span> Cryoprecipitate if fibrinogen &lt;1.5 g/L<br><span class="bl-dot"></span> Repeat score daily; reassess coagulation 6–12hrly';
  } else if (score >= 3) {
   interp.textContent = '🟡 Probable / Non-overt DIC'; interp.style.color = '#f59e0b';
   box.style.borderColor = '#f59e0b60';
-  mgmt.innerHTML = '<span class="bl"></span> Monitor closely; repeat labs in 12–24hr<br><span class="bl"></span> Treat predisposing condition<br><span class="bl"></span> Transfuse only if bleeding or planned invasive procedure<br><span class="bl"></span> Consider prophylactic LMWH if thrombosis-predominant';
+  mgmt.innerHTML = '<span class="bl-dot"></span> Monitor closely; repeat labs in 12–24hr<br><span class="bl-dot"></span> Treat predisposing condition<br><span class="bl-dot"></span> Transfuse only if bleeding or planned invasive procedure<br><span class="bl-dot"></span> Consider prophylactic LMWH if thrombosis-predominant';
  } else {
   interp.textContent = '✅ DIC unlikely'; interp.style.color = '#10b981';
   box.style.borderColor = '#10b98160';
-  mgmt.innerHTML = '<span class="bl"></span> Continue monitoring if high clinical suspicion<br><span class="bl"></span> Repeat score in 24–48hr if predisposing condition persists';
+  mgmt.innerHTML = '<span class="bl-dot"></span> Continue monitoring if high clinical suspicion<br><span class="bl-dot"></span> Repeat score in 24–48hr if predisposing condition persists';
  }
 }
 
@@ -14008,11 +14024,11 @@ function calcSIADH() {
   if (diluteUrine) {
    diag.textContent = '💧 Likely Cranial DI';
    conf.textContent = 'Hypernatraemia (Na ' + sna + ') with inappropriately dilute urine (Osm ' + uosm + ' < serum Osm ' + sosm + ') — classic Cranial DI pattern, assuming adequate free water access has been excluded as the cause.';
-   mgmt.innerHTML = '<span class="bl"></span> <strong>Desmopressin (DDAVP)</strong> trial — urine osm rises &gt;50% confirms Cranial DI (vs nephrogenic, which won\'t respond)<br><span class="bl"></span> Replace free water deficit gradually — <strong>max Na correction 8–10 mmol/L per 24hr</strong> (cerebral oedema risk)<br><span class="bl"></span> Identify cause: post-neurosurgery/TBI (often triphasic response), pituitary tumour, sarcoidosis, idiopathic<br><span class="bl"></span> Strict fluid balance + hourly urine output while diagnosis is confirmed<br><span class="bl"></span> Rule out osmotic diuresis (glucose, urea, mannitol) and nephrogenic DI (lithium, hypercalcaemia, hypokalaemia)';
+   mgmt.innerHTML = '<span class="bl-dot"></span> <strong>Desmopressin (DDAVP)</strong> trial — urine osm rises &gt;50% confirms Cranial DI (vs nephrogenic, which won\'t respond)<br><span class="bl-dot"></span> Replace free water deficit gradually — <strong>max Na correction 8–10 mmol/L per 24hr</strong> (cerebral oedema risk)<br><span class="bl-dot"></span> Identify cause: post-neurosurgery/TBI (often triphasic response), pituitary tumour, sarcoidosis, idiopathic<br><span class="bl-dot"></span> Strict fluid balance + hourly urine output while diagnosis is confirmed<br><span class="bl-dot"></span> Rule out osmotic diuresis (glucose, urea, mannitol) and nephrogenic DI (lithium, hypercalcaemia, hypokalaemia)';
   } else {
    diag.innerHTML = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Hypernatraemia — DI Uncertain';
    conf.textContent = 'Na ' + sna + ' elevated, but urine Osm (' + uosm + ') is not clearly inappropriate for the serum Osm (' + sosm + ') given here — DI less certain from these numbers alone.';
-   mgmt.innerHTML = '<span class="bl"></span> Consider other causes of hypernatraemia: reduced water intake, GI/insensible losses, osmotic diuresis<br><span class="bl"></span> If polyuria is present despite this, still consider partial DI — water deprivation test or desmopressin trial can clarify<br><span class="bl"></span> Correct free water deficit gradually (max 8–10 mmol/L per 24hr)<br><span class="bl"></span> Reassess urine osm once volume status/intake is optimised';
+   mgmt.innerHTML = '<span class="bl-dot"></span> Consider other causes of hypernatraemia: reduced water intake, GI/insensible losses, osmotic diuresis<br><span class="bl-dot"></span> If polyuria is present despite this, still consider partial DI — water deprivation test or desmopressin trial can clarify<br><span class="bl-dot"></span> Correct free water deficit gradually (max 8–10 mmol/L per 24hr)<br><span class="bl-dot"></span> Reassess urine osm once volume status/intake is optimised';
   }
   return;
  }
@@ -14031,7 +14047,7 @@ function calcSIADH() {
   mgmt.style.color = 'var(--text)';
   diag.textContent = 'ℹ️ Serum Na⁺ Normal';
   conf.textContent = 'Na ' + sna + ' is within normal range — SIADH/CSW scoring assumes hyponatraemia and does not apply here.';
-  mgmt.innerHTML = '<span class="bl"></span> If <strong>polyuria</strong> is present despite normal Na, consider <strong>partial/early Cranial DI</strong> — recheck Na and urine Osm trend, or trial desmopressin<br><span class="bl"></span> If Na is trending down, re-run this tool once it crosses into the hyponatraemic range for SIADH/CSW differentiation<br><span class="bl"></span> Otherwise, look for other causes of the presenting picture (osmotic diuresis, diuretic effect, post-obstructive diuresis, recovering ATN)';
+  mgmt.innerHTML = '<span class="bl-dot"></span> If <strong>polyuria</strong> is present despite normal Na, consider <strong>partial/early Cranial DI</strong> — recheck Na and urine Osm trend, or trial desmopressin<br><span class="bl-dot"></span> If Na is trending down, re-run this tool once it crosses into the hyponatraemic range for SIADH/CSW differentiation<br><span class="bl-dot"></span> Otherwise, look for other causes of the presenting picture (osmotic diuresis, diuretic effect, post-obstructive diuresis, recovering ATN)';
   return;
  }
 
@@ -14124,23 +14140,23 @@ function calcSIADH() {
  if (score >= 4) {
   dx = '✅ Likely SIADH'; color = '#06b6d4';
   confidence = 'Strong evidence for SIADH (Score: +' + score + ')';
-  management = '<span class="bl"></span> <strong>Fluid restrict:</strong> 500–1000 ml/day (below daily urine output)<br><span class="bl"></span> Treat underlying cause (drugs, CNS, pulmonary, malignancy)<br><span class="bl"></span> <strong>Avoid isotonic saline</strong> — worsens hypoNa in euvolaemic SIADH<br><span class="bl"></span> Chronic/mild: consider demeclocycline or tolvaptan<br><span class="bl"></span> Severe symptomatic (&lt;120 + Sx): 3% NaCl — target ≤5 mmol/L rise in 1hr, max 10 mmol/L per 24hr';
+  management = '<span class="bl-dot"></span> <strong>Fluid restrict:</strong> 500–1000 ml/day (below daily urine output)<br><span class="bl-dot"></span> Treat underlying cause (drugs, CNS, pulmonary, malignancy)<br><span class="bl-dot"></span> <strong>Avoid isotonic saline</strong> — worsens hypoNa in euvolaemic SIADH<br><span class="bl-dot"></span> Chronic/mild: consider demeclocycline or tolvaptan<br><span class="bl-dot"></span> Severe symptomatic (&lt;120 + Sx): 3% NaCl — target ≤5 mmol/L rise in 1hr, max 10 mmol/L per 24hr';
  } else if (score >= 2) {
   dx = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Probable SIADH'; color = '#3b82f6';
   confidence = 'Moderate evidence for SIADH (Score: +' + score + ') — clinical correlation essential';
-  management = '<span class="bl"></span> Cautious fluid restriction while re-examining volume status<br><span class="bl"></span> Repeat labs 6–12hr<br><span class="bl"></span> <strong>Do NOT give IV saline</strong> until volume status confirmed normal/expanded<br><span class="bl"></span> Treat underlying cause — review all medications';
+  management = '<span class="bl-dot"></span> Cautious fluid restriction while re-examining volume status<br><span class="bl-dot"></span> Repeat labs 6–12hr<br><span class="bl-dot"></span> <strong>Do NOT give IV saline</strong> until volume status confirmed normal/expanded<br><span class="bl-dot"></span> Treat underlying cause — review all medications';
  } else if (score <= -3) {
   dx = '🔴 Likely CSW'; color = '#f97316';
   confidence = 'Strong evidence for CSW (Score: ' + score + ')';
-  management = '<span class="bl"></span> <strong>IV 0.9% NaCl</strong> — volume replacement is the cornerstone<br><span class="bl"></span> Oral NaCl tablets 1–3g TDS with meals<br><span class="bl"></span> Fludrocortisone 0.1–0.2 mg/day (reduces renal Na loss — off-label)<br><span class="bl"></span> <strong>Do NOT fluid restrict</strong> — will worsen haemodynamic instability<br><span class="bl"></span> Monitor electrolytes 6-hourly; Na correction max 10 mmol/L per 24hr';
+  management = '<span class="bl-dot"></span> <strong>IV 0.9% NaCl</strong> — volume replacement is the cornerstone<br><span class="bl-dot"></span> Oral NaCl tablets 1–3g TDS with meals<br><span class="bl-dot"></span> Fludrocortisone 0.1–0.2 mg/day (reduces renal Na loss — off-label)<br><span class="bl-dot"></span> <strong>Do NOT fluid restrict</strong> — will worsen haemodynamic instability<br><span class="bl-dot"></span> Monitor electrolytes 6-hourly; Na correction max 10 mmol/L per 24hr';
  } else if (score <= -1) {
   dx = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Probable CSW'; color = '#f59e0b';
   confidence = 'Moderate evidence for CSW (Score: ' + score + ') — clinical correlation essential';
-  management = '<span class="bl"></span> Cautious IV fluid trial (NS) and monitor Na response<br><span class="bl"></span> Na improves → confirms CSW; Na worsens → reconsider SIADH<br><span class="bl"></span> Reassess volume status: JVP, skin turgor, fluid balance, BP trend<br><span class="bl"></span> Avoid fluid restriction until diagnosis confirmed';
+  management = '<span class="bl-dot"></span> Cautious IV fluid trial (NS) and monitor Na response<br><span class="bl-dot"></span> Na improves → confirms CSW; Na worsens → reconsider SIADH<br><span class="bl-dot"></span> Reassess volume status: JVP, skin turgor, fluid balance, BP trend<br><span class="bl-dot"></span> Avoid fluid restriction until diagnosis confirmed';
  } else {
   dx = '❓ Indeterminate'; color = '#94a3b8';
   confidence = 'Insufficient differentiation (Score: ' + score + ') — further workup needed';
-  management = '<span class="bl"></span> <strong>FEUA</strong> (Fractional excretion of uric acid): &lt;10% = SIADH, &gt;10% = CSW<br><span class="bl"></span> <strong>NS challenge:</strong> Na rises → CSW; Na worsens → SIADH<br><span class="bl"></span> FENa &lt;0.5% — favours pre-renal/CSW<br><span class="bl"></span> Repeat serum + urine electrolytes after 12hr<br><span class="bl"></span> Consider endocrinology consult';
+  management = '<span class="bl-dot"></span> <strong>FEUA</strong> (Fractional excretion of uric acid): &lt;10% = SIADH, &gt;10% = CSW<br><span class="bl-dot"></span> <strong>NS challenge:</strong> Na rises → CSW; Na worsens → SIADH<br><span class="bl-dot"></span> FENa &lt;0.5% — favours pre-renal/CSW<br><span class="bl-dot"></span> Repeat serum + urine electrolytes after 12hr<br><span class="bl-dot"></span> Consider endocrinology consult';
  }
 
  resBox.style.border    = '1px solid ' + color + '50';
@@ -14291,7 +14307,7 @@ function calcARDS() {
  else               { severity = '🔴 Severe ARDS (P/F ≤100)';    color = '#ef4444'; management = '<strong>Prone positioning ≥16h/day (mandatory).</strong> NMBA (cisatracurium 37.5mg/hr). Recruitment manoeuvres with caution. Refer for ECMO if P/F &lt;80 despite optimal care. Permissive hypercapnia (pH ≥7.20).'; }
 
  sevEl.style.color  = color; sevEl.innerHTML = severity;
- pfcEl.style.color  = color; pfcEl.textContent = 'All 4 Berlin criteria met · P/F = ' + pf + ' mmHg on PEEP ≥5';
+ pfcEl.style.color  = color; pfcEl.textContent = 'All 4 Berlin criteria met • P/F = ' + pf + ' mmHg on PEEP ≥5';
  mgtEl.innerHTML    = management;
  if (boxEl) boxEl.style.borderColor = color + '60';
 }
@@ -15502,20 +15518,20 @@ function dengueCalc() {
  if (dengueReadings.length >= 2) {
   const prev = dengueReadings[dengueReadings.length - 2].hct;
   const diff = latest - prev;
-  if      (diff > 1)  trendDir = ' · 📈 Rising';
-  else if (diff < -1) trendDir = ' · 📉 Falling';
-  else                trendDir = ' · ➡️ Stable';
+  if      (diff > 1)  trendDir = ' • 📈 Rising';
+  else if (diff < -1) trendDir = ' • 📉 Falling';
+  else                trendDir = ' • ➡️ Stable';
  }
 
  let msg, color;
  if (delta >= baseline * 0.20) {
-  msg   = '🔴 ≥20% rise from baseline — Significant plasma leakage · Fluid resuscitation indicated';
+  msg   = '🔴 ≥20% rise from baseline — Significant plasma leakage • Fluid resuscitation indicated';
   color = '#ef4444';
  } else if (delta >= baseline * 0.10) {
-  msg   = '🟡 10–19% rise — Monitor closely · Repeat HCT in 2–4 hrs';
+  msg   = '🟡 10–19% rise — Monitor closely • Repeat HCT in 2–4 hrs';
   color = '#f59e0b';
  } else if (delta < -baseline * 0.10) {
-  msg   = '🔵 Falling HCT — Recovery OR internal bleeding · Correlate clinically';
+  msg   = '🔵 Falling HCT — Recovery OR internal bleeding • Correlate clinically';
   color = '#06b6d4';
  } else {
   msg   = '✅ HCT within acceptable range';
@@ -15523,7 +15539,7 @@ function dengueCalc() {
  }
 
  if (trendRes) { trendRes.textContent = msg; trendRes.style.color = color; }
- if (trendDet) { trendDet.textContent = 'Latest: ' + latest.toFixed(1) + '% · Baseline: ' + baseline + '% · Change: ' + (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% (' + (delta >= 0 ? '+' : '') + pct + '%)' + trendDir; }
+ if (trendDet) { trendDet.textContent = 'Latest: ' + latest.toFixed(1) + '% • Baseline: ' + baseline + '% • Change: ' + (delta >= 0 ? '+' : '') + delta.toFixed(1) + '% (' + (delta >= 0 ? '+' : '') + pct + '%)' + trendDir; }
  if (trendBox) trendBox.style.borderColor = color + '60';
 }
 
@@ -15615,13 +15631,13 @@ function calcInsDosingAll() {
    alertEl.style.background = '#ef444422';
    alertEl.style.border = '1px solid #ef4444';
    alertEl.style.color = '#ef4444';
-   alertEl.innerHTML = '🚨 CBG &lt;4.0 — HYPOGLYCAEMIA · Do NOT give insulin · Treat immediately';
+   alertEl.innerHTML = '🚨 CBG &lt;4.0 — HYPOGLYCAEMIA • Do NOT give insulin • Treat immediately';
   } else if (cbg <= 7.0) {
    alertEl.style.display = '';
    alertEl.style.background = '#10b98115';
    alertEl.style.border = '1px solid #10b981';
    alertEl.style.color = '#10b981';
-   alertEl.innerHTML = '✅ CBG ' + cbg + ' mmol/L — Within target range · No correction needed';
+   alertEl.innerHTML = '✅ CBG ' + cbg + ' mmol/L — Within target range • No correction needed';
    if (corEl) corEl.textContent = '0';
   } else {
    alertEl.style.display = 'none';
@@ -15652,7 +15668,7 @@ function calcInsDosingAll() {
    else                  { rangeLabel = '&gt;22.0'; color = '#ef4444'; }
   }
   if (dose === -1) {
-   hlEl.innerHTML = '<div style="font-size:12px;font-weight:700;color:#ef4444">🚨 CBG &lt;4.0 — HOLD insulin · Treat hypoglycaemia first</div>';
+   hlEl.innerHTML = '<div style="font-size:12px;font-weight:700;color:#ef4444">🚨 CBG &lt;4.0 — HOLD insulin • Treat hypoglycaemia first</div>';
    hlEl.style.borderColor = '#ef444460';
   } else {
    const doseText = dose === 0 ? 'No insulin needed' : dose + ' units Actrapid S/C';
@@ -15890,7 +15906,7 @@ function calcAPACHE() {
 
  if (totalEl) totalEl.textContent = total;
  if (mortEl)  { mortEl.textContent = mort; mortEl.style.color = color; }
- if (bkEl)    bkEl.textContent = 'Physiology: ' + physTotal + ' · Age: ' + ageS + ' · Chronic: ' + chronicS;
+ if (bkEl)    bkEl.textContent = 'Physiology: ' + physTotal + ' • Age: ' + ageS + ' • Chronic: ' + chronicS;
  if (intEl)   { intEl.innerHTML = interp; intEl.style.color = color; }
  if (boxEl)   boxEl.style.borderColor = color + '60';
 }
@@ -15964,14 +15980,14 @@ function calcGCS() {
  else if (total >= 9)  { label = '🟡 Moderate — GCS ' + total; color = '#f59e0b'; }
  else if (total >= 4)  {
    label = gcsVerbalIntubated
-     ? '🔴 Severe — GCS ' + total + 'T · Already intubated — optimize sedation/ventilation'
-     : '🔴 Severe — GCS ' + total + ' · Consider intubation';
+     ? '🔴 Severe — GCS ' + total + 'T • Already intubated — optimize sedation/ventilation'
+     : '🔴 Severe — GCS ' + total + ' • Consider intubation';
    color = '#ef4444';
  }
  else {
    label = gcsVerbalIntubated
-     ? '🔴 GCS ' + total + 'T · Already intubated — urgent neuro reassessment'
-     : '🔴 GCS ' + total + ' · Immediate airway management';
+     ? '🔴 GCS ' + total + 'T • Already intubated — urgent neuro reassessment'
+     : '🔴 GCS ' + total + ' • Immediate airway management';
    color = '#ef4444';
  }
  if (gcsVerbalIntubated && total >= 9) label += ' (V estimated — intubated)';
@@ -16072,14 +16088,14 @@ function calcNEWS2() {
  const boxEl    = document.getElementById('news2-result-box');
 
  if (totalEl) totalEl.textContent = total;
- if (bkEl)   bkEl.textContent = 'RR:' + rrS + ' · SpO₂:' + spo2S + ' · O₂:' + o2 + ' · BP:' + sbpS + ' · HR:' + hrS + ' · Temp:' + tmpS + ' · CNS:' + cnsS;
+ if (bkEl)   bkEl.textContent = 'RR:' + rrS + ' • SpO₂:' + spo2S + ' • O₂:' + o2 + ' • BP:' + sbpS + ' • HR:' + hrS + ' • Temp:' + tmpS + ' • CNS:' + cnsS;
 
  const hasSingle3 = [rrS, spo2S, sbpS, hrS, tmpS, cnsS].some(s => s === 3);
  let risk, action, color;
  if (total >= 7 || (hasSingle3 && total >= 5)) {
   risk = '🔴 HIGH Risk'; action = 'Urgent ICU review / escalate immediately'; color = '#ef4444';
  } else if (total >= 5 || hasSingle3) {
-  risk = '🟡 MEDIUM Risk'; action = 'Hourly obs · Senior review'; color = '#f59e0b';
+  risk = '🟡 MEDIUM Risk'; action = 'Hourly obs • Senior review'; color = '#f59e0b';
  } else {
   risk = '✅ LOW Risk'; action = '4–6 hrly observations'; color = '#10b981';
  }
@@ -16117,7 +16133,7 @@ function calcBrainDeath() {
 
  if (allMet) {
   summary = '🔴 BD/DNC Clinical Criteria Assessment Complete';
-  detail = 'All 4 prerequisites satisfied · All 6 brainstem reflexes absent · Apnoea test positive (PaCO₂ ≥60 mmHg AND ≥20 above baseline AND pH &lt;7.30)<br><strong style="color:#ef4444">This checklist supports — but does NOT constitute — a legal determination of death. Formal institutional/legal declaration requires the qualified examiner(s) to independently confirm findings per local protocol (second independent examination, ancillary testing if any confounder present, time-of-death documentation) before organ donation discussion or withdrawal of support.</strong>';
+  detail = 'All 4 prerequisites satisfied • All 6 brainstem reflexes absent • Apnoea test positive (PaCO₂ ≥60 mmHg AND ≥20 above baseline AND pH &lt;7.30)<br><strong style="color:#ef4444">This checklist supports — but does NOT constitute — a legal determination of death. Formal institutional/legal declaration requires the qualified examiner(s) to independently confirm findings per local protocol (second independent examination, ancillary testing if any confounder present, time-of-death documentation) before organ donation discussion or withdrawal of support.</strong>';
   color = '#ef4444'; borderColor = '#ef444460';
  } else if (!allPre) {
   summary = '⏸ Prerequisites Incomplete (' + prereqs + '/4)';
@@ -16435,7 +16451,7 @@ function calcGOLD() {
   gradeEl.textContent = grade + ' — ' + desc + ' (FEV1 ' + fev1.toFixed(0) + '%)';
   gradeEl.style.color = color;
 
-  verdictEl.textContent = grade + desc[0] + ' · Group ' + group;
+  verdictEl.textContent = grade + desc[0] + ' • Group ' + group;
   verdictEl.style.color = color;
   detailEl.innerHTML = 'Airflow obstruction confirmed (FEV1/FVC ' + ratio.toFixed(2) + ') → <strong>' + grade + ' (' + desc + ')</strong>. Symptom/exacerbation profile → <strong>Group ' + group + '</strong>' +
     (group === 'E' ? ' — high exacerbation risk, escalate maintenance therapy regardless of symptom burden.' :
@@ -16635,10 +16651,10 @@ function calcDKA() {
     if (isOverlap) {
       diagnosis = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> DKA + HHS Overlap';
       color = '#f97316'; borderColor = '#f9731660';
-      criteria = '✅ High glucose (&ge;33.3) · ✅ High eff. osmolality (>300) · ✅ Acidosis (pH&lt;7.30 and/or HCO₃&lt;18) · ✅ Ketonaemia present';
+      criteria = '✅ High glucose (&ge;33.3) • ✅ High eff. osmolality (>300) • ✅ Acidosis (pH&lt;7.30 and/or HCO₃&lt;18) • ✅ Ketonaemia present';
       management = `<strong style="color:#f97316">Treat as DKA primarily.</strong><br>
 IV 0.9% NaCl — correct volume deficit carefully (avoid rapid osmolality drop)<br>
-IV Actrapid infusion 0.1 unit/kg/hr · Add 5–10% dextrose when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin<br>
+IV Actrapid infusion 0.1 unit/kg/hr • Add 5–10% dextrose when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin<br>
 Check K⁺ — replace before starting insulin if &lt;3.5 mEq/L<br>
 Monitor osmolality 4-hourly — target drop &lt;3 mOsm/kg/hr<br>
 <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Rapid osmolality correction risks cerebral oedema`;
@@ -16652,8 +16668,8 @@ Monitor osmolality 4-hourly — target drop &lt;3 mOsm/kg/hr<br>
       if (preg)  flags.push('Pregnancy ✔');
       if (t1dm)  flags.push('T1DM ✔');
 
-      criteria = `✅ Glucose &lt;11.1 mmol/L · ✅ pH &lt;7.30 and/or HCO₃ &lt;18 · ✅ Ketonaemia present${ag > 0 ? ` · AG ${ag.toFixed(0)} (supportive)` : ''}`;
-      if (flags.length) criteria += `<br><span style="color:var(--accent);font-weight:600">Trigger: ${flags.join(' · ')}</span>`;
+      criteria = `✅ Glucose &lt;11.1 mmol/L • ✅ pH &lt;7.30 and/or HCO₃ &lt;18 • ✅ Ketonaemia present${ag > 0 ? ` • AG ${ag.toFixed(0)} (supportive)` : ''}`;
+      if (flags.length) criteria += `<br><span style="color:var(--accent);font-weight:600">Trigger: ${flags.join(' • ')}</span>`;
 
       management = `<strong style="color:var(--accent)">Do NOT be misled by normal glucose.</strong><br>
 IV Actrapid 0.05–0.1 unit/kg/hr<br>
@@ -16661,7 +16677,7 @@ Start 5–10% Dextrose infusion immediately (glucose normal — still needs insu
 IV 0.9% NaCl — volume replacement<br>
 K⁺ replacement — check hourly initially<br>
 Hold SGLT2i immediately and do not restart until fully recovered<br>
-Target: ketones &lt;0.6 mmol/L · (pH &ge;7.30 or HCO₃ &ge;18) before stopping insulin`;
+Target: ketones &lt;0.6 mmol/L • (pH &ge;7.30 or HCO₃ &ge;18) before stopping insulin`;
     }
     else if (isDKA) {
       // DKA severity — 2024 consensus: multi-parameter (pH, HCO3, ketones, mental status), not pH alone
@@ -16677,26 +16693,26 @@ Target: ketones &lt;0.6 mmol/L · (pH &ge;7.30 or HCO₃ &ge;18) before stopping
       color = '#ef4444'; borderColor = '#ef444460';
       severity = `<span style="color:${sevColor}">${sev}</span>`;
 
-      criteria = `✅ Glucose &ge;11.1 mmol/L · ✅ pH &lt;7.30 and/or HCO₃ &lt;18 · ✅ Ketonaemia${ag > 0 ? ` · AG ${ag.toFixed(0)} (supportive)` : ''}`;
+      criteria = `✅ Glucose &ge;11.1 mmol/L • ✅ pH &lt;7.30 and/or HCO₃ &lt;18 • ✅ Ketonaemia${ag > 0 ? ` • AG ${ag.toFixed(0)} (supportive)` : ''}`;
 
       management = `<strong style="color:#ef4444">ICU/HDU management:</strong><br>
-IV 0.9% NaCl: 1L over 1st hr · then 500ml/hr × 2h · then 250ml/hr (reassess)<br>
+IV 0.9% NaCl: 1L over 1st hr • then 500ml/hr × 2h • then 250ml/hr (reassess)<br>
 IV Actrapid infusion: 0.1 unit/kg/hr (fixed rate) — do NOT bolus<br>
 K⁺ replacement: if K &lt;3.5 → hold insulin, give ~10 mmol/hr KCl until K&gt;3.5; K 3.5–5.5 → add 20–30 mmol KCl per litre IV fluid; K &gt;5.5 → hold K<br>
 Switch to 5% Dextrose + 0.45% NaCl when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin until ketosis resolves<br>
 Bicarbonate: only if pH &lt;6.9 (100 mEq NaHCO₃ over 2h)<br>
-Target resolution: ketones &lt;0.6 · (pH &ge;7.30 or HCO₃ &ge;18)`;
+Target resolution: ketones &lt;0.6 • (pH &ge;7.30 or HCO₃ &ge;18)`;
     }
     else if (isHHS) {
       diagnosis = '🔵 Hyperglycaemic Hyperosmolar State (HHS)';
       color = '#06b6d4'; borderColor = '#06b6d460';
-      criteria = `✅ Glucose ≥33.3 mmol/L (≥600 mg/dL) · ✅ Eff. osmolality >300 · ✅ Ketonaemia absent/trace · ✅ pH &ge;7.30 and HCO₃ &ge;15 (absence of acidosis)`;
+      criteria = `✅ Glucose ≥33.3 mmol/L (≥600 mg/dL) • ✅ Eff. osmolality >300 • ✅ Ketonaemia absent/trace • ✅ pH &ge;7.30 and HCO₃ &ge;15 (absence of acidosis)`;
 
       const amsMsg = dkaAMS !== 'alert' ? `<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> AMS/coma present — consistent with severe HHS` : '';
 
       management = `<strong style="color:var(--accent)">Volume replacement is primary therapy:</strong><br>
 Average fluid deficit: 9–10 litres (replace over 24–48h — NOT rapidly)<br>
-IV 0.9% NaCl: 1L over 1st hr · then titrate (250–500ml/hr based on response)<br>
+IV 0.9% NaCl: 1L over 1st hr • then titrate (250–500ml/hr based on response)<br>
 Target osmolality drop: &lt;3 mOsm/kg/hr — risk cerebral oedema if faster<br>
 IV Actrapid: start only after adequate volume — 0.05 unit/kg/hr; add dextrose when glucose &lt;15 mmol/L<br>
 K⁺ replacement: always — total body deficit severe despite apparent normoK<br>
@@ -16714,7 +16730,7 @@ ${amsMsg}`;
       diagnosis = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Possible Starvation Ketosis / Alcoholic KA';
       color = '#f59e0b'; borderColor = '#f59e0b40';
       criteria = 'AG not elevated — consider starvation ketosis, AKA, or mixed picture';
-      management = `Check for alcohol history · check lactate · if AKA: IV dextrose + thiamine`;
+      management = `Check for alcohol history • check lactate • if AKA: IV dextrose + thiamine`;
     } else if (glucVeryHigh && !osmHigh) {
       diagnosis = '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Severe Hyperglycaemia — HHS criteria not fully met';
       color = '#06b6d4'; borderColor = '#06b6d440';

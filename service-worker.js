@@ -1,4 +1,4 @@
-// ═══ iCU Calc — Service Worker (v65, cache-first + silent revalidate) ═══
+// ═══ iCU Calc — Service Worker (v66, cache-first + silent revalidate) ═══
 // Strategy: cache-first for instant, always-works opens. Every request
 // (navigation, app-shell, cross-origin) is answered from cache immediately
 // if a cached copy exists — no waiting on the network, and it works with
@@ -10,7 +10,7 @@
 // request wait on the network (there is nothing else to serve yet).
 // Every activation nukes ANY cache that isn't the current version — no
 // accumulation of old app-shell caches ever.
-const VERSION = 'v65';
+const VERSION = 'v66';
 const CACHE_NAME = 'icu-calc-' + VERSION;
 
 const APP_SHELL = [
@@ -24,7 +24,8 @@ const APP_SHELL = [
   './icon-152x152.png',
   './icon-192x192.png',
   './icon-384x384.png',
-  './icon-512x512.png'
+  './icon-512x512.png',
+  './icon-1024x1024.png'
 ];
 
 self.addEventListener('install', (event) => {
