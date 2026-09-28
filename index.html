@@ -337,7 +337,7 @@ body:not([data-theme="light"]) .tab-btn.active {
      and iOS fonts). Colour comes from the inline `color`. Layout width is still 6px so the
      title text does not move; the ring is centred on the old dot's centre. */
   width: 9.5px; height: 9.5px;
-  margin-top: 4.9px; margin-left: -0.75px; margin-right: -1.75px; margin-bottom: 0;
+  margin-top: 4.65px; margin-left: -0.75px; margin-right: -1.75px; margin-bottom: 0;
   flex-shrink: 0; border-radius: 50%;
   background: radial-gradient(circle closest-side, currentColor 0 57%, transparent 60% 79%, currentColor 82% 100%);
 }
@@ -3079,7 +3079,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-nac">
  <div class="drug-header" onclick="toggleCard('nac')">
  <div class="drug-dot" style="color:#eab308"></div>
- <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:13px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" style="position:relative;top:4px" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
+ <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:12px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" style="position:relative;top:4px" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308;position:relative;top:-2px" id="rate-nac">&mdash;</div><div class="rate-unit" style="position:relative;top:-2px">mg/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -11468,7 +11468,7 @@ function eiwSwitchPO4(which){
      <div style="display:flex;align-items:flex-start;margin-top:10px">
       <strong style="color:var(--text-strong);flex:0 0 auto">3.&nbsp;</strong>
       <div style="flex:1">
-       <strong style="color:var(--text-strong)">Adenosine (Peripheral Line — standard, incl. patients on CCB/BB):</strong><br>
+       <strong style="color:var(--text-strong)">Adenosine (Peripheral Line — standard, including patients on CCB/BB):</strong><br>
        6mg rapid IV + 20ml NS flush → wait 1–2 min → 12mg<br>
        → wait 1–2 min → 12mg<br>
        <strong style="color:var(--text-strong)">Adenosine (Central Line — reduced dose):</strong><br>
@@ -11482,7 +11482,7 @@ function eiwSwitchPO4(which){
     </div>
    </div>
    <div style="background:var(--surface-deep);border-radius: 4px;padding:8px 2px">
-    <div style="font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text-muted);margin-bottom:5px"><span class="ring-dot"></span> ADENOSINE DOSES</div>
+    <div style="font-size:11.5px;font-weight:700;letter-spacing:1.2px;color:var(--text-strong);margin-bottom:5px">■ <span style="text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:1.5px">Adenosine Dosing Regimen</span></div>
     <div style="font-size:11.5px;color:var(--text-muted);line-height:1.85">
      Peripheral vein: <strong style="color:var(--text-strong)">6 → 12 → 12mg</strong><br>
      Central / CCB / BB: <strong style="color:var(--text-strong)">3 → 6 → 6mg</strong><br>
