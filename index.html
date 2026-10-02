@@ -500,6 +500,8 @@ input[type=range]::-moz-range-progress {
   width: 4px;
   background: var(--accent);
 }
+.drug-ref { margin-top: 6px; font-size: 10px; color: var(--text-faint); line-height: 1.6; }
+.drug-ref a { color: var(--accent); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
 .ref-info-btn {
   display: inline-flex; align-items: center; justify-content: center;
   width: 15px; height: 15px; border-radius: 50%;
@@ -2983,6 +2985,23 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  </div>
  <div class="note-box">6 amp + 482ml 5% DA = 500ml = 900mg (1.8mg/ml) | 1 amp = 3ml = 150mg | Use 5% DA only | FDA-labelled safe range 1&ndash;6mg/ml (&gt;2mg/ml requires central line)<br><strong>N.B.</strong> Continuous ECG/BP monitoring. Reduce or stop for clinically significant bradycardia, hypotension, or other toxicity — no fixed HR cutoff.</div>
+ </div>
+ </div>
+ <div class="drug-card" id="card-isop">
+ <div class="drug-header" onclick="toggleCard('isop')">
+ <div class="drug-dot" style="color:#f59e0b"></div>
+ <div style="flex:1"><div class="drug-name">Isoprenaline <span class="brand-name">(Isoproterenol)</span></div><div class="drug-dilution">2 amp (10ml) + 40ml 5% DA &rarr; 50ml (2mg)<br>Conc: 40mcg/ml</div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-isop">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
+ </div>
+ <div class="drug-body">
+ <div class="dose-row">
+ <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#f59e0b"><span id="dv-isop">2</span> mcg/min</span></div>
+ <input type="range" id="range-isop" min="0.5" max="10" step="0.5" value="2" oninput="calcIsop(this.value)" style="accent-color:#f59e0b">
+ <div class="range-limits"><span>0.5</span><span>10</span></div>
+ </div>
+ <div class="note-box">1 amp = 5ml = 1mg | Formula: dose &times; 1.5 = ml/hr<br><strong>Use:</strong> Symptomatic bradycardia / high-grade AV block &mdash; bridge to pacing. Not first line: use only if unresponsive to atropine<br><strong>Dose:</strong> Start 0.5&ndash;2 mcg/min | Usual 2&ndash;10 mcg/min | &uarr; 0.5&ndash;1 every 2&ndash;3 min | Titrate to lowest dose giving HR ~50&ndash;60<br><strong>Avoid:</strong> Tachyarrhythmias &bull; Digoxin toxicity &bull; Angina / recent MI &bull; Concurrent adrenaline<br><strong>N.B.</strong> 5% DA preferred (NS acceptable) | Central line preferred | Continuous ECG/BP | Monitor K<sup>+</sup>, Mg<sup>2+</sup> | Reduce/stop if tachyarrhythmia, ischaemia or hypotension</div>
+ <div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;letter-spacing:0.3px">&#9472; Not weight-based</div>
+ <div class="drug-ref">Ref: <a href="https://drug.wellingtonicu.com/search/?id=isoprenaline-hydrochloride" target="_blank" rel="noopener">Wellington ICU manual</a>, <a href="https://www.dbth.nhs.uk/wp-content/uploads/2023/01/Guideline-for-the-administration-of-intravenous-isoprenaline-nov-update-22-new-product.pdf" target="_blank" rel="noopener">NHS.UK</a>, <a href="https://www.ncbi.nlm.nih.gov/books/NBK526042/" target="_blank" rel="noopener">NCBI</a>, <a href="https://www.medicines.org.uk/emc/product/101455/smpc" target="_blank" rel="noopener">Medicines.Org</a></div>
  </div>
  </div>
  </div>
@@ -12280,6 +12299,13 @@ function calcGTN(dose) {
  document.getElementById('rate-gtn').textContent = rate;
 }
 
+function calcIsop(dose) {
+ // 2mg in 50ml = 40 mcg/ml → ml/hr = mcg/min × 60 ÷ 40 = mcg/min × 1.5
+ const d = parseFloat(dose);
+ document.getElementById('dv-isop').textContent = d;
+ document.getElementById('rate-isop').textContent = (d * 1.5).toFixed(2);
+}
+
 function calcLasix(dose) {
  const rate = (parseFloat(dose) / 2).toFixed(1);
  document.getElementById('dv-lasix').textContent = dose;
@@ -12398,6 +12424,7 @@ function updateAll() {
   if (g('range-thio')) calcThio();
   if (g('range-ket')) calcInfusion('ket', g('range-ket'), 60, 10000, 'mcg/kg/min');
   if (g('range-gtn')) calcGTN(g('range-gtn'));
+  if (g('range-isop')) calcIsop(g('range-isop'));
   if (g('range-lasix')) calcLasix(g('range-lasix'));
   if (g('range-somato')) calcInfusion('somato', g('range-somato'), 1, 60, 'mcg/kg/hr');
   if (g('range-octreo')) calcOctreo(g('range-octreo'));
