@@ -2104,7 +2104,7 @@ ul.vent-facts code{
   background: var(--bg);
   border-top: none;
   display: flex; align-items: center; gap: 8px;
-  padding: 4px calc(10px + env(safe-area-inset-right)) calc(14px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
+  padding: 4px calc(10px + env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) calc(10px + env(safe-area-inset-left));
   margin-top: 0;
   flex-shrink: 0;
 }
@@ -17080,9 +17080,9 @@ function syncSpecialGaps() {
 
   var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   var eyebrowBottom = eyebrow.getBoundingClientRect().bottom;
-  var footerH = footer.offsetHeight;
-  var used = tabBar.offsetHeight;
-  kids.forEach(function (k) { used += k.offsetHeight; });
+  var footerH = footer.getBoundingClientRect().height;
+  var used = tabBar.getBoundingClientRect().height;
+  kids.forEach(function (k) { used += k.getBoundingClientRect().height; });
 
   // Gap slots: subtitle→tab-bar, tab-bar→1st row, (N-1) between rows, last row→footer = N+2
   var gapCount = kids.length + 2;
@@ -17100,9 +17100,29 @@ function syncSpecialGaps() {
   var kidOffsets = kids.map(function (_, i) { return i === 0 ? -8 : 1; });
   var footerOffset = 3;
 
-  tabBar.style.marginTop = gap + 'px';
-  kids.forEach(function (k, i) { k.style.marginTop = Math.max(SPECIAL_GAP_MIN, gap + kidOffsets[i]) + 'px'; });
-  footer.style.marginTop = Math.max(SPECIAL_GAP_MIN, gap + footerOffset) + 'px';
+  function applySpecialGaps(g) {
+    tabBar.style.marginTop = g + 'px';
+    kids.forEach(function (k, i) { k.style.marginTop = Math.max(SPECIAL_GAP_MIN, g + kidOffsets[i]) + 'px'; });
+    footer.style.marginTop = Math.max(SPECIAL_GAP_MIN, g + footerOffset) + 'px';
+  }
+  applySpecialGaps(gap);
+
+  // Self-correcting pass (same idea as Cardio/Defib): measure where the footer REALLY ended
+  // up and spread any leftover/overshoot, so the footer sits exactly on the screen's bottom
+  // edge instead of 2-3px past it (which also made Special's footer gap differ from Defib's).
+  var fitsHere = (spaceForGapsAndContent - used) / gapCount >= SPECIAL_GAP_MIN;
+  if (fitsHere) {
+    var bodyPad = parseFloat(getComputedStyle(document.body).paddingBottom) || 0;
+    var slack = viewportH - 0.5 - (footer.getBoundingClientRect().bottom + (window.pageYOffset || 0) + bodyPad);
+    if (isFinite(slack) && Math.abs(slack) > 0.3) {
+      gap = Math.max(SPECIAL_GAP_MIN, gap + slack / gapCount);
+      applySpecialGaps(gap);
+      slack = viewportH - 0.5 - (footer.getBoundingClientRect().bottom + (window.pageYOffset || 0) + bodyPad);
+      if (isFinite(slack) && Math.abs(slack) > 0.3) {   // clamped slots: hand the remainder to the footer slot
+        footer.style.marginTop = Math.max(0, parseFloat(footer.style.marginTop) + slack) + 'px';
+      }
+    }
+  }
 }
 
 function scheduleSpecialCompactFit() {
@@ -17125,6 +17145,23 @@ window.addEventListener('pageshow', scheduleSpecialCompactFit);
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'visible') scheduleSpecialCompactFit();
 });
+window.addEventListener('load', function () {
+  scheduleSpecialCompactFit();
+  setTimeout(scheduleSpecialCompactFit, 350);
+  setTimeout(scheduleSpecialCompactFit, 1200);
+});
+if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleSpecialCompactFit);
+(function observeSpecialLayout() {
+  if (!window.ResizeObserver) return;
+  function start() {
+    var ro = new ResizeObserver(function () { scheduleSpecialCompactFit(); });
+    ['.app-header', '.tab-bar', '.app-footer'].forEach(function (s) {
+      var el = document.querySelector(s); if (el) ro.observe(el);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
 
 /* ── Cardio/Defib: identical equal-gap "everything fits" layout as Special
    Calc above — same math, applied to #tab-defib's direct children (ECG
