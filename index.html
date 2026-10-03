@@ -17206,6 +17206,7 @@ function syncDefibGaps() {
   var space = viewportH - eyebrowBottom - footerH - 1;   // 1px safety so sub-pixel rounding never causes a 1px scroll
   var gap = (space - usedHeight()) / gapCount;
   var squeezed = false;
+  var fallback = false;
   if (!isFinite(gap)) gap = DEFIB_GAP_MIN;
 
   if (gap < DEFIB_GAP_MIN) {
@@ -17228,19 +17229,38 @@ function syncDefibGaps() {
       } else {
         // can't fit even fully squeezed (e.g. ECG sheet expanded) → normal scrolling layout
         gap = DEFIB_GAP_MIN;
+        fallback = true;
       }
     } else {
       gap = DEFIB_GAP_MIN;
+      fallback = true;
     }
   }
 
-  tabBar.style.marginTop = gap + 'px';
-  // 5px less above the first card (tab-bar -> "10 ECG Emergencies"), 5px more above the
-  // footer; the offset shrinks with the gap so the two always cancel out exactly.
-  var floor = squeezed ? 0 : DEFIB_GAP_MIN;
-  var d = Math.max(0, Math.min(5, gap - floor));
-  kids.forEach(function (k, i) { k.style.marginTop = (i === 0 ? gap - d : gap) + 'px'; });
-  footer.style.marginTop = (gap + d) + 'px';
+  function applyGaps(g) {
+    tabBar.style.marginTop = g + 'px';
+    // 5px less above the first card (tab-bar -> "10 ECG Emergencies"), 5px more above the
+    // footer; the offset shrinks with the gap so the two always cancel out exactly.
+    var floor = squeezed ? 0 : DEFIB_GAP_MIN;
+    var d = Math.max(0, Math.min(5, g - floor));
+    kids.forEach(function (k, i) { k.style.marginTop = (i === 0 ? g - d : g) + 'px'; });
+    footer.style.marginTop = (g + d) + 'px';
+  }
+  applyGaps(gap);
+
+  // Self-correcting pass: measure where the footer REALLY ended up and spread any leftover
+  // (or overshoot) equally over all gap slots. This makes the result independent of whatever
+  // made the first estimate wrong (late web-font swap, iOS viewport settling, safe-area
+  // padding, etc.), so a fresh load ends up identical to a re-fit after toggling a card.
+  if (!fallback) {
+    var bodyPad = parseFloat(getComputedStyle(document.body).paddingBottom) || 0;
+    var docBottom = footer.getBoundingClientRect().bottom + (window.pageYOffset || 0) + bodyPad;
+    var slack = viewportH - 0.5 - docBottom;
+    if (isFinite(slack) && Math.abs(slack) > 0.3) {
+      gap = Math.max(0, gap + slack / gapCount);
+      applyGaps(gap);
+    }
+  }
 }
 
 function scheduleDefibCompactFit() {
@@ -17258,6 +17278,39 @@ window.addEventListener('pageshow', scheduleDefibCompactFit);
 document.addEventListener('visibilitychange', function () {
   if (document.visibilityState === 'visible') scheduleDefibCompactFit();
 });
+
+/* Re-fit whenever anything that feeds the math changes size — this is what makes a cold
+   start (web fonts still swapping in, iOS viewport still settling) land on the same equal
+   gaps as a manual re-fit, without needing to expand/collapse a card first. */
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(function () { scheduleDefibCompactFit(); });
+}
+if (document.fonts && document.fonts.addEventListener) {
+  document.fonts.addEventListener('loadingdone', function () { scheduleDefibCompactFit(); });
+}
+window.addEventListener('load', function () {
+  scheduleDefibCompactFit();
+  setTimeout(scheduleDefibCompactFit, 350);
+  setTimeout(scheduleDefibCompactFit, 1200);
+});
+if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleDefibCompactFit);
+(function observeDefibLayout() {
+  if (!window.ResizeObserver) return;
+  function start() {
+    var tabEl = document.getElementById('tab-defib');
+    if (!tabEl) return;
+    var ro = new ResizeObserver(function () { scheduleDefibCompactFit(); });
+    ['.app-header', '.tab-bar', '.app-footer'].forEach(function (s) {
+      var el = document.querySelector(s); if (el) ro.observe(el);
+    });
+    Array.prototype.forEach.call(tabEl.children, function (k) {
+      var tt = k.querySelector(':scope > .calc-title');
+      ro.observe(tt || k);          // title bars only: card BODIES changing is handled by toggleCalc
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
 
 /* ── Special Calc: Pin / Favorite system ── */
 var SPECIAL_FAV_KEY = 'special-calc-favs-v1';
