@@ -502,6 +502,9 @@ input[type=range]::-moz-range-progress {
 }
 .drug-ref { margin-top: 6px; font-size: 10px; color: var(--text-faint); line-height: 1.6; }
 .drug-ref a { color: var(--accent); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+#card-isop .note-box .np + .np { margin-top: 4px; }
+#card-isop .drug-ref a { text-decoration: none; }
+.dose-label .nwb { font-size: inherit; color: var(--text-faint); margin-left: 4px; }
 .ref-info-btn {
   display: inline-flex; align-items: center; justify-content: center;
   width: 15px; height: 15px; border-radius: 50%;
@@ -825,6 +828,19 @@ input[type=range]::-moz-range-progress {
 }
 #tab-defib > .calc-card > .calc-body { padding-left: 2px !important; padding-right: 2px !important; text-align: justify; }
 .calc-card.is-expanded > .calc-title .special-cat-chevron { transform: rotate(0deg); }
+
+
+
+/* ── ECG sheet pager: 5-row window (swipe up/down to slide), tap to expand all 10 ── */
+#ecgEmergImgWrap {
+  overflow: hidden; position: relative; cursor: pointer;
+  height: calc(100vw * 504.2 / 783);
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none; user-select: none;
+}
+#ecgEmergImgWrap > svg { will-change: transform; }
+#ecgEmergImgWrap.ecg-anim { transition: height .38s cubic-bezier(.22,.8,.3,1); }
+#ecgEmergImgWrap.ecg-anim > svg { transition: transform .38s cubic-bezier(.22,.8,.3,1); }
 
 /* ── Calc Fields ── */
 .field-row { margin-bottom: 10px; }
@@ -2737,12 +2753,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-vaso">
  <div class="drug-header" onclick="toggleCard('vaso')">
  <div class="drug-dot" style="color:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Vasopressin</div><div class="drug-dilution">1 ampule (20units) + 50ml NS &rarr; 50ml<br>Conc: 0.4units/ml | NOT weight-based</div></div>
+ <div style="flex:1"><div class="drug-name">Vasopressin</div><div class="drug-dilution">1 ampule (20units) + 50ml NS &rarr; 50ml<br>Conc: 0.4units/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-vaso">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="dose-row">
- <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#ef4444"><span id="dv-vaso">0.02</span> units/min</span></div>
+ <div class="dose-label"><span>Dose <span class="nwb">(&#9472; not Weight based)</span></span><span class="dose-val" style="color:#ef4444"><span id="dv-vaso">0.02</span> units/min</span></div>
  <input type="range" id="range-vaso" min="0.01" max="0.04" step="0.01" value="0.02" oninput="calcVaso(this.value)" style="accent-color:#ef4444">
  <div class="range-limits"><span>0.01</span><span>0.04</span></div>
  </div>
@@ -2962,12 +2978,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-body">
  <div class="dose-row">
- <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#f59e0b"><span id="dv-gtn">30</span> mcg/min</span></div>
+ <div class="dose-label"><span>Dose <span class="nwb">(&#9472; not Weight based)</span></span><span class="dose-val" style="color:#f59e0b"><span id="dv-gtn">30</span> mcg/min</span></div>
  <input type="range" id="range-gtn" min="10" max="200" step="10" value="30" oninput="calcGTN(this.value)" style="accent-color:#f59e0b">
  <div class="range-limits"><span>10</span><span>200</span></div>
  </div>
  <div class="note-box">1 amp = 10ml = 50mg | Formula: (dose &times; 60) &divide; 1000</div>
- <div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;letter-spacing:0.3px">&#9472; Not weight-based</div>
  </div>
  </div>
  <div class="drug-card" id="card-amio">
@@ -2995,13 +3010,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  </div>
  <div class="drug-body">
  <div class="dose-row">
- <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#f59e0b"><span id="dv-isop">2</span> mcg/min</span></div>
+ <div class="dose-label"><span>Dose <span class="nwb">(&#9472; not Weight based)</span></span><span class="dose-val" style="color:#f59e0b"><span id="dv-isop">2</span> mcg/min</span></div>
  <input type="range" id="range-isop" min="0.5" max="10" step="0.5" value="2" oninput="calcIsop(this.value)" style="accent-color:#f59e0b">
  <div class="range-limits"><span>0.5</span><span>10</span></div>
  </div>
- <div class="note-box">1 amp = 5ml = 1mg | Formula: dose &times; 1.5 = ml/hr<br><strong>Use:</strong> Symptomatic bradycardia / high-grade AV block &mdash; bridge to pacing. Not first line: use only if unresponsive to atropine<br><strong>Dose:</strong> Start 0.5&ndash;2 mcg/min | Usual 2&ndash;10 mcg/min | &uarr; 0.5&ndash;1 every 2&ndash;3 min | Titrate to lowest dose giving HR ~50&ndash;60<br><strong>Avoid:</strong> Tachyarrhythmias &bull; Digoxin toxicity &bull; Angina / recent MI &bull; Concurrent adrenaline<br><strong>N.B.</strong> 5% DA preferred (NS acceptable) | Central line preferred | Continuous ECG/BP | Monitor K<sup>+</sup>, Mg<sup>2+</sup> | Reduce/stop if tachyarrhythmia, ischaemia or hypotension</div>
- <div style="font-size:10.5px;color:var(--text-faint);margin-top:6px;letter-spacing:0.3px">&#9472; Not weight-based</div>
- <div class="drug-ref">Ref: <a href="https://drug.wellingtonicu.com/search/?id=isoprenaline-hydrochloride" target="_blank" rel="noopener">Wellington ICU manual</a>, <a href="https://www.dbth.nhs.uk/wp-content/uploads/2023/01/Guideline-for-the-administration-of-intravenous-isoprenaline-nov-update-22-new-product.pdf" target="_blank" rel="noopener">NHS.UK</a>, <a href="https://www.ncbi.nlm.nih.gov/books/NBK526042/" target="_blank" rel="noopener">NCBI</a>, <a href="https://www.medicines.org.uk/emc/product/101455/smpc" target="_blank" rel="noopener">Medicines.Org</a></div>
+ <div class="note-box"><div class="np">1 amp = 5ml = 1mg | Formula: dose &times; 1.5 = ml/hr</div><div class="np"><strong>Use:</strong> Symptomatic bradycardia / high-grade AV block &mdash; bridge to pacing. Not first line: use only if unresponsive to atropine</div><div class="np"><strong>Dose:</strong> Start 0.5&ndash;2 mcg/min | Usual 2&ndash;10 mcg/min | &uarr; 0.5&ndash;1 every 2&ndash;3 min | Titrate to lowest dose giving HR ~50&ndash;60</div><div class="np"><strong>Avoid:</strong> Tachyarrhythmias &bull; Digoxin toxicity &bull; Angina / recent MI &bull; Concurrent adrenaline</div><div class="np"><strong>N.B.</strong> 5% DA preferred (NS acceptable) | Central line preferred | Continuous ECG/BP | Monitor K<sup>+</sup>, Mg<sup>2+</sup> | Reduce/stop if tachyarrhythmia, ischaemia or hypotension</div></div>
+ <div class="drug-ref">Ref: <a href="https://drug.wellingtonicu.com/search/?id=isoprenaline" target="_blank" rel="noopener">Wellington ICU Drugs Manual</a>, <a href="https://www.dbth.nhs.uk/wp-content/uploads/2023/01/Guideline-for-the-administration-of-intravenous-isoprenaline-nov-update-22-new-product.pdf" target="_blank" rel="noopener">NHS.UK</a>, <a href="https://www.ncbi.nlm.nih.gov/books/NBK526042/" target="_blank" rel="noopener">NCBI.US</a>, <a href="https://www.safercare.vic.gov.au/clinical-guidance/critical/isoprenaline" target="_blank" rel="noopener">Safer Care Victoria</a></div>
  </div>
  </div>
  </div>
@@ -3010,12 +3024,12 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-octreo">
  <div class="drug-header" onclick="toggleCard('octreo')">
  <div class="drug-dot" style="color:#a78bfa"></div>
- <div style="flex:1"><div class="drug-name">Octreotide</div><div class="drug-dilution">1000mcg (1mg) + NS &rarr; 50ml<br>Conc: 20mcg/ml | NOT weight-based</div></div>
+ <div style="flex:1"><div class="drug-name">Octreotide</div><div class="drug-dilution">1000mcg (1mg) + NS &rarr; 50ml<br>Conc: 20mcg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-octreo">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="dose-row">
- <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#a78bfa"><span id="dv-octreo">50</span> mcg/hr</span></div>
+ <div class="dose-label"><span>Dose <span class="nwb">(&#9472; not Weight based)</span></span><span class="dose-val" style="color:#a78bfa"><span id="dv-octreo">50</span> mcg/hr</span></div>
  <input type="range" id="range-octreo" min="25" max="50" step="25" value="50" oninput="calcOctreo(this.value)" style="accent-color:#a78bfa">
  <div class="range-limits"><span>25</span><span>50</span></div>
  </div>
@@ -10960,7 +10974,7 @@ function eiwSwitchPO4(which){
 <text y="578.0" font-size="14.6" fill="var(--ecg-text,#222222)"><tspan x="11.00" letter-spacing="0.60">V1–V3</tspan><tspan x="68.30" letter-spacing="0.60">with</tspan><tspan x="107.13" letter-spacing="0.60">T</tspan><tspan x="127.12" letter-spacing="0.60">wave</tspan></text>
 <text y="595.0" font-size="14.6" fill="var(--ecg-text,#222222)"><tspan x="11.00">inversion</tspan></text>
 </g>
-<g class="ecg-seps"><line x1="0" x2="783" y1="13.5" y2="13.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="116.5" y2="116.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="223" y2="223" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="313.5" y2="313.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="407.5" y2="407.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="503.5" y2="503.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="597.5" y2="597.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="694" y2="694" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="797.5" y2="797.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="891.5" y2="891.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="0" x2="783" y1="984" y2="984" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/></g>
+<g class="ecg-seps"><line x1="9" x2="774" y1="13.5" y2="13.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="116.5" y2="116.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="223" y2="223" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="313.5" y2="313.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="407.5" y2="407.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="503.5" y2="503.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="597.5" y2="597.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="694" y2="694" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="797.5" y2="797.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="891.5" y2="891.5" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/><line x1="9" x2="774" y1="984" y2="984" stroke="var(--ecg-sep,#9aa1ab)" stroke-width="1.4"/></g>
 </svg>
   </div>
 
@@ -17581,6 +17595,98 @@ try { hgInit(); } catch(e) {}
     clearTimeout(_rzTimer);
     _rzTimer = setTimeout(equalizeFooterLines, 150);
   });
+})();
+
+/* ── ECG sheet pager ──
+   Default: first 5 rows. Swipe up -> top 5 slide away, last 5 slide in (swipe down reverses).
+   Tap: expand to all 10 (tap again -> back to the 5-row page you were on). */
+(function () {
+  var W = 783;                     // SVG viewBox width
+  var PAGE_A = [0, 504.2];         // rows 1-5  (viewBox y-range)
+  var PAGE_B = [502.8, 990.5];     // rows 6-10
+  var FULL   = [0, 990.5];         // all 10
+  var wrap, svg, lastW = 0, drag = null, suppressUntil = 0;
+  var st = { open: false, page: 0, prev: 0 };
+
+  function range() { return st.open ? FULL : (st.page ? PAGE_B : PAGE_A); }
+  function scale() { return wrap.clientWidth / W; }
+  function apply(animate) {
+    var w = wrap.clientWidth;
+    if (!w) return;
+    var s = w / W, r = range();
+    if (animate) wrap.classList.add('ecg-anim');
+    else { wrap.classList.remove('ecg-anim'); }
+    wrap.style.height = ((r[1] - r[0]) * s) + 'px';
+    svg.style.transform = 'translate3d(0,' + (-r[0] * s) + 'px,0)';
+    lastW = w;
+  }
+  function toggleOpen() {
+    if (!st.open) { st.prev = st.page; st.open = true; apply(true); }
+    else {
+      st.open = false; st.page = st.prev || 0; apply(true);
+      var top = wrap.getBoundingClientRect().top;
+      var card = document.getElementById('calccard-ecgemerg');
+      if (top < 0 && card && card.scrollIntoView) card.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    }
+  }
+  function init() {
+    wrap = document.getElementById('ecgEmergImgWrap');
+    svg = document.getElementById('ecgEmergSvg');
+    if (!wrap || !svg) return;
+    apply(false);
+
+    wrap.addEventListener('click', function () {
+      if (Date.now() < suppressUntil) return;
+      toggleOpen();
+    });
+
+    wrap.addEventListener('touchstart', function (e) {
+      if (st.open || e.touches.length !== 1) { drag = null; return; }
+      var t = e.touches[0];
+      drag = { x: t.clientX, y: t.clientY, t: Date.now(), decided: false, active: false, dy: 0 };
+    }, { passive: true });
+
+    wrap.addEventListener('touchmove', function (e) {
+      if (!drag) return;
+      var t = e.touches[0], dx = t.clientX - drag.x, dy = t.clientY - drag.y;
+      if (!drag.decided) {
+        if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return;
+        drag.decided = true;
+        var vertical = Math.abs(dy) > Math.abs(dx) * 1.2;
+        // only hijack the gesture when it can actually change page; otherwise the page scrolls normally
+        drag.active = vertical && ((st.page === 0 && dy < 0) || (st.page === 1 && dy > 0));
+        if (drag.active) wrap.classList.remove('ecg-anim');
+      }
+      if (!drag.active) return;
+      if (e.cancelable) e.preventDefault();
+      var s = scale(), D = (PAGE_B[0] - PAGE_A[0]) * s;
+      var off = st.page === 0 ? Math.max(-D, Math.min(0, dy)) : Math.max(0, Math.min(D, dy));
+      drag.dy = dy;
+      svg.style.transform = 'translate3d(0,' + (-range()[0] * s + off) + 'px,0)';
+    }, { passive: false });
+
+    function end(e) {
+      if (!drag) return;
+      var d = drag; drag = null;
+      if (!d.active) return;
+      suppressUntil = Date.now() + 450;
+      var adx = Math.abs(d.dy), v = adx / (Date.now() - d.t + 1);
+      var commit = e.type !== 'touchcancel' && (adx > 50 || (adx > 20 && v > 0.5));
+      if (commit) st.page = st.page ? 0 : 1;
+      apply(true);
+    }
+    wrap.addEventListener('touchend', end);
+    wrap.addEventListener('touchcancel', end);
+
+    if (window.ResizeObserver) {
+      new ResizeObserver(function () {
+        if (wrap.clientWidth !== lastW) apply(false);
+      }).observe(wrap);
+    }
+    window.addEventListener('resize', function () { apply(false); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+  else init();
 })();
 
 /* ── "7 ECG Emergencies" card: keep title + caption on one line ── */
