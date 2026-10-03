@@ -17246,25 +17246,35 @@ function syncDefibGaps() {
   var fallback = false;
   if (!isFinite(gap)) gap = DEFIB_GAP_MIN;
 
+  var footerExtra = null;   // squeezed layouts only: see below
   if (gap < DEFIB_GAP_MIN) {
-    // Doesn't fit at the normal minimum gap (short screens, e.g. the S23).
+    // Doesn't fit at the normal minimum gap (short screens, e.g. iPhone SE).
     // Shrink the spacing EQUALLY instead of letting the page scroll:
     // first every gap (down to 0), then the title-bar padding of every card.
-    if (gap >= 0) {
-      squeezed = true;
-    } else if (titles.length) {
-      var shortage = -gap * gapCount;                       // px missing with all gaps at 0
-      var cut = Math.ceil(shortage / (titles.length * 2) * 10) / 10;
-      if (cut <= DEFIB_TITLE_PAD_CUT_MAX) {
-        titles.forEach(function (tt) {
-          var pad = parseFloat(getComputedStyle(tt).paddingTop) || 11;
-          tt.style.paddingTop = (pad - cut) + 'px';
-          tt.style.paddingBottom = (pad - cut) + 'px';
+    //
+    // Footer slot: every card's title bar carries invisible top/bottom padding, so the
+    // VISIBLE gap between two cards is g + 2*pad, while the footer buttons have no such
+    // padding (visible gap = footerMargin + pad). With the gaps squeezed small, that
+    // difference became obvious. So here the footer margin is g + pad, which makes the
+    // last-card→footer gap look the same as the card→card gaps. The shrink loop below
+    // accounts for that extra and trims title padding in 0.1px steps until it all fits.
+    if (titles.length) {
+      var basePads = titles.map(function (tt) { return parseFloat(getComputedStyle(tt).paddingTop) || 11; });
+      var fitted = false;
+      for (var cut = 0; cut <= DEFIB_TITLE_PAD_CUT_MAX + 0.001; cut += 0.1) {
+        titles.forEach(function (tt, i) {
+          tt.style.paddingTop = (basePads[i] - cut) + 'px';
+          tt.style.paddingBottom = (basePads[i] - cut) + 'px';
         });
-        gap = Math.max(0, (space - usedHeight()) / gapCount);
+        var lastPad = basePads[basePads.length - 1] - cut;
+        var g2 = (space - usedHeight() - lastPad) / gapCount;
+        if (g2 >= 0) { gap = g2; footerExtra = lastPad; fitted = true; break; }
+      }
+      if (fitted) {
         squeezed = true;
       } else {
         // can't fit even fully squeezed (e.g. ECG sheet expanded) → normal scrolling layout
+        titles.forEach(function (tt) { tt.style.paddingTop = ''; tt.style.paddingBottom = ''; });
         gap = DEFIB_GAP_MIN;
         fallback = true;
       }
@@ -17280,8 +17290,8 @@ function syncDefibGaps() {
     // footer; the offset shrinks with the gap so the two always cancel out exactly.
     var floor = squeezed ? 0 : DEFIB_GAP_MIN;
     var d = Math.max(0, Math.min(5, g - floor));
-    kids.forEach(function (k, i) { k.style.marginTop = (i === 0 ? g - d : g) + 'px'; });
-    footer.style.marginTop = (g + d) + 'px';
+    kids.forEach(function (k, i) { k.style.marginTop = (i === 0 && footerExtra === null ? g - d : g) + 'px'; });
+    footer.style.marginTop = (footerExtra !== null ? g + footerExtra : g + d) + 'px';
   }
   applyGaps(gap);
 
