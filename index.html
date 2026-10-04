@@ -12763,8 +12763,8 @@ window.addEventListener('load', function() {
 
 function calcCa() {
  const caUnit = window.caUnit || 'si';
- let caRaw  = parseFloat(document.getElementById('ca-val').value)  || 2.0;
- let albRaw = parseFloat(document.getElementById('alb-val').value) || 25;
+ let caRaw  = parseFloat(document.getElementById('ca-val-n').value)  || 2.0;
+ let albRaw = parseFloat(document.getElementById('alb-val-n').value) || 25;
  // Convert to SI for formula
  const ca_si  = caUnit === 'us' ? caRaw / 4.0  : caRaw;   // mg/dL ÷ 4 = mmol/L
  const alb_si = caUnit === 'us' ? albRaw * 10   : albRaw;  // g/dL × 10 = g/L
@@ -13692,7 +13692,7 @@ function calcGanzoni() {
  var wtEl = document.getElementById('ida-wt');
  if (!wtEl) return;
  var w = parseFloat(wtEl.value);
- var hb = parseFloat(document.getElementById('ida-hb').value);
+ var hb = parseFloat(document.getElementById('ida-hb-n').value);
  var target = parseFloat(document.getElementById('ida-target').value);
  var valEl = document.getElementById('ida-ganzoni-val');
  var textEl = document.getElementById('ida-ganzoni-text');
@@ -13718,7 +13718,7 @@ function calcTable() {
  var wtEl = document.getElementById('ida-wt');
  if (!wtEl) return;
  var w = parseFloat(wtEl.value);
- var hb = parseFloat(document.getElementById('ida-hb').value);
+ var hb = parseFloat(document.getElementById('ida-hb-n').value);
  var valEl = document.getElementById('ida-table-val');
  var textEl = document.getElementById('ida-table-text');
  if (!isFinite(w) || !isFinite(hb)) { valEl.textContent='— mg'; textEl.textContent=''; return; }
@@ -13744,7 +13744,7 @@ function calcIron() {
  if (mode === 'direct') {
   tsat = parseFloat(document.getElementById('ida-tsat').value);
  } else {
-  var iron = parseFloat(document.getElementById('ida-iron').value);
+  var iron = parseFloat(document.getElementById('ida-iron-n').value);
   var tibc = parseFloat(document.getElementById('ida-tibc').value);
   tsat = (isFinite(iron) && isFinite(tibc) && tibc > 0) ? (iron/tibc)*100 : NaN;
  }
@@ -13798,7 +13798,7 @@ function calcOral() {
 }
 
 function calcIV() {
- var deficitEl = document.getElementById('ida-iv-deficit');
+ var deficitEl = document.getElementById('ida-iv-deficit-n');
  if (!deficitEl) return;
  var deficit = parseFloat(deficitEl.value);
  var weight = parseFloat(document.getElementById('ida-wt').value);
