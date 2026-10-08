@@ -2301,12 +2301,20 @@ ul.vent-facts code{
 .gs-backdrop {
   position: fixed; inset: 0;
   background: rgba(3,10,16,0.55);
-  backdrop-filter: blur(2px);
   z-index: 470;
   opacity: 0; pointer-events: none;
-  transition: opacity .2s ease;
+  visibility: hidden;
+  /* visibility flips after the fade-out finishes, so the layer is truly gone when idle
+     (iOS WebKit can leave a backdrop-filter layer partly painted at opacity:0). */
+  transition: opacity .2s ease, visibility 0s linear .2s;
 }
-.gs-backdrop.gs-active { opacity: 1; pointer-events: auto; }
+.gs-backdrop.gs-active {
+  opacity: 1; pointer-events: auto;
+  visibility: visible;
+  -webkit-backdrop-filter: blur(2px);
+  backdrop-filter: blur(2px);
+  transition: opacity .2s ease, visibility 0s;
+}
 
 .gs-overlay {
   position: fixed;
