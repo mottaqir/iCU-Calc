@@ -3225,16 +3225,16 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-ins">
  <div class="drug-header" onclick="toggleCard('ins')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Actrapid <span class="brand-name" style="font-size:0.72em">100 IU/ml (Human Insulin R)</span></div><div class="drug-dilution">50units in 50ml NS<br>Conc: 1unit/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Actrapid <span class="brand-name" style="font-size:0.72em">100 IU/ml (Human Insulin R)</span></div><div class="drug-dilution" onclick="event.stopPropagation()"><span class="mini-select" id="mini-ins-units"><button type="button" class="mini-select-trigger" id="mini-ins-units-trigger" onclick="toggleMiniSelect(event,'mini-ins-units')">50 unit</button><span class="mini-select-panel" data-owner="mini-ins-units"><span class="mini-select-option selected" onclick="pickInsUnits(event,50)">50 unit</span><span class="mini-select-option" onclick="pickInsUnits(event,100)">100 unit</span></span></span> in 50ml NS<br>Conc: <span id="ins-conc">1</span> unit/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-ins">6</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="dose-row">
  <div class="dose-label"><span>Rate</span><span class="dose-val" style="color:#10b981"><span id="dv-ins">6</span> units/hr</span></div>
- <input type="range" id="range-ins" min="1" max="10" step="1" value="6" oninput="calcFixed('ins',this.value)" style="accent-color:#10b981">
+ <input type="range" id="range-ins" min="1" max="10" step="1" value="6" oninput="calcIns(this.value)" style="accent-color:#10b981">
  <div class="range-limits"><span>1</span><span>10</span></div>
  </div>
- <div class="note-box">1ml = 1unit | Rate ml/hr = units/hr directly<br>Before stopping IV insulin, give SC basal insulin (glargine/detemir or NPH) 1&ndash;2 hrs early &mdash; don't stop IV right after one SC dose. Basal dose &asymp; 50&ndash;80% of total insulin given in last 24h. Stopping IV too soon can cause blood sugar to rebound high.<span class="ref-info-btn" onclick="toggleRef('ref-ins')">i</span><div class="ref-popup" id="ref-ins">Ref: ADA Consensus Report, Diabetologia 2024 <span class="bl"></span> SCCM Insulin Infusion Guidelines, Crit Care Med 2012</div></div>
+ <div class="note-box"><span id="ins-note-1">1ml = 1 unit | Rate ml/hr = units/hr directly</span><br>Before stopping IV insulin, give SC basal insulin (glargine/detemir or NPH) 1&ndash;2 hrs early &mdash; don't stop IV right after one SC dose. Basal dose &asymp; 50&ndash;80% of total insulin given in last 24h. Stopping IV too soon can cause blood sugar to rebound high.<span class="ref-info-btn" onclick="toggleRef('ref-ins')">i</span><div class="ref-popup" id="ref-ins">Ref: ADA Consensus Report, Diabetologia 2024 <span class="bl"></span> SCCM Insulin Infusion Guidelines, Crit Care Med 2012</div></div>
  </div>
  </div>
  </div>
@@ -12830,6 +12830,27 @@ function pickKclAmp(e, amp) {
  window.kclRate = (amp * 20) / 5; kclRender(); // reset to the default 5-hr rate
 }
 
+function calcIns(val) {
+ // 50 unit in 50ml = 1 unit/ml; 100 unit in 50ml = 2 unit/ml. Rate (ml/hr) = units/hr / conc.
+ const conc = (window.insUnits === 100) ? 2 : 1;
+ const rate = parseFloat(val) / conc;
+ document.getElementById('dv-ins').textContent = val;
+ document.getElementById('rate-ins').textContent = Number.isInteger(rate) ? rate : rate.toFixed(1);
+}
+function pickInsUnits(e, units) {
+ e.stopPropagation();
+ window.insUnits = units;
+ const trig = document.getElementById('mini-ins-units-trigger');
+ if (trig) trig.textContent = units + ' unit';
+ const c = document.getElementById('ins-conc'), n = document.getElementById('ins-note-1');
+ if (c) c.textContent = units / 50;
+ if (n) n.textContent = (units === 100) ? '1ml = 2 units | Rate ml/hr = units/hr \u00f7 2' : '1ml = 1 unit | Rate ml/hr = units/hr directly';
+ document.querySelectorAll('[data-owner="mini-ins-units"] .mini-select-option').forEach(o => o.classList.remove('selected'));
+ e.target.classList.add('selected');
+ closeAllMiniSelects();
+ const r = document.getElementById('range-ins');
+ if (r) calcIns(r.value);
+}
 function calcFixed(id, val) {
  document.getElementById('dv-' + id).textContent = val;
  document.getElementById('rate-' + id).textContent = val;
@@ -13009,7 +13030,7 @@ function updateAll() {
   if (g('range-somato')) calcInfusion('somato', g('range-somato'), 1, 60, 'mcg/kg/hr');
   if (g('range-octreo')) calcOctreo(g('range-octreo'));
   if (g('range-kcl')) kclRender();
-  if (g('range-ins')) calcFixed('ins', g('range-ins'));
+  if (g('range-ins')) calcIns(g('range-ins'));
   if (g('range-midmor')) calcFixed('midmor', g('range-midmor'));
   if (g('cwt-nac')) calcNAC();
  } catch(e) {}
