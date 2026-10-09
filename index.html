@@ -497,6 +497,71 @@ input[type=range]::-moz-range-progress {
   color: var(--text); font-family: var(--mono); font-size: 10px; font-weight: 500; letter-spacing: -0.3px;
   padding: 0px 2px; margin: 0 1px 0 0; line-height: 1.5; vertical-align: baseline; text-align: center;
 }
+/* Desktop browsers draw spin arrows inside number inputs (~15px, space reserved even when hidden),
+   which squeezes the fixed-width boxes (e.g. NAC dose 36.5px) so 5-digit values like 14000 get clipped
+   after ~3 digits. Hide them for ALL number inputs on mouse/trackpad devices only; touch devices have
+   no arrows, so nothing changes there. */
+@media (hover: hover) and (pointer: fine) {
+  input[type="number"] { -moz-appearance: textfield; appearance: textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}
+
+/* ── KT quick K⁺ correction line: [4 − K] × Weight/2 + daily = result ──
+   Compact boxes in the same style as the NAC dose box; the line spans the full card width. */
+.kq-line {
+  --kq-fs: clamp(9px, 4.6vw - 6.7px, 11.3px); /* ≈ note-box size; eases down on narrower phones so the line never overflows */
+  display: flex; align-items: center; gap: 3px; width: 100%; box-sizing: border-box;
+  margin-top: 5px; font-size: var(--kq-fs); line-height: 1.5; color: var(--muted); white-space: nowrap;
+}
+.kq-line > span:not(.kq-auto) { flex: 0 0 auto; }
+.kq-field { position: relative; display: block; flex: 1 1 0; min-width: 0; }
+.kq-field input {
+  display: block; width: 100%; box-sizing: border-box; margin: 0; padding: 0 2px;
+  background: transparent; border: 1px solid var(--border-strong); border-radius: 3px;
+  color: var(--text); font-family: var(--mono); font-size: 1em; font-weight: 500;
+  letter-spacing: -0.3px; line-height: 1.5; text-align: center;
+}
+.kq-field input:focus { outline: none; border-color: #10b981; }
+.kq-ph {
+  position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+  pointer-events: none; font-size: 1em; color: var(--text-faint); opacity: 0.75;
+}
+.kq-ph sup { font-size: 0.8em; line-height: 0; vertical-align: baseline; position: relative; top: -0.45em; }
+.kq-field input:not(:placeholder-shown) + .kq-ph { display: none; }
+/* Weight box: "kg" sits right after the typed digits (hidden mirror keeps the digits+unit group centred) */
+.kq-unitwrap {
+  position: absolute; inset: 0; display: none; align-items: center; justify-content: center;
+  pointer-events: none; font-family: var(--mono); font-size: 1em; font-weight: 500;
+  letter-spacing: -0.3px; line-height: 1.5; color: var(--text);
+}
+.kq-has-unit .kq-unitwrap { display: flex; }
+.kq-mirror { visibility: hidden; white-space: pre; }
+.kq-unit { padding-left: 3px; }
+.kq-auto {
+  display: block; flex: 1.4 1 0; min-width: 0; box-sizing: border-box; padding: 0 3px;
+  border-radius: 3px; font-family: var(--mono); font-size: 1em; font-weight: 500;
+  letter-spacing: -0.3px; line-height: 1.5; text-align: center; white-space: nowrap;
+}
+/* clean (initial) layout: S.K+ compact, daily requirement gets the extra room */
+.kq-fk { flex: 0.7 1 0; min-width: 46px; }
+#kq-wt-box { flex: 1 1 0; min-width: 46px; }
+.kq-daily { flex: 1.3 0 auto; min-width: 0; padding: 0 4px; color: #60a5fa; border: 1px solid var(--border-strong); }
+/* hidden sizer: box always hugs the full "daily requirement" text (any font) in the clean layout */
+.kq-daily::before { content: 'daily requirement'; display: block; height: 0; overflow: hidden; visibility: hidden; font-size: 1em; font-weight: 400; letter-spacing: -0.3px; }
+.kq-res { flex: 1 1 0; min-width: 58px; color: #10b981; font-weight: 700; border: 1px solid #10b98150; }
+.kq-u { font-size: inherit; font-weight: 500; margin-left: 2px; }
+.kq-res .kq-u { margin-left: 0; }
+.kq-empty { font-size: 1em; font-weight: 400; color: var(--text-faint); opacity: 0.75; }
+/* calculated state (both K+ and weight entered): boxes hug their values so the Result box can hold "375 mmol ≈ 18.8 amp" */
+.kq-calc { gap: 2px; }
+.kq-calc .kq-fk { flex: 0 0 auto; width: 34px; min-width: 0; }
+.kq-calc #kq-wt-box { flex: 0 0 auto; width: 44px; min-width: 0; }
+.kq-calc .kq-auto, .kq-calc .kq-field input, .kq-calc .kq-unitwrap { letter-spacing: -0.45px; }
+.kq-calc .kq-daily { flex: 0 0 auto; }
+.kq-calc .kq-daily::before { display: none; }
+.kq-calc .kq-res { flex: 1 1 auto; min-width: 0; }
+@media (max-width: 350px) { .kq-fk { min-width: 36px; } #kq-wt-box { min-width: 38px; } .kq-res { min-width: 50px; } }
 
 /* ── Note Box ── */
 .note-box {
@@ -516,6 +581,31 @@ input[type=range]::-moz-range-progress {
   width: 4px;
   background: var(--accent);
 }
+/* ── NAC (IV) card: regimen sub-headings + conventional-protocol table ── */
+.nac-sub { display: flex; align-items: center; gap: 5px; margin-top: 3px; font-size: 11px; font-weight: 700; color: var(--text); line-height: 1.4; }
+.nac-sub-body { margin-top: 14px; padding-left: 2px; font-size: 12px; font-family: var(--heading); color: var(--text-strong); gap: 5px; }
+.nac-sq { display: inline-block; width: 6px; height: 6px; background: currentColor; flex-shrink: 0; }
+.nac-conv { text-align: left; text-justify: auto; }
+.nac-tbl { width: 100%; border-collapse: collapse; font-size: 10.5px; line-height: 1.4; }
+.nac-tbl th:nth-child(1), .nac-tbl td:nth-child(1), .nac-tbl th:nth-child(2), .nac-tbl td:nth-child(2), .nac-tbl th:nth-child(4), .nac-tbl td:nth-child(4) { white-space: nowrap; }
+.nac-tbl th { text-align: left; font-weight: 600; color: var(--text); padding: 0 6px 5px 0; border-bottom: 1px solid var(--border-strong); }
+.nac-tbl td { text-align: left; vertical-align: top; padding: 5px 6px 5px 0; border-bottom: 1px solid var(--border-strong); }
+.nac-tbl th:last-child, .nac-tbl td:last-child { padding-right: 0; }
+.nac-tbl strong { color: var(--text); }
+.nac-nobar::before { display: none; }
+.nac-nobar { padding-left: 12px; }
+/* Conventional table box: no outline, no blue bar, full width edge to edge */
+.nac-flat { border: none; border-radius: 0; clip-path: none; padding: 0; }
+.nac-flat::before { display: none; }
+.nac-flat .nac-tot { padding-left: 2px; }
+/* Conventional pump-rate slider: 3 stops (200ml / 500ml / 1000ml) */
+.nac-cv-rate { margin-top: 8px; }
+.nac-cv-stops { display: flex; justify-content: space-between; font-size: 10px; color: var(--faint); margin-top: 2px; }
+.nac-cv-stops span { flex: 1 1 0; text-align: center; }
+.nac-cv-stops span:first-child { text-align: left; }
+.nac-cv-stops span:last-child { text-align: right; }
+.nac-tot { margin-top: 6px; }
+.nac-tot strong, .nac-conv > strong { color: var(--text); }
 .drug-ref { margin-top: 6px; font-size: 10px; color: var(--text-faint); line-height: 1.6; }
 .drug-ref a { color: var(--accent); text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
 #card-isop .note-box .np + .np { margin-top: 4px; }
@@ -3087,29 +3177,45 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-kcl">
  <div class="drug-header" onclick="toggleCard('kcl')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution">25ml KT + 25ml NS &rarr; 50ml<br>Conc: 1mmol/ml</div></div>
+ <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution" onclick="event.stopPropagation()"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-kcl">10</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
- <div class="dose-row">
- <div class="dose-label"><span>Rate</span><span class="dose-val" style="color:#10b981"><span id="dv-kcl">10</span> mmol/hr</span></div>
- <input type="range" id="range-kcl" min="5" max="20" step="5" value="10" oninput="calcFixed('kcl',this.value)" style="accent-color:#10b981">
- <div class="range-limits"><span>5</span><span>20 (max)</span></div>
+  <div class="dose-label" style="margin:1px 0 0"><span style="font-weight:700;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px">Hypokalemia Correction:</span></div>
+ <div class="kq-line">
+ <span>[ 4 &minus;</span>
+ <label class="kq-field kq-fk"><input type="number" inputmode="decimal" step="any" id="kq-k" placeholder=" " aria-label="Serum potassium (mmol/L)" oninput="calcKQuick()"><span class="kq-ph">S. K<sup>+</sup></span></label>
+ <span>] &times;</span>
+ <label class="kq-field" id="kq-wt-box"><input type="number" inputmode="decimal" step="any" id="kq-wt" placeholder=" " aria-label="Weight (kg)" oninput="calcKQuick()"><span class="kq-ph">Weight</span><span class="kq-unitwrap"><span class="kq-mirror" id="kq-wt-mirror"></span><span class="kq-unit">kg</span></span></label>
+ <span style="margin-left:1px">/2 +</span>
+ <span class="kq-auto kq-daily" id="kq-daily"><span class="kq-empty">daily requirement</span></span>
+ <span>=</span>
+ <span class="kq-auto kq-res" id="kq-res"><span class="kq-empty">Result</span></span>
  </div>
- <div class="note-box"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Only through PICC / CV Line | Max 20mmol/hr | 1 amp = 10ml = 20mmol</div>
+ <div class="dose-row">
+ <div class="dose-label"><span>Rate</span><span class="dose-val" style="color:#10b981"><span id="dv-kcl">8</span> mmol/hr</span></div>
+ <input type="range" id="range-kcl" min="4" max="20" step="1" value="8" oninput="calcKCl(this.value)" style="accent-color:#10b981">
+ <div class="range-limits"><span>4</span><span>20 (max)</span></div>
+ </div>
+ <div class="dose-row">
+ <div class="dose-label"><span>Duration</span><span class="dose-val" style="color:#10b981"><span id="dv-kcl-hrs">5</span> hrs</span></div>
+ <input type="range" id="range-kcl-hrs" min="4" max="10" step="1" value="5" oninput="calcKClHrs(this.value)" style="accent-color:#10b981">
+ <div class="range-limits"><span>4</span><span>10</span></div>
+ </div>
+ <div class="note-box">As needed, can run over 4&ndash;10 hrs &mdash; adjust the rate accordingly<br><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Only through PICC / CV Line | Max 20 mmol/hr | 1 amp = 10 ml = 20 mmol</div>
  </div>
  </div>
  <div class="drug-card" id="card-lasix">
  <div class="drug-header" onclick="toggleCard('lasix')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Lasix <span class="brand-name">(Furosemide)</span></div><div class="drug-dilution">5 amp + 40ml NS &rarr; 50ml (100mg)<br>Conc: 2mg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Lasix <span class="brand-name">(Furosemide)</span></div><div class="drug-dilution" onclick="event.stopPropagation()"><span class="mini-select" id="mini-lasix-amp"><button type="button" class="mini-select-trigger" id="mini-lasix-amp-trigger" onclick="toggleMiniSelect(event,'mini-lasix-amp')">10 amp</button><span class="mini-select-panel" data-owner="mini-lasix-amp"><span class="mini-select-option selected" onclick="pickLasixAmp(event,10)">10 amp (20ml, no dilution)</span><span class="mini-select-option" onclick="pickLasixAmp(event,5)">5 amp (diluted, 50ml)</span></span></span> <span id="lasix-dil-txt">= 20ml (200mg), no dilution</span><br>Conc: <span id="lasix-conc">10</span>mg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-lasix">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="dose-row">
  <div class="dose-label"><span>Dose</span><span class="dose-val" style="color:#10b981"><span id="dv-lasix">4</span> mg/hr</span></div>
- <input type="range" id="range-lasix" min="2" max="20" step="2" value="4" oninput="calcLasix(this.value)" style="accent-color:#10b981">
- <div class="range-limits"><span>2</span><span>20</span></div>
+ <input type="range" id="range-lasix" min="1" max="20" step="1" value="4" oninput="calcLasix(this.value)" style="accent-color:#10b981">
+ <div class="range-limits"><span id="lasix-min">1</span><span>20</span></div>
  </div>
  <div class="note-box">1 amp = 2ml = 20mg</div>
  </div>
@@ -3137,7 +3243,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-header" onclick="toggleCard('nac')">
  <div class="drug-dot" style="color:#eab308"></div>
  <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:12px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" style="position:relative;top:4px" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
- <div class="drug-rate-preview"><div class="rate-caption">S/P Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308;position:relative;top:-2px" id="rate-nac">&mdash;</div><div class="rate-unit" style="position:relative;top:-2px">mg/hr</div></div></div>
+ <div class="drug-rate-preview"><div class="rate-caption">S/P Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308;position:relative;top:-2px" id="rate-nac">&mdash;</div><div class="rate-unit" style="position:relative;top:-2px">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
  <div class="card-wt-row">
@@ -3145,9 +3251,47 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <input type="range" id="cwt-nac" min="0.5" max="150" step="0.5" value="60" oninput="cwtSync('nac',this.value)" style="accent-color:#60a5fa">
  </div>
 
- <div class="note-box">2 bags, 12hr total (300mg/kg): <strong>Bag 1</strong> 100mg/kg over 2hr (200ml) &rarr; <strong>Bag 2</strong> 200mg/kg over 10hr (1000ml). Switch the ml selector above to auto-fill the amount for whichever bag you're preparing.</div>
+ <div class="note-box nac-nobar">2 bags, 12hr total (300mg/kg): <strong>Bag 1</strong> 100mg/kg over 2hr (200ml) &rarr; <strong>Bag 2</strong> 200mg/kg over 10hr (1000ml). Switch the ml selector above to auto-fill the amount for whichever bag you're preparing.</div>
  <div class="note-box"><strong>Recheck ~2hr before Bag 2 ends:</strong> ALT, INR, paracetamol level. <strong>Stop</strong> if paracetamol &lt;10mg/L AND ALT normal AND INR &le;1.3 AND no clinical signs of liver injury. Otherwise continue with a further 200mg/kg over 10hr (same as Bag 2), then recheck.</div>
- <div class="note-box"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> SNAP is a UK-originated, MHRA-unlicensed modified regimen (TOXBASE/NHS) &mdash; cross-check against your local/national poisoning protocol before use. Anaphylactoid reaction: pause infusion, treat, restart at half rate once resolved. Not independently verified against a Bangladesh national guideline.</div>
+ <div class="note-box"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> SNAP is a UK-originated, MHRA-unlicensed modified regimen (TOXBASE/NHS) &mdash; cross-check against your local/national poisoning protocol before use. Anaphylactoid reaction: pause infusion, treat, restart at half rate once resolved.</div>
+
+ <div class="nac-sub nac-sub-body"><span class="nac-sq"></span>Conventional Protocol (21 hr regimen)</div>
+ <div class="nac-cv-rate">
+ <div class="dose-label"><span id="nac-cv-lbl">Loading &middot; 200 ml over 1 hr</span><span class="dose-val" style="color:#eab308"><span id="nac-cv-rate">200</span> ml/hr</span></div>
+ <input type="range" id="nac-cv-range" min="0" max="2" step="1" value="0" oninput="calcNacConv(this.value)" style="accent-color:#eab308">
+ <div class="nac-cv-stops"><span>200 ml</span><span>500 ml</span><span>1000 ml</span></div>
+ </div>
+ <div class="note-box nac-conv nac-flat">
+ <table class="nac-tbl">
+ <thead><tr><th>Step</th><th>Dose</th><th>Dilution</th><th>Time</th></tr></thead>
+ <tbody>
+ <tr><td>Loading</td><td><strong>150 mg/kg</strong></td><td>in 200 ml 5% DA</td><td>over <strong>1 hr</strong></td></tr>
+ <tr><td>2nd infusion</td><td><strong>50 mg/kg</strong></td><td>in 500 ml 5% DA</td><td>over <strong>4 hrs</strong></td></tr>
+ <tr><td>3rd infusion</td><td><strong>100 mg/kg</strong></td><td>in 1000 ml 5% DA</td><td>over <strong>16 hrs</strong></td></tr>
+ </tbody>
+ </table>
+ <div class="nac-tot"><strong>Total dose = 300 mg/kg over 21 hrs</strong></div>
+ </div>
+ <div class="note-box nac-conv">
+ <strong>After 21 hrs</strong><br>
+ Check:<br>
+ <span class="bl-dot"></span> Paracetamol level<br>
+ <span class="bl-dot"></span> ALT/AST<br>
+ <span class="bl-dot"></span> INR<br>
+ <div class="nac-tot">Continue NAC (100 mg/kg over 16 hrs repeatedly) if:<br>
+ <span class="bl-dot"></span> Paracetamol still detectable (&ge;10 mg/L)<br>
+ <span class="bl-dot"></span> ALT/AST raised and still rising, or not falling (&lt;25&ndash;50% drop from peak)<br>
+ <span class="bl-dot"></span> INR &ge; 2 (some use &gt;1.5) or worsening, encephalopathy, rising creatinine / lactate / acidosis<br>
+ <span class="bl-dot"></span> Massive / staggered overdose or delayed absorption suspected</div>
+ <div class="nac-tot">Repeat labs every 4&ndash;12 hrly: paracetamol (if detectable), ALT/AST, INR, creatinine &plusmn; lactate, pH, phosphate.</div>
+ </div>
+ <div class="note-box nac-conv">
+ <strong>Stop NAC only when ALL:</strong><br>
+ <span class="bl-dot"></span> Paracetamol undetectable / &lt;10 mg/L<br>
+ <span class="bl-dot"></span> ALT/AST normal, or clearly down-trending (&ge;25&ndash;50% below peak)<br>
+ <span class="bl-dot"></span> INR &lt; 2 (some use &le;1.5), no liver failure<br>
+ <span class="bl-dot"></span> Creatinine normal / improving, no encephalopathy
+ </div>
  </div>
  </div>
  </div>
@@ -12565,14 +12709,23 @@ function calcNAC() {
   amtEl.value = unit === 'gm' ? (suggestedMg / 1000).toFixed(2) : suggestedMg.toFixed(0);
  }
 
- const rawAmt = parseFloat(amtEl.value) || 0;
- const amtMg = unit === 'gm' ? rawAmt * 1000 : rawAmt;
+ // Pump rate in ml/hr = bag volume ÷ infusion time (Bag 1: 200ml/2hr, Bag 2: 1000ml/10hr)
  if (durationHr) {
-  const formatted = (amtMg / durationHr).toFixed(1);
+  const formatted = (vol / durationHr).toFixed(1);
   rateEl.textContent = formatted.endsWith('.0') ? formatted.slice(0, -2) : formatted;
  } else {
   rateEl.textContent = '—';
  }
+}
+
+function calcNacConv(i) {
+ // Conventional 21hr: [label, bag ml, hours]; pump rate (ml/hr) = bag volume / time
+ const steps = [['Loading', 200, 1], ['2nd infusion', 500, 4], ['3rd infusion', 1000, 16]];
+ const st = steps[parseInt(i, 10)] || steps[0];
+ const rate = st[1] / st[2];
+ const lbl = document.getElementById('nac-cv-lbl'), rt = document.getElementById('nac-cv-rate');
+ if (lbl) lbl.textContent = st[0] + ' \u00b7 ' + st[1] + ' ml over ' + st[2] + (st[2] === 1 ? ' hr' : ' hrs');
+ if (rt) rt.textContent = Number.isInteger(rate) ? rate : rate.toFixed(1);
 }
 
 function pickNacUnit(e, val) {
@@ -12595,6 +12748,84 @@ function pickNacVol(e, val) {
  e.target.classList.add('selected');
  closeAllMiniSelects();
  calcNAC();
+}
+
+function kqWtUnit() {
+ const w = document.getElementById('kq-wt'), box = document.getElementById('kq-wt-box'), m = document.getElementById('kq-wt-mirror');
+ if (!w || !box || !m) return;
+ if (w.value !== '') {
+  m.textContent = w.value;
+  box.classList.add('kq-has-unit');
+  const u = box.querySelector('.kq-unit');
+  w.style.paddingRight = ((u ? u.offsetWidth : 0) + 2) + 'px';
+ } else {
+  box.classList.remove('kq-has-unit');
+  w.style.paddingRight = '';
+ }
+}
+
+function calcKQuick() {
+ kqWtUnit();
+ const kEl = document.getElementById('kq-k'), wEl = document.getElementById('kq-wt');
+ const dEl = document.getElementById('kq-daily'), rEl = document.getElementById('kq-res');
+ if (!kEl || !wEl || !dEl || !rEl) return;
+ const k = parseFloat(kEl.value), wt = parseFloat(wEl.value);
+ const wtOk = isFinite(wt) && wt > 0, kOk = isFinite(k) && k > 0;
+ const unit = ' <span class="kq-u">mmol</span>';
+ // Daily requirement = 1 mmol/kg/day (same basis as the Potassium Deficit & Correction calculator)
+ const daily = wtOk ? wt : 0;
+ const both = wtOk && kOk;
+ const lineEl = dEl.closest('.kq-line');
+ if (lineEl) lineEl.classList.toggle('kq-calc', both); // clean layout until both inputs are in
+ dEl.innerHTML = both ? Number(daily.toFixed(1)) + unit : '<span class="kq-empty">daily requirement</span>';
+ if (both) {
+  const deficit = Math.max(0, (4 - k) * wt / 2);
+  const total = Math.round(deficit + daily);
+  // amp lives inside the Result box, shown only together with the result (1 amp = 20 mmol, 1 decimal)
+  rEl.innerHTML = total + unit + ' <span class="kq-u">&asymp;</span> ' + Number((total / 20).toFixed(1)) + ' <span class="kq-u">amp</span>';
+ } else {
+  rEl.innerHTML = '<span class="kq-empty">Result</span>';
+ }
+}
+
+window.kclAmp = 2;
+window.kclRate = 8; // exact infusion rate in mmol/hr (rate slider and duration slider both drive it)
+// Bag content = amp x 20 mmol, so rate (mmol/hr) = total / hours.  src: 'rate' | 'hrs' | undefined (refresh both sliders)
+function kclRender(src) {
+ const amp = window.kclAmp || 2;
+ const total = amp * 20;
+ const conc = total / (amp === 3 ? 60 : 50); // mmol/ml: 2 amp/50ml = 0.8, 3 amp/60ml = 1
+ const r = window.kclRate || 0;
+ const hrs = r > 0 ? total / r : 0;
+ const f1 = n => Number(n.toFixed(1));
+ const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+ set('dv-kcl', f1(r));
+ set('rate-kcl', f1(r / conc));
+ set('dv-kcl-hrs', f1(hrs));
+ set('kcl-hrs', f1(hrs));
+ const rng = document.getElementById('range-kcl'), hr = document.getElementById('range-kcl-hrs');
+ if (src !== 'rate' && rng) rng.value = r;   // thumb snaps to the slider step; the text above stays exact
+ if (src !== 'hrs' && hr) hr.value = hrs;    // thumb clamps to 4-10; the text stays exact
+}
+function calcKCl(val) { window.kclRate = parseFloat(val) || 0; kclRender('rate'); }
+function calcKClHrs(val) {
+ const h = parseFloat(val) || 0;
+ window.kclRate = h > 0 ? ((window.kclAmp || 2) * 20) / h : 0;
+ kclRender('hrs');
+}
+function pickKclAmp(e, amp) {
+ e.stopPropagation();
+ window.kclAmp = amp;
+ const total = amp === 3 ? 60 : 50;
+ const trig = document.getElementById('mini-kcl-amp-trigger');
+ if (trig) trig.textContent = amp + ' amp';
+ const t = document.getElementById('kcl-total'), c = document.getElementById('kcl-conc');
+ if (t) t.textContent = total;
+ if (c) c.textContent = Number(((amp * 20) / total).toFixed(2));
+ document.querySelectorAll('[data-owner="mini-kcl-amp"] .mini-select-option').forEach(o => o.classList.remove('selected'));
+ e.target.classList.add('selected');
+ closeAllMiniSelects();
+ window.kclRate = (amp * 20) / 5; kclRender(); // reset to the default 5-hr rate
 }
 
 function calcFixed(id, val) {
@@ -12630,9 +12861,33 @@ function calcIsop(dose) {
 }
 
 function calcLasix(dose) {
- const rate = (parseFloat(dose) / 2).toFixed(1);
+ // Default: 10 amp = 20ml undiluted (10 mg/ml). 5 amp + 40ml NS = 50ml (2 mg/ml).
+ const conc = (window.lasixAmp === 5) ? 2 : 10;
+ const rate = (parseFloat(dose) / conc).toFixed(1);
  document.getElementById('dv-lasix').textContent = dose;
  document.getElementById('rate-lasix').textContent = rate;
+}
+function pickLasixAmp(e, amp) {
+ e.stopPropagation();
+ window.lasixAmp = amp;
+ const trig = document.getElementById('mini-lasix-amp-trigger');
+ if (trig) trig.textContent = amp + ' amp';
+ const t = document.getElementById('lasix-dil-txt'), c = document.getElementById('lasix-conc');
+ if (t) t.innerHTML = (amp === 5) ? '+ 40ml NS = 50ml (100mg)' : '= 20ml (200mg), no dilution';
+ if (c) c.textContent = (amp === 5) ? 2 : 10;
+ document.querySelectorAll('[data-owner="mini-lasix-amp"] .mini-select-option').forEach(o => o.classList.remove('selected'));
+ e.target.classList.add('selected');
+ closeAllMiniSelects();
+ const r = document.getElementById('range-lasix');
+ if (r) {
+  // undiluted (10 mg/ml): 1 mg/hr step = 0.1 ml/hr; diluted (2 mg/ml): 2 mg/hr step = 1 ml/hr
+  r.min = (amp === 5) ? 2 : 1;
+  r.step = (amp === 5) ? 2 : 1;
+  r.value = r.value; // browser snaps to the new step
+  const lm = document.getElementById('lasix-min');
+  if (lm) lm.textContent = r.min;
+  calcLasix(r.value);
+ }
 }
 
 function calcBicarb() {
@@ -12751,7 +13006,7 @@ function updateAll() {
   if (g('range-lasix')) calcLasix(g('range-lasix'));
   if (g('range-somato')) calcInfusion('somato', g('range-somato'), 1, 60, 'mcg/kg/hr');
   if (g('range-octreo')) calcOctreo(g('range-octreo'));
-  if (g('range-kcl')) calcFixed('kcl', g('range-kcl'));
+  if (g('range-kcl')) kclRender();
   if (g('range-ins')) calcFixed('ins', g('range-ins'));
   if (g('range-midmor')) calcFixed('midmor', g('range-midmor'));
   if (g('cwt-nac')) calcNAC();
