@@ -1006,6 +1006,8 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
 .badge { padding: 3px 8px; border-radius: 3px; font-size: 10px; font-weight: 700; flex-shrink: 0; font-family: var(--mono); }
 .badge-defib  { background: #7f1d1d; color: #fca5a5; }
 .badge-sync   { background: #1e3a5f; color: #93c5fd; }
+/* Cardioversion & Defib rows: SYNC and DEFIB boxes are exactly the same size */
+.defib-expand-header .badge { box-sizing: border-box; width: 42px; padding-left: 0; padding-right: 0; text-align: center; }
 .defib-rhythm { font-weight: 600; font-size: 11px; line-height: 16px; color: var(--text-strong); white-space: nowrap; }
 .defib-sync   { font-size: 9px; color: var(--muted); margin-top: 2px; }
 .defib-energy-sub { font-size: 9px; color: var(--muted); font-weight: 400; }
