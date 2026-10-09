@@ -2473,12 +2473,23 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 }
 .gs-empty { padding: 14px; text-align: center; color: var(--muted); font-size: 12.5px; }
 
-@keyframes gsGlowPulse {
-  0%   { box-shadow: 0 0 0 0 rgba(88,166,255,0.9); }
-  50%  { box-shadow: 0 0 0 2px rgba(88,166,255,0.9), 0 0 6px 1px rgba(88,166,255,0.45); }
-  100% { box-shadow: 0 0 0 0 rgba(88,166,255,0); }
+/* Card flash: a thick blue outline (not a filled highlight), sitting 2px outside the card edge top/bottom and 5px outside left/right. Used by BOTH the search-result landing flash (.gs-highlight, one slow pulse)
+   and the tap-to-expand/collapse flash on card headers (.tap-flash, one quick pulse). Drawn
+   with an ::after ring so the left/right inset can be set independently of top/bottom. */
+@keyframes gsRingPulse {
+  0%   { opacity: 0; }
+  25%  { opacity: 1; }
+  100% { opacity: 0; }
 }
-.gs-highlight { animation: gsGlowPulse 1.1s ease-out 2; }
+.gs-highlight, .tap-flash { position: relative; overflow: visible !important; } /* ring sits outside the card box, so the card's own overflow:hidden must not clip it while flashing */
+.gs-highlight::after, .tap-flash::after {
+  content: ''; position: absolute; top: -2px; bottom: -2px; left: -5px; right: -5px;
+  border: 2px solid rgba(88,166,255,0.6); border-radius: 4px;
+  box-shadow: 0 0 6px 1px rgba(88,166,255,0.3), inset 0 0 6px 1px rgba(88,166,255,0.15);
+  pointer-events: none; opacity: 0; z-index: 5;
+}
+.gs-highlight::after { animation: gsRingPulse 1.1s ease-out 1; }
+.tap-flash::after { animation: gsRingPulse 0.5s ease-out 1; }
 .gs-word-highlight {
   font-weight: 800; color: #eaf2ff;
   animation: gsTextGlowPulse 1.1s ease-out 2;
@@ -2623,6 +2634,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
 .dg-collapse.dg-open .dg-collapse-body { display: block; }
 
 
+
+/* ── No blue tap-flash on collapsible card headers (Android Chrome default highlight) ── */
+.drug-header, .bolus-header, .calc-title, .aht-header, .ucv-sub-header, .defib-expand-header,
+.special-cat-header, .gl-sub-header, .drug-card, .bolus-card, .calc-card, .aht-card, .ucv-sub-card,
+.defib-expand, .special-cat, .gl-sub-card, summary { -webkit-tap-highlight-color: transparent; }
 </style>
 </head>
 <body data-active-tab="bolus">
@@ -3179,7 +3195,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-kcl">
  <div class="drug-header" onclick="toggleCard('kcl')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution" onclick="event.stopPropagation()"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml</div></div>
+ <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-kcl">10</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3210,7 +3226,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-lasix">
  <div class="drug-header" onclick="toggleCard('lasix')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Lasix <span class="brand-name">(Furosemide)</span></div><div class="drug-dilution" onclick="event.stopPropagation()"><span class="mini-select" id="mini-lasix-amp"><button type="button" class="mini-select-trigger" id="mini-lasix-amp-trigger" onclick="toggleMiniSelect(event,'mini-lasix-amp')">10 amp</button><span class="mini-select-panel" data-owner="mini-lasix-amp"><span class="mini-select-option selected" onclick="pickLasixAmp(event,10)">10 amp (20ml, no dilution)</span><span class="mini-select-option" onclick="pickLasixAmp(event,5)">5 amp (diluted, 50ml)</span></span></span> <span id="lasix-dil-txt">= 20ml (200mg), no dilution</span><br>Conc: <span id="lasix-conc">10</span>mg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Lasix <span class="brand-name">(Furosemide)</span></div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-lasix-amp"><button type="button" class="mini-select-trigger" id="mini-lasix-amp-trigger" onclick="toggleMiniSelect(event,'mini-lasix-amp')">10 amp</button><span class="mini-select-panel" data-owner="mini-lasix-amp"><span class="mini-select-option selected" onclick="pickLasixAmp(event,10)">10 amp (20ml, no dilution)</span><span class="mini-select-option" onclick="pickLasixAmp(event,5)">5 amp (diluted, 50ml)</span></span></span> <span id="lasix-dil-txt">= 20ml (200mg), no dilution</span><br>Conc: <span id="lasix-conc">10</span>mg/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-lasix">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3225,7 +3241,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-ins">
  <div class="drug-header" onclick="toggleCard('ins')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Actrapid <span class="brand-name" style="font-size:0.72em">100 IU/ml (Human Insulin R)</span></div><div class="drug-dilution" onclick="event.stopPropagation()"><span class="mini-select" id="mini-ins-units"><button type="button" class="mini-select-trigger" id="mini-ins-units-trigger" onclick="toggleMiniSelect(event,'mini-ins-units')">50 unit</button><span class="mini-select-panel" data-owner="mini-ins-units"><span class="mini-select-option selected" onclick="pickInsUnits(event,50)">50 unit</span><span class="mini-select-option" onclick="pickInsUnits(event,100)">100 unit</span></span></span> in 50ml NS<br>Conc: <span id="ins-conc">1</span> unit/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Actrapid <span class="brand-name" style="font-size:0.72em">100 IU/ml (Human Insulin R)</span></div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-ins-units"><button type="button" class="mini-select-trigger" id="mini-ins-units-trigger" onclick="toggleMiniSelect(event,'mini-ins-units')">50 unit</button><span class="mini-select-panel" data-owner="mini-ins-units"><span class="mini-select-option selected" onclick="pickInsUnits(event,50)">50 unit</span><span class="mini-select-option" onclick="pickInsUnits(event,100)">100 unit</span></span></span> in 50ml NS<br>Conc: <span id="ins-conc">1</span> unit/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-ins">6</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3244,7 +3260,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-nac">
  <div class="drug-header" onclick="toggleCard('nac')">
  <div class="drug-dot" style="color:#eab308"></div>
- <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:12px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" style="position:relative;top:4px" onclick="event.stopPropagation()"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
+ <div style="flex:1"><div class="drug-name">N-Acetylcysteine <span class="brand-name" style="font-size:12px">(NAC &ndash; SNAP Protocol)</span></div><div class="drug-dilution" style="position:relative;top:4px" onclick="dilTap(event)"><input type="number" step="any" id="nac-amt" class="dil-inline-input" placeholder="amt" oninput="calcNAC()"><span class="mini-select" id="mini-nac-unit"><button type="button" class="mini-select-trigger" id="mini-nac-unit-trigger" style="padding:0 2.5px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-unit')">mg</button><span class="mini-select-panel" data-owner="mini-nac-unit"><span class="mini-select-option selected" onclick="pickNacUnit(event,'mg')">mg</span><span class="mini-select-option" onclick="pickNacUnit(event,'gm')">gm</span></span></span> in <span class="mini-select" id="mini-nac-vol"><button type="button" class="mini-select-trigger" id="mini-nac-vol-trigger" style="padding:0 2px;font-weight:500;letter-spacing:-0.3px" onclick="toggleMiniSelect(event,'mini-nac-vol')">200ml</button><span class="mini-select-panel" data-owner="mini-nac-vol"><span class="mini-select-option selected" onclick="pickNacVol(event,200)">200ml (Bag 1)</span><span class="mini-select-option" onclick="pickNacVol(event,1000)">1000ml (Bag 2)</span></span></span> 5% DA or 0.9% N/S</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P Rate</div><div class="rate-line"><div class="rate-num" style="color:#eab308;position:relative;top:-2px" id="rate-nac">&mdash;</div><div class="rate-unit" style="position:relative;top:-2px">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -13043,6 +13059,12 @@ function updateAll() {
 }
 
 function toggleCard(id) { document.getElementById('card-' + id).classList.toggle('open'); }
+// Infusion cards whose dilution row holds inline controls (amp selector, amount input):
+// only taps on the controls themselves are swallowed; a tap anywhere else in the row
+// (text, gaps, empty space) bubbles up to .drug-header and expands/collapses the card.
+function dilTap(e) {
+ if (e.target.closest('button, input, select, textarea, label, a, .mini-select-panel, .mini-select-option')) e.stopPropagation();
+}
 function toggleDefibECG(id) { document.getElementById(id).classList.toggle('open'); }
 
 // Closes the ECG expand modal only when the tap was on the dark backdrop
@@ -18932,6 +18954,24 @@ window.addEventListener('DOMContentLoaded', () => {
 var gsIndex = [];
 var gsCurrentMatches = [];
 var gsCardSelector = '.drug-card, .bolus-card, .calc-card, .aht-card, .ucv-sub-card, .defib-expand, .special-cat, .gl-sub-card, [data-gs-card]';
+
+/* Tap flash: when a person taps a card header (and the tap actually reaches the header, so
+   taps on the inline selectors/inputs, which stop propagation, do not flash), pulse the
+   cyan outline once. Programmatic header.click() calls (search-jump opening ancestor cards)
+   are ignored via isTrusted. */
+var tapFlashHeaderSel = '.drug-header, .bolus-header, .calc-title, .aht-header, .ucv-sub-header, .defib-expand-header, .special-cat-header, .gl-sub-header';
+document.addEventListener('click', function (e) {
+  if (!e.isTrusted || !e.target || !e.target.closest) return;
+  var h = e.target.closest(tapFlashHeaderSel);
+  if (!h || !h.parentElement) return;
+  var card = h.parentElement.closest(gsCardSelector);
+  if (!card) return;
+  clearTimeout(card._tapFlashT);
+  card.classList.remove('tap-flash');
+  void card.offsetWidth; // restart the animation on rapid re-taps
+  card.classList.add('tap-flash');
+  card._tapFlashT = setTimeout(function () { card.classList.remove('tap-flash'); }, 560);
+});
 
 function gsTagFor(tabName) {
   return { bolus: 'Bolus', infusion: 'Infusion', special: 'Special Calc', defib: 'Cardio/Defib' }[tabName] || tabName;
