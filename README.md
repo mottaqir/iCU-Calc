@@ -6,7 +6,7 @@ iCU Calc is an offline-capable Progressive Web App (PWA) designed to help critic
 
 **⚡ Quick Access · 📱 Offline-Capable · 🧠 Clinically Focused**
 
-[**🚀 Try the Live Demo Here**](YOUR_LINK_HERE)
+[**🚀 Try the Live Demo Here**](https://mottaqir.github.io/iCU-Calc/)
 
 ---
 
