@@ -3195,7 +3195,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-kcl">
  <div class="drug-header" onclick="toggleCard('kcl')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml</div></div>
+ <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml &nbsp;|&nbsp; <span id="dv-kcl">8</span> mmol/hr</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-kcl">10</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3209,11 +3209,6 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <span class="kq-auto kq-daily" id="kq-daily"><span class="kq-empty">daily requirement</span></span>
  <span>=</span>
  <span class="kq-auto kq-res" id="kq-res"><span class="kq-empty">Result</span></span>
- </div>
- <div class="dose-row">
- <div class="dose-label"><span>Rate</span><span class="dose-val" style="color:#10b981"><span id="dv-kcl">8</span> mmol/hr</span></div>
- <input type="range" id="range-kcl" min="4" max="20" step="1" value="8" oninput="calcKCl(this.value)" style="accent-color:#10b981">
- <div class="range-limits"><span>4</span><span>20 (max)</span></div>
  </div>
  <div class="dose-row">
  <div class="dose-label"><span>Duration</span><span class="dose-val" style="color:#10b981"><span id="dv-kcl-hrs">5</span> hrs</span></div>
@@ -12807,8 +12802,8 @@ function calcKQuick() {
 }
 
 window.kclAmp = 2;
-window.kclRate = 8; // exact infusion rate in mmol/hr (rate slider and duration slider both drive it)
-// Bag content = amp x 20 mmol, so rate (mmol/hr) = total / hours.  src: 'rate' | 'hrs' | undefined (refresh both sliders)
+window.kclRate = 8; // infusion rate in mmol/hr, derived from the duration slider (total mmol / hrs)
+// Bag content = amp x 20 mmol, so rate (mmol/hr) = total / hours.
 function kclRender(src) {
  const amp = window.kclAmp || 2;
  const total = amp * 20;
@@ -12821,11 +12816,9 @@ function kclRender(src) {
  set('rate-kcl', f1(r / conc));
  set('dv-kcl-hrs', f1(hrs));
  set('kcl-hrs', f1(hrs));
- const rng = document.getElementById('range-kcl'), hr = document.getElementById('range-kcl-hrs');
- if (src !== 'rate' && rng) rng.value = r;   // thumb snaps to the slider step; the text above stays exact
- if (src !== 'hrs' && hr) hr.value = hrs;    // thumb clamps to 4-10; the text stays exact
+ const hr = document.getElementById('range-kcl-hrs');
+ if (src !== 'hrs' && hr) hr.value = hrs;
 }
-function calcKCl(val) { window.kclRate = parseFloat(val) || 0; kclRender('rate'); }
 function calcKClHrs(val) {
  const h = parseFloat(val) || 0;
  window.kclRate = h > 0 ? ((window.kclAmp || 2) * 20) / h : 0;
@@ -13045,7 +13038,7 @@ function updateAll() {
   if (g('range-lasix')) calcLasix(g('range-lasix'));
   if (g('range-somato')) calcInfusion('somato', g('range-somato'), 1, 60, 'mcg/kg/hr');
   if (g('range-octreo')) calcOctreo(g('range-octreo'));
-  if (g('range-kcl')) kclRender();
+  if (g('range-kcl-hrs')) kclRender();
   if (g('range-ins')) calcIns(g('range-ins'));
   if (g('range-midmor')) calcFixed('midmor', g('range-midmor'));
   if (g('cwt-nac')) calcNAC();
