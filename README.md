@@ -40,7 +40,7 @@ iCU Calc is built as a Progressive Web App (PWA) with offline-capable functional
 ### 🛠️ Tech Stack
 *   HTML5, CSS3, JavaScript
 *   PWA (Service Worker, Web App Manifest)
-*   *(Add any framework/library you used here)*
+*   - Vanilla JavaScript (No frameworks)
 
 ---
 
@@ -64,4 +64,4 @@ Built to make essential bedside information easier to access when every second m
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](LINK).
 
 ## 📄 License
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under a Custom Non-Commercial License.
