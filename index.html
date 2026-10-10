@@ -675,6 +675,10 @@ input[type=range]::-moz-range-progress {
    affected. ── */
 #calccard-renaldose, #calccard-syringe, #calccard-thyroid,
 #calccard-glance, #card-nora, #calccard-ecgemerg, #calccard-ckd { overflow: visible; }
+/* Cardioversion & Defibrillation (#calccard-cvd) and Antihypertensives (#calccard-aht): the tap-flash ring on each sub-card
+   sits 5px outside it on the left/right, so the parent card must not clip it (these cards have no border/background in the
+   Cardio/Defib tab, so nothing else depends on the clipping). */
+#calccard-cvd, #calccard-aht { overflow: visible; }
 .calc-title {
   padding: 10px 14px;
   font-size: 12px; font-weight: 700;
