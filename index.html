@@ -410,6 +410,9 @@ body:not([data-theme="light"]) .tab-btn.active {
 .dose-row { padding-top: 10px; }
 .dose-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
 .dose-val { font-family: var(--heading); font-weight: 400; font-size: 13px; }
+/* KT card header: blue mmol/hr (readable in dark + light theme) */
+.kcl-mmolhr { color: #58a6ff; font-weight: 600; }
+[data-theme="light"] .kcl-mmolhr { color: #0969da; }
 .range-limits { display: flex; justify-content: space-between; font-size: 10px; color: var(--faint); margin-top: 2px; }
 input[type=range] {
   width: 100%;
@@ -553,14 +556,15 @@ input[type=range]::-moz-range-progress {
 .kq-u { font-size: inherit; font-weight: 500; margin-left: 2px; }
 .kq-res .kq-u { margin-left: 0; }
 .kq-empty { font-size: 1em; font-weight: 400; color: var(--text-faint); opacity: 0.75; }
-/* calculated state (both K+ and weight entered): boxes hug their values so the Result box can hold "375 mmol ≈ 18.8 amp" */
+/* calculated state (both K+ and weight entered): Result box hugs its text ("383 mmol ≈ 19.1 amp") with bare-minimum padding,
+   S.K+ and Weight get a little more room, and the daily requirement box takes whatever is left */
 .kq-calc { gap: 2px; }
-.kq-calc .kq-fk { flex: 0 0 auto; width: 34px; min-width: 0; }
-.kq-calc #kq-wt-box { flex: 0 0 auto; width: 44px; min-width: 0; }
+.kq-calc .kq-fk { flex: 0 0 auto; width: 3.5em; min-width: 0; }
+.kq-calc #kq-wt-box { flex: 0 0 auto; width: 4.5em; min-width: 0; }
 .kq-calc .kq-auto, .kq-calc .kq-field input, .kq-calc .kq-unitwrap { letter-spacing: -0.45px; }
-.kq-calc .kq-daily { flex: 0 0 auto; }
+.kq-calc .kq-daily { flex: 1 1 0; min-width: max-content; }
 .kq-calc .kq-daily::before { display: none; }
-.kq-calc .kq-res { flex: 1 1 auto; min-width: 0; }
+.kq-calc .kq-res { flex: 0 0 auto; min-width: 0; padding: 0 7px; } /* +5px each side; the extra comes out of the daily requirement box */
 @media (max-width: 350px) { .kq-fk { min-width: 36px; } #kq-wt-box { min-width: 38px; } .kq-res { min-width: 50px; } }
 
 /* ── Note Box ── */
@@ -3195,11 +3199,16 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <div class="drug-card" id="card-kcl">
  <div class="drug-header" onclick="toggleCard('kcl')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml &nbsp;|&nbsp; <span id="dv-kcl">8</span> mmol/hr</div></div>
+ <div style="flex:1"><div class="drug-name">KT <span class="brand-name">(KCl)</span> &mdash; PICC / CV Line only</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml &nbsp;|&nbsp; <span class="kcl-mmolhr"><span id="dv-kcl">8</span> mmol/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-kcl">10</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
-  <div class="dose-label" style="margin:1px 0 0"><span style="font-weight:700;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px">Hypokalemia Correction:</span></div>
+ <div class="dose-row">
+ <div class="dose-label"><span>Duration</span><span class="dose-val" style="color:#10b981"><span id="dv-kcl-hrs">5</span> hrs</span></div>
+ <input type="range" id="range-kcl-hrs" min="4" max="10" step="1" value="5" oninput="calcKClHrs(this.value)" style="accent-color:#10b981">
+ <div class="range-limits"><span>4</span><span>10</span></div>
+ </div>
+  <div class="dose-label" style="margin:7px 0 0"><span style="font-weight:700;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:2px">Hypokalemia Correction:</span></div>
  <div class="kq-line">
  <span>[ 4 &minus;</span>
  <label class="kq-field kq-fk"><input type="number" inputmode="decimal" step="any" id="kq-k" placeholder=" " aria-label="Serum potassium (mmol/L)" oninput="calcKQuick()"><span class="kq-ph">S. K<sup>+</sup></span></label>
@@ -3210,12 +3219,7 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, #162
  <span>=</span>
  <span class="kq-auto kq-res" id="kq-res"><span class="kq-empty">Result</span></span>
  </div>
- <div class="dose-row">
- <div class="dose-label"><span>Duration</span><span class="dose-val" style="color:#10b981"><span id="dv-kcl-hrs">5</span> hrs</span></div>
- <input type="range" id="range-kcl-hrs" min="4" max="10" step="1" value="5" oninput="calcKClHrs(this.value)" style="accent-color:#10b981">
- <div class="range-limits"><span>4</span><span>10</span></div>
- </div>
- <div class="note-box">As needed, can run over 4&ndash;10 hrs &mdash; adjust the rate accordingly<br><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Only through PICC / CV Line | Max 20 mmol/hr | 1 amp = 10 ml = 20 mmol</div>
+ <div class="note-box">As needed, can run over 4&ndash;10 hrs &mdash; adjust the rate accordingly<span id="kq-note-total"></span><span style="display:block;margin-top:5px"><span style="font-size:0.8em;vertical-align:0.10em">&#9888;&#65039;</span> Only through PICC / CV Line | Max 20 mmol/hr | 1 amp = 10 ml = 20 mmol</span></div>
  </div>
  </div>
  <div class="drug-card" id="card-lasix">
@@ -12781,6 +12785,7 @@ function calcKQuick() {
  kqWtUnit();
  const kEl = document.getElementById('kq-k'), wEl = document.getElementById('kq-wt');
  const dEl = document.getElementById('kq-daily'), rEl = document.getElementById('kq-res');
+ const nEl = document.getElementById('kq-note-total');
  if (!kEl || !wEl || !dEl || !rEl) return;
  const k = parseFloat(kEl.value), wt = parseFloat(wEl.value);
  const wtOk = isFinite(wt) && wt > 0, kOk = isFinite(k) && k > 0;
@@ -12795,9 +12800,13 @@ function calcKQuick() {
   const deficit = Math.max(0, (4 - k) * wt / 2);
   const total = Math.round(deficit + daily);
   // amp lives inside the Result box, shown only together with the result (1 amp = 20 mmol, 1 decimal)
-  rEl.innerHTML = total + unit + ' <span class="kq-u">&asymp;</span> ' + Number((total / 20).toFixed(1)) + ' <span class="kq-u">amp</span>';
+  const amps = Number((total / 20).toFixed(1));
+  rEl.innerHTML = total + unit + ' <span class="kq-u">&asymp;</span> ' + amps + ' <span class="kq-u">amp</span>';
+  // same result, repeated in the note box after "accordingly" (nbsp keeps the | on the same line as the word before it)
+  if (nEl) nEl.textContent = '\u00a0| total ' + total + ' mmol \u2248 ' + amps + ' amp in 24 hrs';
  } else {
   rEl.innerHTML = '<span class="kq-empty">Result</span>';
+  if (nEl) nEl.textContent = '';
  }
 }
 
