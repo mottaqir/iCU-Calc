@@ -2251,7 +2251,7 @@ ul.vent-facts code{
 }
 .ft-sep { display: inline-block; transform: scaleY(.5); }
 .ft-line2 {
-  font-size: 9px; color: var(--faint);
+  font-size: 9px; color: var(--muted);
   line-height: 1.6; white-space: normal;
   word-break: break-word;
   margin: 0 auto;
@@ -2263,6 +2263,32 @@ ul.vent-facts code{
   -webkit-tap-highlight-color: transparent;
 }
 #aboutBtn:focus-visible { outline: 1px solid var(--accent); outline-offset: 2px; }
+/* Diamond-glint on "© 2026 Dr. Mottakir": a slanted ( \ ) band of light sweeps left → right, then rests, repeat. */
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  #aboutBtn {
+    --glint: #ffffff;
+    color: transparent;
+    background-image: linear-gradient(50deg,
+      var(--muted) 0%, var(--muted) 41%,
+      color-mix(in srgb, var(--glint) 55%, var(--muted)) 47%,
+      var(--glint) 50%,
+      color-mix(in srgb, var(--glint) 55%, var(--muted)) 53%,
+      var(--muted) 59%, var(--muted) 100%);
+    background-size: 320% 100%;
+    background-repeat: no-repeat;
+    background-position: 100% 0;
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: aboutGlint 3.8s ease-in-out infinite;
+  }
+  body[data-theme="light"] #aboutBtn { --glint: #0b1220; }
+}
+@keyframes aboutGlint {
+  0%   { background-position: 100% 0; }
+  65%  { background-position: 0% 0; }
+  100% { background-position: 0% 0; }
+}
+@media (prefers-reduced-motion: reduce) { #aboutBtn { animation: none !important; } }
 
 /* ── About popup (same look as the hamburger menu) ── */
 .about-overlay {
@@ -2280,7 +2306,7 @@ ul.vent-facts code{
   display: flex; flex-direction: column; box-sizing: border-box;
   background: color-mix(in srgb, var(--surface2) 35%, transparent);
   -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
-  border: 1px solid var(--border); border-radius: 8px;
+  border: 1px solid var(--border); border-radius: 12px;
 }
 .about-overlay.open .about-panel { animation: aboutIn .18s ease; }
 @keyframes aboutIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -2739,6 +2765,26 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, rgba
 .drug-header, .bolus-header, .calc-title, .aht-header, .ucv-sub-header, .defib-expand-header,
 .special-cat-header, .gl-sub-header, .drug-card, .bolus-card, .calc-card, .aht-card, .ucv-sub-card,
 .defib-expand, .special-cat, .gl-sub-card, summary { -webkit-tap-highlight-color: transparent; }
+
+/* ══ PROSE JUSTIFY — every running-text block (paragraph / note / detail / list item) is justified ══
+   Wrapped in :where() => zero specificity, so any rule that deliberately sets text-align (center, right,
+   left, an explicit justify) still wins. text-align-last:left keeps the final line / lines before a <br>
+   flush-left. Add new prose classes to the first list; plain <p>/<li> inside the card bodies and inline-styled
+   <div>s that carry text colours/line-height are picked up automatically. Short labels, headings (bold /
+   letter-spaced / upper-case), chips, buttons, inputs and the About popup are left alone. */
+:where(
+  .sep-row-text, .sep-row-remark, .sep-change-now, .sep-change-prev,
+  .gl-step-body, .gl-note, .gl-decode-result, .gl-formula-note, .gl-alert,
+  .dg-note, .ida-note, .ida-result-sub, .cr-detail, .eiw-step-text,
+  .drug-ref, .nac-tot, .nac-conv, .abx-rx-note,
+  :is(.calc-body, .gl-panel, .gl-sub-body, .dg-collapse-body, .drug-body, .vent-card) :is(p, li),
+  :is(.calc-body, .gl-panel, .gl-sub-body, .dg-collapse-body, .drug-body) :is(div, p)[style*="line-height"]:not([style*="letter-spacing"]):not([style*="text-transform"]):not([style*="text-align"] > *),
+  :is(.calc-body, .gl-panel, .gl-sub-body, .dg-collapse-body, .drug-body) :is(div, p)[style*="color:var(--text-muted)"]:not([style*="letter-spacing"]):not([style*="text-transform"]):not([style*="text-align"] > *):not([style*="font-weight:700"]),
+  :is(.calc-body, .gl-panel, .gl-sub-body, .dg-collapse-body, .drug-body) :is(div, p)[style*="color:var(--text-faint)"]:not([style*="letter-spacing"]):not([style*="text-transform"]):not([style*="text-align"] > *):not([style*="font-weight:700"]),
+  :is(.calc-body, .gl-panel, .gl-sub-body, .dg-collapse-body, .drug-body) :is(div, p)[style*="color: var(--text-muted)"]:not([style*="letter-spacing"]):not([style*="text-transform"]):not([style*="text-align"] > *):not([style*="font-weight: 700"])
+) {
+  text-align: justify; text-align-last: left; text-justify: inter-word;
+}
 </style>
 </head>
 <body data-active-tab="bolus">
@@ -8420,7 +8466,7 @@ function eiwSwitchPO4(which){
  <div class="calc-title" onclick="toggleCalc('calccard-saag')"><span class="calc-title-dot"></span><span>SAAG <span style="color:var(--text-faint);font-weight:400">— Serum-Ascites Albumin Gradient</span></span><button type="button" class="calc-pin" data-cid="calccard-saag" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-saag', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
  <div class="calc-body" style="display:none">
 
-  <div style="margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+  <div style="margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6;text-align:justify">
    <strong style="color:var(--text-strong)">Purpose:</strong> Classifies ascites as portal-hypertensive (high SAAG) or non-portal (low SAAG). Draw serum and ascitic fluid albumin on the same day.
   </div>
 
@@ -19857,18 +19903,12 @@ if ('serviceWorker' in navigator) {
 
   var panelEl = document.getElementById('aboutPanel');
   function syncAboutHeight() {
-    // Same height as the hamburger-menu popup (measured live, so it always matches)
-    var mp = document.getElementById('menuPanel');
-    if (!mp || !panelEl) return;
-    var d = mp.style.display, v = mp.style.visibility, h = 0;
-    if (getComputedStyle(mp).display === 'none') {
-      mp.style.visibility = 'hidden'; mp.style.display = 'flex';
-      h = mp.offsetHeight;
-      mp.style.display = d; mp.style.visibility = v;
-    } else { h = mp.offsetHeight; }
-    // Taller than the hamburger popup: top edge raised 85px so it reaches up past the "Scores" row
-    var ABOUT_EXTRA = 85;
-    if (h > 0) panelEl.style.height = Math.min(h + ABOUT_EXTRA, window.innerHeight - 80) + 'px';
+    // Square popup: height = width (width = viewport minus the overlay's 8px side padding, capped at the panel's 420px max-width).
+    // Computed from the viewport so it also works while the overlay is still hidden. Bottom edge stays put; the top edge rises.
+    if (!panelEl) return;
+    var w = Math.min(420, document.documentElement.clientWidth - 16);
+    var ABOUT_EXTRA_TOP = 17; // top edge raised a further 17px beyond the square
+    if (w > 0) panelEl.style.height = Math.min(w + ABOUT_EXTRA_TOP, window.innerHeight - 80) + 'px';
   }
   function syncAboutBottom() {
     // Panel's bottom edge = bottom edge of the footer icon buttons (measured live)
