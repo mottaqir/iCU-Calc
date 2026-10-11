@@ -12449,7 +12449,7 @@ function eiwSwitchPO4(which){
    <!-- Developed by -->
    <div class="menu-box ab-left">
     <div class="menu-box-label">Developed by</div>
-    <p class="ab-p" style="margin-bottom:2px"><b>Dr. Md. Mottakir Al Mamun</b>, MBBS (SZMC 21<sup style="font-size:.7em;line-height:0">st</sup>)<br>SMO at ICU, Popular Medical College Hospital</p>
+    <p class="ab-p" style="margin-bottom:2px"><b>Dr. Md. Mottakir Al Mamun</b>, MBBS (SZMC)<br>SMO at ICU, Popular Medical College Hospital</p>
    </div>
 
    <!-- Copyright -->
@@ -12461,8 +12461,8 @@ function eiwSwitchPO4(which){
    <!-- Special thanks -->
    <div class="menu-box ab-left">
     <div class="menu-box-label">Special Thanks to</div>
-    <p class="ab-p"><b>Dr. Mamun Ur Rashid</b>, MD (Critical Care Medicine)</p>
-    <p class="ab-p" style="margin-bottom:2px"><b>Dr. Md. Ashiq Uz Zaman</b>, MD (Anaesthesiology)</p>
+    <p class="ab-p"><b>Dr. Md. Ashiq Uz Zaman</b>, MD (Anaesthesiology)</p>
+    <p class="ab-p" style="margin-bottom:2px"><b>Dr. Mamun Ur Rashid</b>, MD (Critical Care Medicine)</p>
    </div>
 
   </div>
@@ -12519,6 +12519,7 @@ const bolusData = [
  { name:"Suxamethonium", group:"Induction & NMB (RSI)", cat:"NMB (RSI)", color:"#ef4444", amp:"100mg/2ml amp (50mg/ml)", doseMin:1, doseMax:2, unit:"mg/kg", onset:"45-60 sec", duration:"5 min", note:"RSI drug of choice" },
  { name:"Atracurium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"25mg/2.5ml amp (10mg/ml)", doseMin:0.5, doseMax:0.5, unit:"mg/kg", onset:"90 sec", duration:"-", note:"Safe in hepatic & renal impairment" },
  { name:"Vecuronium <span class=\"brand-name\">(Norcuron)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"10mg dry powder + 10ml NS", doseMin:0.08, doseMax:0.1, unit:"mg/kg (intubation)", onset:"90-120 sec", duration:"30 min", note:"Maintenance: 0.02-0.03mg/kg | 70kg ~ half amp" },
+ { name:"Rocuronium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"50mg/5ml vial (10mg/ml)", doseMin:0.6, doseMax:1.2, unit:"mg/kg (RSI)", onset:"45-60 sec", duration:"30-60 min", note:"RSI/intubation: Rocuronium 0.6-1.2 mg/kg IV push<span style=\"display:block;height:8px\"></span>Ventilator dyssynchrony: first optimise analgosedation, PEEP, FiO2, flow/asynchrony, prone positioning &amp; ventilator settings | If still essential: intermittent bolus (e.g. 0.15mg/kg) — assess clinical recovery before &amp; after each dose | Guidelines prefer intermittent bolus over infusion in ARDS" },
  { name:"Pipecuronium <span class=\"brand-name\">(Arduan)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"4mg dry powder + 2ml NS", doseMin:0.06, doseMax:0.08, unit:"mg/kg", onset:"90-120 sec", duration:"60 min", note:"Renal failure: 0.04mg/kg | <span style='color:#ef4444'>CI:</span> Myasthenia Gravis | Antidote: Neostigmine" },
  { name:"Thiopental Sodium <span class=\"brand-name\">(TPS)</span>", group:"Status Epilepticus / Neuro-critical", cat:"Barbiturate coma", color:"#a78bfa", amp:"<span onclick=\"event.stopPropagation()\"><span class=\"mini-select\" id=\"mini-thiob-vial\"><button type=\"button\" class=\"mini-select-trigger\" id=\"mini-thiob-vial-trigger\" onclick=\"toggleMiniSelect(event,'mini-thiob-vial')\">500mg</button><span class=\"mini-select-panel\" data-owner=\"mini-thiob-vial\"><span class=\"mini-select-option selected\" onclick=\"pickThiobVial(event,500)\">500mg</span><span class=\"mini-select-option\" onclick=\"pickThiobVial(event,1000)\">1000mg</span></span></span> vial + 10ml<br><span style=\"white-space:nowrap\">WFI or 5% DA or 0.9% NS = <span id=\"thiob-conc\">50</span>mg/ml</span></span>", doseMin:2, doseMax:5, unit:"IV loading bolus", onset:"<30 sec", duration:"5-10 min", note:"ICU use is mainly refractory status epilepticus or barbiturate coma for raised ICP &mdash; NOT routine RSI/induction. Loading 2-5mg/kg (barbiturate coma protocols cite 2-3mg/kg; status epilepticus protocols cite 3-5mg/kg) &mdash; source table's 3-6mg/kg is the general-anaesthesia induction dose. Follow bolus with maintenance infusion (see Infusion Drugs), titrated to EEG burst suppression/seizure control. Significant myocardial depression/hypotension &mdash; caution in haemodynamic instability | <span style='color:#ef4444'>CI:</span> porphyria, status asthmaticus, severe shock" },
  // ── GI Bleed – Vasoactive Drugs ──
