@@ -194,12 +194,20 @@ body {
 /* ── App Header ── */
 .app-header {
   position: sticky; top: 0; z-index: 100;
-  background: color-mix(in srgb, var(--bg) 40%, transparent);
-  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+  isolation: isolate;
   padding: calc(10px + env(safe-area-inset-top)) 10px 5px;
   display: flex; align-items: center; gap: 10px;
   flex-shrink: 0;
 }
+/* The frosted-glass backdrop lives on its own layer BEHIND the header content (not on the header
+   itself). On iOS WebKit, text inside a backdrop-filter element — especially text whose size is
+   changed by script after load, like the title — can be left smeared/blurred by stale repaints. */
+.app-header::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: color-mix(in srgb, var(--bg) 40%, transparent);
+  -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
+}
+.app-header.hdr-repaint::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
 .hdr-center { flex: 1; min-width: 0; text-align: left; }
 .hdr-eyebrow {
   font-family: 'Courier New', Courier, monospace;
@@ -18680,7 +18688,22 @@ try { hgInit(); } catch(e) {}
       var newSize = Math.max(11, baseSize * scale);
       title.style.fontSize = newSize.toFixed(2) + 'px';
     }
+    kickHeaderRepaint();
   }
+  // iOS WebKit can leave the old (pre-resize / pre-font-swap) title raster smeared inside the
+  // header's backdrop layer. Dropping the backdrop for one frame and restoring it forces a clean redraw.
+  function kickHeaderRepaint() {
+    var h = document.querySelector('.app-header');
+    if (!h) return;
+    h.classList.add('hdr-repaint');
+    void h.offsetHeight;
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { h.classList.remove('hdr-repaint'); });
+    });
+  }
+  window.addEventListener('load', function () { setTimeout(kickHeaderRepaint, 120); setTimeout(kickHeaderRepaint, 900); });
+  window.addEventListener('pageshow', function () { setTimeout(kickHeaderRepaint, 60); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) setTimeout(kickHeaderRepaint, 60); });
   function runWhenReady3() {
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(fitHeaderTitle);
