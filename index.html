@@ -8415,6 +8415,53 @@ function eiwSwitchPO4(which){
  </div>
  </div>
 
+ <!-- ═══════════════════════════════════════════════════ SAAG — Ascites ═══ -->
+ <div class="calc-card" id="calccard-saag">
+ <div class="calc-title" onclick="toggleCalc('calccard-saag')"><span class="calc-title-dot"></span><span>SAAG <span style="color:var(--text-faint);font-weight:400">— Serum-Ascites Albumin Gradient</span></span><button type="button" class="calc-pin" data-cid="calccard-saag" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-saag', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+
+  <div style="margin-bottom:10px;font-size:11px;color:var(--text-muted);line-height:1.6">
+   <strong style="color:var(--text-strong)">Purpose:</strong> Classifies ascites as portal-hypertensive (high SAAG) or non-portal (low SAAG). Draw serum and ascitic fluid albumin on the same day.
+  </div>
+
+  <div style="margin-bottom:8px">
+   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Serum Albumin (g/dL)</div>
+     <input type="number" min="0" max="8" step="0.1" value="3.0" id="saag-ser-n" oninput="calcSAAG()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+    <div>
+     <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Ascitic Fluid Albumin (g/dL)</div>
+     <input type="number" min="0" max="8" step="0.1" value="1.5" id="saag-asc-n" oninput="calcSAAG()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+    </div>
+   </div>
+   <div>
+    <div style="font-size:10px;color:var(--text-muted);margin-bottom:4px">Ascitic Fluid Total Protein — optional (g/dL)</div>
+    <input type="number" min="0" max="12" step="0.1" value="" id="saag-pro-n" oninput="calcSAAG()" style="width:100%;padding:5px 6px;background:var(--surface);border:1px solid var(--muted);border-radius: 4px;color:var(--text);font-size:13px;font-weight:700;text-align:center">
+   </div>
+  </div>
+
+  <div style="font-size:10px;font-weight:700;color:var(--text-muted);letter-spacing:0.4px;margin-bottom:6px">HIGH SAAG IF ≥ 1.1 g/dL</div>
+  <div style="display:flex;flex-direction:column;gap:5px;margin-bottom:8px">
+   <div id="saag-c1" style="background:var(--surface-deep);border-radius: 4px;padding:7px 10px;display:flex;justify-content:space-between;align-items:center;gap:8px">
+    <div style="font-size:11px;color:var(--text-muted)">SAAG = Serum − Ascitic albumin</div>
+    <div id="saag-c1-val" style="font-size:12px;font-weight:800;font-family:'IBM Plex Mono',monospace">—</div>
+   </div>
+  </div>
+
+  <div id="saag-result-box" style="border-radius: 4px;padding:10px 14px;margin-bottom:8px;background:var(--surface-deep);border:1px solid var(--border-strong)">
+   <div id="saag-verdict" style="font-size:18px;font-weight:900;margin-bottom:4px;color:var(--text-muted)">—</div>
+   <div id="saag-detail" style="font-size:11px;line-height:1.65;color:var(--text-muted)"></div>
+  </div>
+
+  <div class="note-box">
+   <strong>High SAAG (≥ 1.1)</strong> → portal hypertension: cirrhosis, alcoholic hepatitis, cardiac ascites, Budd–Chiari, portal vein thrombosis, massive liver metastases<br>
+   <strong>Low SAAG (&lt; 1.1)</strong> → non-portal: peritoneal carcinomatosis, TB peritonitis, pancreatic ascites, nephrotic syndrome, bowel obstruction/infarction<br>
+   <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Mixed ascites (e.g. cirrhosis + TB or malignancy) can still give a high SAAG — correlate clinically.
+  </div>
+ </div>
+ </div>
+
  <!-- ═══════════════════════════════════════════════════ JONES CRITERIA — Acute Rheumatic Fever ═══ -->
  <div class="calc-card" id="calccard-jones">
  <div class="calc-title" onclick="toggleCalc('calccard-jones')"><span class="calc-title-dot"></span><span>Jones Criteria <span style="color:var(--text-faint);font-weight:400">— Acute Rheumatic Fever</span></span><button type="button" class="calc-pin" data-cid="calccard-jones" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-jones', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
@@ -17163,6 +17210,59 @@ function calcLights() {
   }
 }
 
+// ─────────────────────── SAAG — Serum-Ascites Albumin Gradient ───────────────────────
+function calcSAAG() {
+  const g = id => { const el = document.getElementById(id); return el && el.value !== '' ? parseFloat(el.value) : NaN; };
+  const ser = g('saag-ser-n'), asc = g('saag-asc-n'), pro = g('saag-pro-n');
+
+  const verdictEl = document.getElementById('saag-verdict');
+  const detailEl = document.getElementById('saag-detail');
+  const boxEl = document.getElementById('saag-result-box');
+  const box = document.getElementById('saag-c1'), val = document.getElementById('saag-c1-val');
+  if (!verdictEl) return;
+
+  if (isNaN(ser) || isNaN(asc) || ser <= 0 || asc < 0) {
+    verdictEl.textContent = '— Enter all values —';
+    verdictEl.style.color = 'var(--text-muted)';
+    detailEl.innerHTML = '';
+    if (val) val.textContent = '—';
+    if (box) box.style.border = '1px solid transparent';
+    return;
+  }
+
+  const saag = Math.round((ser - asc) * 100) / 100;
+  const high = saag >= 1.1;
+  const proKnown = !isNaN(pro) && pro >= 0;
+
+  if (val) { val.textContent = saag.toFixed(1) + ' g/dL' + (high ? ' ✓' : ' ✗'); val.style.color = high ? '#ef4444' : '#f59e0b'; }
+  if (box) box.style.border = '1px solid ' + (high ? '#ef444450' : '#f59e0b50');
+
+  if (saag < 0) {
+    verdictEl.textContent = '⚠️ Check values';
+    verdictEl.style.color = 'var(--text-muted)';
+    detailEl.innerHTML = 'Ascitic albumin is higher than serum albumin (SAAG negative) — recheck the entries and units.';
+    if (boxEl) boxEl.style.borderColor = 'var(--border-strong)';
+    return;
+  }
+
+  if (high) {
+    verdictEl.textContent = '🔴 HIGH SAAG';
+    verdictEl.style.color = '#ef4444';
+    let d = 'SAAG ≥ 1.1 g/dL — ascites due to portal hypertension (cirrhosis, alcoholic hepatitis, cardiac, Budd–Chiari, portal vein thrombosis).';
+    if (proKnown) d += pro >= 2.5
+      ? ' Ascitic protein ≥ 2.5 g/dL favours a post-sinusoidal cause (cardiac ascites, Budd–Chiari) — assess heart and hepatic venous outflow.'
+      : ' Ascitic protein &lt; 2.5 g/dL favours a sinusoidal cause (cirrhosis).';
+    detailEl.innerHTML = d;
+    if (boxEl) boxEl.style.borderColor = '#ef444460';
+  } else {
+    verdictEl.textContent = '🟡 LOW SAAG';
+    verdictEl.style.color = '#f59e0b';
+    detailEl.innerHTML = 'SAAG &lt; 1.1 g/dL — ascites NOT due to portal hypertension. Consider peritoneal carcinomatosis, TB peritonitis, pancreatic ascites, nephrotic syndrome — send cytology, ADA, amylase as indicated.';
+    if (boxEl) boxEl.style.borderColor = '#f59e0b60';
+  }
+}
+calcSAAG();
+
 // ─────────────────────── JONES CRITERIA — Acute Rheumatic Fever ───────────────────────
 function calcJones() {
   const highRisk = (document.querySelector('input[name="jones-risk"]:checked') || {}).value === 'high';
@@ -17979,7 +18079,7 @@ var SPECIAL_LAYOUT = [
     'calccard-chadsvasc', 'calccard-childpugh', 'calccard-wellspe', 'calccard-curb65', 'calccard-sofa'
   ] },
   { slot: 'specialcat-criteria-body', cards: [
-    'calccard-sepsis3', 'calccard-dic', 'calccard-ards', 'calccard-gold', 'calccard-lights', 'calccard-jones', 'calccard-braindeath', 'calccard-ckd'
+    'calccard-sepsis3', 'calccard-dic', 'calccard-ards', 'calccard-gold', 'calccard-lights', 'calccard-saag', 'calccard-jones', 'calccard-braindeath', 'calccard-ckd'
   ] },
   { slot: 'specialcat-calculators-body', cards: [
     'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-abg', 'calccard-ventcalc', 'calccard-unitconv'
@@ -18042,6 +18142,7 @@ var CATEGORY_TAG_OVERRIDES = {
   'calccard-gold': 'GOLD',
   'calccard-ckd': 'CKD Staging',
   'calccard-lights': "Light's",
+  'calccard-saag': 'SAAG',
   'calccard-jones': 'Jones',
   // Correction
   'calccard-bicarb': 'NaHCO\u2083',
@@ -19765,7 +19866,9 @@ if ('serviceWorker' in navigator) {
       h = mp.offsetHeight;
       mp.style.display = d; mp.style.visibility = v;
     } else { h = mp.offsetHeight; }
-    if (h > 0) panelEl.style.height = h + 'px';
+    // Taller than the hamburger popup: top edge raised 85px so it reaches up past the "Scores" row
+    var ABOUT_EXTRA = 85;
+    if (h > 0) panelEl.style.height = Math.min(h + ABOUT_EXTRA, window.innerHeight - 80) + 'px';
   }
   function syncAboutBottom() {
     // Panel's bottom edge = bottom edge of the footer icon buttons (measured live)
