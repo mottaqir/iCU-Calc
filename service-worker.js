@@ -1,17 +1,14 @@
-// ═══ iCU Calc — Service Worker (v113, cache-first + silent revalidate) ═══
-// Strategy: cache-first for instant, always-works opens. Every request
-// (navigation, app-shell, cross-origin) is answered from cache immediately
-// if a cached copy exists — no waiting on the network, and it works with
-// zero connectivity. In parallel, a network fetch runs in the background to
-// refresh the cache for the *next* open. If that background fetch fails
-// (offline, flaky signal), it's swallowed silently — the page already got
-// its response from cache, so nothing errors or crashes.
-// Only on the very first install, before anything is cached, does a
-// request wait on the network (there is nothing else to serve yet).
-// Every activation nukes ANY cache that isn't the current version — no
-// accumulation of old app-shell caches ever.
-const VERSION = 'v113';
-const CACHE_NAME = 'icu-calc-' + VERSION;
+// ═══ iCU Calc — Service Worker (auto-updating: NO manual version bump needed) ═══
+// Strategy: cache-first for instant, always-works opens (works with zero connectivity). In parallel a
+// network fetch runs in the background to refresh the cache. If it fails (offline / flaky signal) it is
+// swallowed silently — the page already got its response from cache.
+//
+// AUTO-UPDATE (replaces the old hand-edited VERSION): on every open, the app shell (index.html) is re-fetched
+// with cache:'no-store' and compared by SHA-256 against the cached copy. If the content differs, the cache is
+// updated and every open page gets an APP_UPDATED message (index.html reloads once if the app was only just
+// opened, otherwise the fresh copy is simply served on the next launch). So a deploy = push to GitHub Pages,
+// open the app once. CACHE_NAME is constant on purpose — change it ONLY if you ever need a full forced wipe.
+const CACHE_NAME = 'icu-calc-rt';
 
 const APP_SHELL = [
   './',
@@ -29,26 +26,29 @@ const APP_SHELL = [
   './icon-1024x1024.png'
 ];
 
+const SHELL_URL = new URL('./index.html', self.location).href;
+const SCOPE_PATH = new URL('./', self.location).pathname;
+
 self.addEventListener('install', (event) => {
   // Take over immediately, don't wait for old tabs to close.
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    // cache:'reload' = bypass the HTTP cache so the precached copy is never a stale 10-minute-old one.
+    caches.open(CACHE_NAME).then((cache) =>
+      cache.addAll(APP_SHELL.map((u) => new Request(u, { cache: 'reload' })))
+    )
   );
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     (async () => {
-      // Aggressively wipe every cache that isn't this exact version —
-      // including caches from any earlier naming scheme.
+      // Wipe this app's caches from every earlier naming scheme (icu-calc-v113 etc.). Scoped by name because
+      // github.io origins are shared with the other tools — their caches are left alone.
       const keys = await caches.keys();
       await Promise.all(keys.map((key) => {
-        if (key !== CACHE_NAME) return caches.delete(key);
+        if (key !== CACHE_NAME && /icu|syringe|pump|calc|^v\d+$/i.test(key)) return caches.delete(key);
       }));
-      // clients.claim() alone is enough for this new worker to start
-      // controlling already-open pages (their next fetch/navigation
-      // routes through it) — no explicit reload needed.
       await self.clients.claim();
     })()
   );
@@ -59,6 +59,41 @@ self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
 });
 
+async function sha256(buf) {
+  const d = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(d)).map((b) => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function notifyUpdated() {
+  const list = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+  list.forEach((c) => c.postMessage({ type: 'APP_UPDATED' }));
+}
+
+// Fetch the app shell from the network, store it, and tell the pages if its content changed.
+// oldCopy = a clone of the cached response that was just served (null on first install).
+async function refreshShell(oldCopy) {
+  try {
+    const res = await fetch(SHELL_URL, { cache: 'no-store' });
+    if (!res || res.status !== 200) return null;
+    let changed = false;
+    if (oldCopy) {
+      const [a, b] = await Promise.all([res.clone().arrayBuffer(), oldCopy.arrayBuffer()]);
+      changed = (await sha256(a)) !== (await sha256(b));
+    }
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(SHELL_URL, res.clone());
+    if (changed) await notifyUpdated();
+    return res;
+  } catch (err) {
+    return null; // offline / network error — never surfaced to the page
+  }
+}
+
+const OFFLINE_503 = () => new Response(
+  'iCU Calc is offline and this page has not been cached yet. Please connect to the internet once to finish installing.',
+  { status: 503, headers: { 'Content-Type': 'text/plain' } }
+);
+
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -66,52 +101,57 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   const isSameOrigin = url.origin === self.location.origin;
   const isNav = req.mode === 'navigate';
+  const isShell = isSameOrigin && (url.pathname === SCOPE_PATH || url.pathname === SCOPE_PATH + 'index.html');
 
-  // Same-origin (navigations, HTML, manifest, icons, and all the app's own
-  // assets): cache-first, then silently refresh the cache in the
-  // background for next time.
-  if (isNav || isSameOrigin) {
-    const cacheKey = isNav ? './index.html' : req;
+  // App shell (the page itself): cache-first, then re-fetch + hash-compare in the background.
+  if ((isNav && isSameOrigin) || isShell) {
     event.respondWith(
       (async () => {
-        const cached = await caches.match(cacheKey);
-
-        const revalidate = fetch(req, { cache: 'no-store' })
-          .then((res) => {
-            if (res && res.status === 200) {
-              const copy = res.clone();
-              caches.open(CACHE_NAME).then((cache) => cache.put(cacheKey, copy));
-            }
-            return res;
-          })
-          .catch(() => null); // offline / network error — never surfaced to the page
-
+        const cached = await caches.match(SHELL_URL);
         if (cached) {
-          // Instant response now; update happens quietly behind it.
-          event.waitUntil(revalidate);
+          event.waitUntil(refreshShell(cached.clone()));
           return cached;
         }
-
-        // Nothing cached yet (first install, or this exact asset was never
-        // cached) — this request has to wait on the network.
-        const fresh = await revalidate;
-        if (fresh) return fresh;
-        // No cache AND no network: nothing we can do, but still respond
-        // instead of leaving the request to fail as an unhandled error.
-        return new Response(
-          'iCU Calc is offline and this page has not been cached yet. Please connect to the internet once to finish installing.',
-          { status: 503, headers: { 'Content-Type': 'text/plain' } }
-        );
+        // Nothing cached yet (first install) — this request has to wait on the network.
+        const fresh = await refreshShell(null);
+        return fresh || OFFLINE_503();
       })()
     );
     return;
   }
 
-  // Cross-origin (e.g. fonts/CDN): same cache-first + background-refresh
-  // approach. Only cache successful, cacheable responses — an error
-  // response (4xx/5xx) or an unusable opaque-redirect must never overwrite
-  // a good cached copy, otherwise a transient failure "poisons" the
-  // offline fallback permanently.
+  // Other same-origin files (manifest, icons, the app's own assets): cache-first, then silently refresh the
+  // cache in the background for next time.
+  if (isSameOrigin) {
+    event.respondWith(
+      (async () => {
+        const cached = await caches.match(req);
+
+        const revalidate = fetch(req, { cache: 'no-store' })
+          .then((res) => {
+            if (res && res.status === 200) {
+              const copy = res.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
+            }
+            return res;
+          })
+          .catch(() => null);
+
+        if (cached) {
+          event.waitUntil(revalidate);
+          return cached;
+        }
+
+        const fresh = await revalidate;
+        return fresh || OFFLINE_503();
+      })()
+    );
+    return;
+  }
+
+  // Cross-origin (e.g. fonts/CDN): same cache-first + background-refresh approach. Only cache successful,
+  // cacheable responses — an error response (4xx/5xx) or an unusable opaque-redirect must never overwrite a
+  // good cached copy, otherwise a transient failure "poisons" the offline fallback permanently.
   event.respondWith(
     (async () => {
       const cached = await caches.match(req);

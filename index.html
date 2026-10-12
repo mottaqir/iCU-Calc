@@ -211,6 +211,7 @@ html.ios-standalone .ios-top-strip {
 .app-header {
   position: sticky; top: 0; z-index: 100;
   isolation: isolate;
+  background: var(--bg);
   /* Visible gap from the panel top to the title's ink = 5px, and from the subtitle's ink (descenders) to the panel bottom = 5px,
      on every tab, always. --hdr-pad-t / --hdr-pad-b are calibrated by fixHeaderGaps() in script (font-metric aware);
      the numbers here are the fallback until it runs. */
@@ -218,23 +219,8 @@ html.ios-standalone .ios-top-strip {
   display: flex; align-items: center; gap: 10px;
   flex-shrink: 0;
 }
-/* The frosted-glass backdrop lives on its own layer BEHIND the header content (not on the header
-   itself). On iOS WebKit, text inside a backdrop-filter element — especially text whose size is
-   changed by script after load, like the title — can be left smeared/blurred by stale repaints. */
-.app-header::before {
-  content: ''; position: absolute; left: 0; right: 0; top: 0; z-index: -1; pointer-events: none;
-  /* The glass now reaches BELOW the header by --hdr-ext px (scroll-driven, set by script: 0 at the very top of the page,
-     growing to --hdr-fade as you scroll). The blur stays at FULL strength across the whole header — title AND the
-     eyebrow line — and only fades out inside that extension under the header, so text scrolling up toward the
-     eyebrow is already fully blurred before it passes behind it. At scroll-top the extension is 0, so the tab
-     capsules are never blurred at rest. */
-  bottom: calc(-1 * var(--hdr-ext, 0px));
-  background: color-mix(in srgb, var(--bg) var(--hdr-glass-tint, 0%), transparent);
-  -webkit-backdrop-filter: blur(var(--hdr-blur, 10px)); backdrop-filter: blur(var(--hdr-blur, 10px));
-  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - var(--hdr-ext, 0px)), transparent 100%);
-          mask-image: linear-gradient(to bottom, #000 0, #000 calc(100% - var(--hdr-ext, 0px)), transparent 100%);
-}
-.app-header.hdr-repaint::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* Header (title + eyebrow) sits on the solid theme background (--bg: dark / light) — no glass, no blur, no transparency,
+   so nothing scrolling underneath is ever visible through it. */
 .hdr-center { flex: 1; min-width: 0; text-align: left; }
 .hdr-eyebrow {
   font-family: 'Courier New', Courier, monospace;
@@ -19992,6 +19978,14 @@ if ('serviceWorker' in navigator) {
       refreshed = true;
       window.location.reload();
     });
+
+    // The service worker re-checks the network copy of the app on every open and, if it differs, updates the cache
+    // and sends APP_UPDATED (no manual version bump needed). Reload immediately only if the app was JUST opened
+    // (nothing entered yet); otherwise never yank the page mid-use — the fresh copy is already cached for next launch.
+    navigator.serviceWorker.addEventListener('message', function (ev) {
+      if (!ev.data || ev.data.type !== 'APP_UPDATED' || refreshed) return;
+      if (performance.now() < 6000) { refreshed = true; window.location.reload(); }
+    });
   });
 }
 
@@ -20109,27 +20103,6 @@ if ('serviceWorker' in navigator) {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
-})();
-</script>
-
-<script>
-/* Header glass extension: grows from 0 (page top) to HDR_FADE px as the page scrolls, so the blur reaches below the
-   eyebrow line while scrolled but never touches the tab capsules at rest. */
-(function () {
-  var HDR_FADE = 22, raf = null, last = -1;
-  function apply() {
-    raf = null;
-    var h = document.querySelector('.app-header'); if (!h) return;
-    var y = window.pageYOffset || document.documentElement.scrollTop || 0;
-    var ext = Math.max(0, Math.min(HDR_FADE, y));
-    if (ext === last) return; last = ext;
-    h.style.setProperty('--hdr-ext', ext + 'px');
-  }
-  function onScroll() { if (raf == null) raf = requestAnimationFrame(apply); }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  window.addEventListener('resize', onScroll);
-  window.addEventListener('pageshow', onScroll);
-  onScroll();
 })();
 </script>
 </body>
