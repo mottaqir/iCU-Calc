@@ -1,4 +1,4 @@
-// ═══ iCU Calc — Service Worker (v111, cache-first + silent revalidate) ═══
+// ═══ iCU Calc — Service Worker (v112, cache-first + silent revalidate) ═══
 // Strategy: cache-first for instant, always-works opens. Every request
 // (navigation, app-shell, cross-origin) is answered from cache immediately
 // if a cached copy exists — no waiting on the network, and it works with
