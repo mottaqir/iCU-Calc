@@ -194,6 +194,19 @@ body {
   min-height: calc(var(--app-vh, 1dvh) * 100);
 }
 
+/* ── iOS home-screen: status-bar colour strip ──
+   With apple-mobile-web-app-status-bar-style=black the status bar stayed black in both themes;
+   a painted position:fixed strip at the very top (invisible via background-clip:text) makes iOS take the
+   page colour for the status-bar area instead, so it follows the light/dark theme. It does NOT remove the
+   iOS 27 header blur by itself — that was fixed by the "black" status-bar style. Scoped to iOS standalone. */
+.ios-top-strip { display: none; }
+html.ios-standalone .ios-top-strip {
+  display: block; position: fixed; top: 0; left: 0; right: 0; height: 11px;
+  z-index: 101; pointer-events: none;
+  background-color: var(--bg);
+  -webkit-background-clip: text; background-clip: text;
+}
+
 /* ── App Header ── */
 .app-header {
   position: sticky; top: 0; z-index: 100;
@@ -2299,7 +2312,6 @@ ul.vent-facts code{
   65%  { background-position: 0% 0; }
   100% { background-position: 0% 0; }
 }
-@media (prefers-reduced-motion: reduce) { #aboutBtn { animation: none !important; } }
 
 /* ── About popup (same look as the hamburger menu) ── */
 .about-overlay {
@@ -2803,6 +2815,11 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, rgba
 </style>
 </head>
 <body data-active-tab="bolus">
+<div class="ios-top-strip" aria-hidden="true"></div>
+<script>
+/* iOS home-screen (standalone) flag — navigator.standalone exists only on iOS WebKit. */
+try { if (navigator.standalone === true) document.documentElement.classList.add('ios-standalone'); } catch (e) {}
+</script>
 <script>
 // Apply theme immediately (before any content below paints) so the OS
 // status bar / theme-color meta are correct on THIS load — this is what
@@ -19928,13 +19945,24 @@ if ('serviceWorker' in navigator) {
   if (!ov || !btn) return;
 
   var panelEl = document.getElementById('aboutPanel');
+  var ABOUT_OVER_MENU = 10; // popup is exactly this many px taller than the hamburger menu window
   function syncAboutHeight() {
-    // Square popup: height = width (width = viewport minus the overlay's 8px side padding, capped at the panel's 420px max-width).
-    // Computed from the viewport so it also works while the overlay is still hidden. Bottom edge stays put; the top edge rises.
+    // Height = hamburger menu window's height + 10px. The menu panel is display:none until opened, so it is
+    // measured live by showing it invisibly for one synchronous reflow (never painted). Bottom edge stays put.
     if (!panelEl) return;
-    var w = Math.min(420, document.documentElement.clientWidth - 16);
-    var ABOUT_EXTRA_TOP = 17; // top edge raised a further 17px beyond the square
-    if (w > 0) panelEl.style.height = Math.min(w + ABOUT_EXTRA_TOP, window.innerHeight - 80) + 'px';
+    var mp = document.getElementById('menuPanel'), mh = 0;
+    if (mp) {
+      var wasHidden = getComputedStyle(mp).display === 'none';
+      var pd = mp.style.display, pv = mp.style.visibility;
+      if (wasHidden) { mp.style.visibility = 'hidden'; mp.style.display = 'flex'; }
+      mh = mp.offsetHeight;
+      if (wasHidden) { mp.style.display = pd; mp.style.visibility = pv; }
+    }
+    if (mh <= 0) { // fallback (menu missing): previous square layout
+      var w = Math.min(420, document.documentElement.clientWidth - 16);
+      mh = w + 17 - ABOUT_OVER_MENU;
+    }
+    panelEl.style.height = Math.min(mh + ABOUT_OVER_MENU, window.innerHeight - 80) + 'px';
   }
   function syncAboutBottom() {
     // Panel's bottom edge = bottom edge of the footer icon buttons (measured live)
@@ -20002,56 +20030,25 @@ if ('serviceWorker' in navigator) {
   });
 })();
 </script>
-<!-- VP-DIAG (temporary, safe to delete): tap the header title 5x within 2.5s to show viewport numbers -->
 <script>
+/* Footer "© 2026 Dr. Mottakir" glint on iOS. Android/desktop use the CSS animation (aboutGlint). On iOS WebKit a CSS
+   animation of background-position on a background-clip:text inline element can fail to repaint, so there the same
+   sweep (3.8s cycle, sweep over the first 65%, ease-in-out, then rest) is driven from script instead. */
 (function () {
-  var taps = [];
-  function probe() {
-    var d = document.createElement('div');
-    d.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
-    document.body.appendChild(d);
-    var cs = getComputedStyle(d), r = [cs.paddingTop, cs.paddingBottom];
-    document.body.removeChild(d); return r;
+  var btn = document.getElementById('aboutBtn');
+  if (!btn) return;
+  var isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  if (!isIOS) return;
+  var PERIOD = 3800, SWEEP = 0.65, last = null;
+  btn.style.animation = 'none';
+  function ease(p) { return p < 0.5 ? 2 * p * p : 1 - Math.pow(-2 * p + 2, 2) / 2; }
+  function frame(now) {
+    var t = (now % PERIOD) / PERIOD, pos = t < SWEEP ? 100 - 100 * ease(t / SWEEP) : 0;
+    var v = pos.toFixed(2) + '% 0';
+    if (v !== last) { btn.style.backgroundPosition = v; last = v; }
+    requestAnimationFrame(frame);
   }
-  function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
-  function f(n) { return n == null ? '-' : (Math.round(n * 10) / 10); }
-  function lines() {
-    var vv = window.visualViewport, sp = probe(), eb = rect('.hdr-eyebrow'), tb = rect('.tab-bar'), ft = rect('.app-footer'), hd = rect('.app-header');
-    var act = document.querySelector('.tab-panel.active, .tab-content.active');
-    var kids = [], tab = document.querySelector('#tab-special');
-    if (tab && tab.classList.contains('active')) kids = Array.prototype.filter.call(tab.children, function (k) { return getComputedStyle(k).display !== 'none'; }).map(function (k) { return f(k.getBoundingClientRect().top); });
-    return [
-      'VP-DIAG vp-1  (tap title 5x to refresh)',
-      'active tab: ' + document.body.getAttribute('data-active-tab'),
-      'innerHeight: ' + window.innerHeight + '   screen.height: ' + screen.height,
-      'visualViewport.h: ' + (vv ? f(vv.height) : 'n/a') + '   offsetTop: ' + (vv ? f(vv.offsetTop) : 'n/a'),
-      'documentElement.clientHeight: ' + document.documentElement.clientHeight,
-      '--app-vh x100: ' + f(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-vh') || getComputedStyle(document.body).getPropertyValue('--app-vh')) * 100),
-      'safe-area top/bottom: ' + sp[0] + ' / ' + sp[1],
-      'header top/bottom: ' + f(hd && hd.top) + ' / ' + f(hd && hd.bottom),
-      'eyebrow bottom: ' + f(eb && eb.bottom),
-      'tab-bar top: ' + f(tb && tb.top) + '  marginTop: ' + (document.querySelector('.tab-bar') ? document.querySelector('.tab-bar').style.marginTop : '-'),
-      'special rows top: ' + (kids.length ? kids.join(', ') : '(open Special Calc tab)'),
-      'footer top/bottom: ' + f(ft && ft.top) + ' / ' + f(ft && ft.bottom),
-      'body scrollH/clientH: ' + document.body.scrollHeight + ' / ' + document.body.clientHeight,
-      'pageYOffset: ' + f(window.pageYOffset)
-    ];
-  }
-  function show() {
-    var el = document.getElementById('vpDiag');
-    if (!el) {
-      el = document.createElement('div'); el.id = 'vpDiag';
-      el.style.cssText = 'position:fixed;left:6px;right:6px;bottom:70px;z-index:2147483647;background:rgba(0,0,0,.92);color:#9f9;font:11px/1.45 Menlo,monospace;padding:8px 10px;border:1px solid #9f9;border-radius:8px;white-space:pre-wrap;word-break:break-all';
-      el.addEventListener('click', function () { el.style.display = 'none'; });
-      document.body.appendChild(el);
-    }
-    el.style.display = 'block'; el.textContent = lines().join('\n');
-  }
-  document.addEventListener('click', function (e) {
-    if (!e.target.closest || !e.target.closest('.hdr-title')) return;
-    var now = Date.now(); taps = taps.filter(function (t) { return now - t < 2500; }); taps.push(now);
-    if (taps.length >= 5) { taps = []; show(); setTimeout(show, 1200); }
-  }, true);
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
