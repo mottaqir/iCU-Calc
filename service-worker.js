@@ -10,7 +10,7 @@
 // request wait on the network (there is nothing else to serve yet).
 // Every activation nukes ANY cache that isn't the current version — no
 // accumulation of old app-shell caches ever.
-const VERSION = 'v111';
+const VERSION = 'v112';
 const CACHE_NAME = 'icu-calc-' + VERSION;
 
 const APP_SHELL = [
