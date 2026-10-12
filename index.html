@@ -60,7 +60,10 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="iCU Calc">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" id="appleStatusBarMeta" content="black-translucent">
+<!-- iOS 27 draws a system blur over content that sits under the status bar. "black-translucent" lets the page
+     draw there, so the header title got smeared in the home-screen app; "black" starts the page BELOW the status bar.
+     iOS reads this once when the app is added to the Home Screen, so it is static (no per-theme switching). -->
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="iCU Calc">
 <meta name="msapplication-TileColor" content="#0d1117">
 <meta name="msapplication-TileImage" content="./icon-144x144.png">
@@ -189,21 +192,6 @@ body {
      immediately rather than waiting on the browser's own dvh recalculation.
      Falls back to 100dvh above until the JS below has run at least once. */
   min-height: calc(var(--app-vh, 1dvh) * 100);
-}
-
-/* ── iOS 27 installed-app top-edge blur workaround ──
-   iOS 27 draws a system "Liquid Glass" scroll-edge blur over the top of a HOME-SCREEN web app
-   (not in a Safari tab), which smears whatever sits near the status bar — here the header title.
-   It is not a CSS blur, so backdrop-filter:none cannot remove it. Third-party reports (not an Apple
-   doc) say a painted position:fixed strip at the very top (>=6px tall, >=80% wide, within 4px of the
-   top) gives WebKit a solid colour to sample and suppresses it; background-clip:text with no text
-   keeps the strip itself invisible. Scoped to iOS standalone only via html.ios-standalone. */
-.ios-top-strip { display: none; }
-html.ios-standalone .ios-top-strip {
-  display: block; position: fixed; top: 0; left: 0; right: 0; height: 11px;
-  z-index: 101; pointer-events: none;
-  background-color: var(--bg);
-  -webkit-background-clip: text; background-clip: text;
 }
 
 /* ── App Header ── */
@@ -2815,11 +2803,6 @@ body:not([data-theme="light"]) .gs-bar { background: linear-gradient(90deg, rgba
 </style>
 </head>
 <body data-active-tab="bolus">
-<div class="ios-top-strip" aria-hidden="true"></div>
-<script>
-/* iOS home-screen (standalone) flag — navigator.standalone exists only on iOS WebKit. */
-try { if (navigator.standalone === true) document.documentElement.classList.add('ios-standalone'); } catch (e) {}
-</script>
 <script>
 // Apply theme immediately (before any content below paints) so the OS
 // status bar / theme-color meta are correct on THIS load — this is what
@@ -2836,9 +2819,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
    metaTC.removeAttribute('media'); // JS is now authoritative over the static media-query fallback
    metaTC.setAttribute('content', saved === 'light' ? '#f6f8fa' : '#0d1117');
  }
- var metaSB = document.getElementById('appleStatusBarMeta');
- if (metaSB) metaSB.setAttribute('content', saved === 'light' ? 'default' : 'black-translucent');
-})();
+ })();
 </script>
 
 <!-- ═══ APP HEADER ═══ -->
@@ -15133,9 +15114,7 @@ function applyTheme(theme) {
  }
  var metaTC = document.getElementById('themeColorMeta');
  if (metaTC) metaTC.setAttribute('content', theme === 'light' ? '#f6f8fa' : '#0d1117');
- var metaSB = document.getElementById('appleStatusBarMeta');
- if (metaSB) metaSB.setAttribute('content', theme === 'light' ? 'default' : 'black-translucent');
-}
+ }
 
 function toggleTheme() {
  const current = document.body.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
@@ -20023,55 +20002,56 @@ if ('serviceWorker' in navigator) {
   });
 })();
 </script>
-<!-- HDR-DIAG (temporary): open the app with ?hdrdiag=1 — or tap the header title 5 times quickly — to get a small switch panel
-     for isolating what blurs the header title on iOS. Safe to delete this whole HDR-DIAG block once the cause is found. -->
+<!-- VP-DIAG (temporary, safe to delete): tap the header title 5x within 2.5s to show viewport numbers -->
 <script>
 (function () {
-  var BUILD = 'hdr-diag-4';
-  var RULES = [
-    ['hdrblur', 'Header frosted blur OFF', '.app-header::before{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'],
-    ['hdrlayer', 'Header frosted layer REMOVED', '.app-header::before{display:none!important}'],
-    ['allblur', 'ALL backdrop blurs OFF', '*,*::before,*::after{-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'],
-    ['gs', 'Search overlay/backdrop hidden', '#gsOverlay,.gs-backdrop{display:none!important}'],
-    ['fit', 'Title size fixed 14px', '#hdrTitle{font-size:14px!important}'],
-    ['track', 'Title letter-spacing 0', '#hdrTitle{letter-spacing:0!important}'],
-    ['layer', 'Header own GPU layer', '.app-header{-webkit-transform:translateZ(0);transform:translateZ(0)}'],
-    ['static', 'Header not sticky', '.app-header{position:relative!important}'],
-    ['anim', 'ALL animations OFF', '*,*::before,*::after{animation:none!important;transition:none!important}'],
-    ['font', 'Title: system font', '#hdrTitle{font-family:-apple-system,Arial,sans-serif!important}'],
-    ['weight', 'Title: normal weight', '#hdrTitle{font-weight:400!important}'],
-    ['tabs', 'Tab bar hidden', '.tab-bar{display:none!important}'],
-    ['solid', 'Header SOLID bg, no blur (the pasted tip)', '.app-header::before{background:var(--bg)!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}'],
-    ['nostrip', 'Top strip fix OFF (compare)', '.ios-top-strip{display:none!important}'],
-    ['stripvis', 'Top strip VISIBLE (magenta, debug)', 'html.ios-standalone .ios-top-strip{-webkit-background-clip:border-box!important;background-clip:border-box!important;background-color:#f0f!important}']
-  ];
-  var on = {}, panel = null, styleEl = null;
-  function apply() {
-    if (!styleEl) { styleEl = document.createElement('style'); document.head.appendChild(styleEl); }
-    styleEl.textContent = RULES.filter(function (r) { return on[r[0]]; }).map(function (r) { return r[2]; }).join('\n');
+  var taps = [];
+  function probe() {
+    var d = document.createElement('div');
+    d.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)';
+    document.body.appendChild(d);
+    var cs = getComputedStyle(d), r = [cs.paddingTop, cs.paddingBottom];
+    document.body.removeChild(d); return r;
   }
-  function build() {
-    if (panel) return;
-    panel = document.createElement('div');
-    panel.style.cssText = 'position:fixed;left:0;right:0;bottom:0;z-index:2147483000;background:#000d;color:#fff;font:600 12px/1.3 -apple-system,Arial,sans-serif;padding:8px 8px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:1fr 1fr;gap:6px;-webkit-backdrop-filter:none;backdrop-filter:none';
-    var head = document.createElement('div');
-    head.style.cssText = 'grid-column:1/3;display:flex;justify-content:space-between;align-items:center;opacity:.9';
-    head.innerHTML = '<span>HDR-DIAG &middot; build ' + BUILD + ' &middot; tap a switch, watch the title</span>';
-    var x = document.createElement('button'); x.textContent = 'close'; x.style.cssText = 'font:inherit;padding:3px 8px;border-radius:6px;border:1px solid #888;background:#222;color:#fff';
-    x.onclick = function () { panel.remove(); panel = null; on = {}; apply(); };
-    head.appendChild(x); panel.appendChild(head);
-    RULES.forEach(function (r) {
-      var b = document.createElement('button');
-      b.style.cssText = 'font:inherit;padding:7px 6px;border-radius:8px;border:1px solid #666;background:#1c1c1e;color:#fff;text-align:left';
-      function label() { b.textContent = (on[r[0]] ? '● ON  ' : '○ off  ') + r[1]; b.style.background = on[r[0]] ? '#0a5' : '#1c1c1e'; }
-      b.onclick = function () { on[r[0]] = !on[r[0]]; label(); apply(); };
-      label(); panel.appendChild(b);
-    });
-    document.body.appendChild(panel);
+  function rect(sel) { var e = document.querySelector(sel); return e ? e.getBoundingClientRect() : null; }
+  function f(n) { return n == null ? '-' : (Math.round(n * 10) / 10); }
+  function lines() {
+    var vv = window.visualViewport, sp = probe(), eb = rect('.hdr-eyebrow'), tb = rect('.tab-bar'), ft = rect('.app-footer'), hd = rect('.app-header');
+    var act = document.querySelector('.tab-panel.active, .tab-content.active');
+    var kids = [], tab = document.querySelector('#tab-special');
+    if (tab && tab.classList.contains('active')) kids = Array.prototype.filter.call(tab.children, function (k) { return getComputedStyle(k).display !== 'none'; }).map(function (k) { return f(k.getBoundingClientRect().top); });
+    return [
+      'VP-DIAG vp-1  (tap title 5x to refresh)',
+      'active tab: ' + document.body.getAttribute('data-active-tab'),
+      'innerHeight: ' + window.innerHeight + '   screen.height: ' + screen.height,
+      'visualViewport.h: ' + (vv ? f(vv.height) : 'n/a') + '   offsetTop: ' + (vv ? f(vv.offsetTop) : 'n/a'),
+      'documentElement.clientHeight: ' + document.documentElement.clientHeight,
+      '--app-vh x100: ' + f(parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--app-vh') || getComputedStyle(document.body).getPropertyValue('--app-vh')) * 100),
+      'safe-area top/bottom: ' + sp[0] + ' / ' + sp[1],
+      'header top/bottom: ' + f(hd && hd.top) + ' / ' + f(hd && hd.bottom),
+      'eyebrow bottom: ' + f(eb && eb.bottom),
+      'tab-bar top: ' + f(tb && tb.top) + '  marginTop: ' + (document.querySelector('.tab-bar') ? document.querySelector('.tab-bar').style.marginTop : '-'),
+      'special rows top: ' + (kids.length ? kids.join(', ') : '(open Special Calc tab)'),
+      'footer top/bottom: ' + f(ft && ft.top) + ' / ' + f(ft && ft.bottom),
+      'body scrollH/clientH: ' + document.body.scrollHeight + ' / ' + document.body.clientHeight,
+      'pageYOffset: ' + f(window.pageYOffset)
+    ];
   }
-  if (/[?&]hdrdiag=1/.test(location.search)) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build); else build(); }
-  var taps = [], t = document.getElementById('hdrTitle');
-  if (t) t.addEventListener('click', function () { var n = Date.now(); taps.push(n); taps = taps.filter(function (v) { return n - v < 2500; }); if (taps.length >= 5) { taps = []; build(); } });
+  function show() {
+    var el = document.getElementById('vpDiag');
+    if (!el) {
+      el = document.createElement('div'); el.id = 'vpDiag';
+      el.style.cssText = 'position:fixed;left:6px;right:6px;bottom:70px;z-index:2147483647;background:rgba(0,0,0,.92);color:#9f9;font:11px/1.45 Menlo,monospace;padding:8px 10px;border:1px solid #9f9;border-radius:8px;white-space:pre-wrap;word-break:break-all';
+      el.addEventListener('click', function () { el.style.display = 'none'; });
+      document.body.appendChild(el);
+    }
+    el.style.display = 'block'; el.textContent = lines().join('\n');
+  }
+  document.addEventListener('click', function (e) {
+    if (!e.target.closest || !e.target.closest('.hdr-title')) return;
+    var now = Date.now(); taps = taps.filter(function (t) { return now - t < 2500; }); taps.push(now);
+    if (taps.length >= 5) { taps = []; show(); setTimeout(show, 1200); }
+  }, true);
 })();
 </script>
 </body>
