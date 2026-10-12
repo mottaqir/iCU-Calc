@@ -211,7 +211,10 @@ html.ios-standalone .ios-top-strip {
 .app-header {
   position: sticky; top: 0; z-index: 100;
   isolation: isolate;
-  padding: calc(10px + env(safe-area-inset-top)) 10px 5px;
+  /* Visible gap from the panel top to the title's ink = 5px, and from the subtitle's ink (descenders) to the panel bottom = 5px,
+     on every tab, always. --hdr-pad-t / --hdr-pad-b are calibrated by fixHeaderGaps() in script (font-metric aware);
+     the numbers here are the fallback until it runs. */
+  padding: calc(var(--hdr-pad-t, 4.5px) + env(safe-area-inset-top)) 10px var(--hdr-pad-b, 0.7px);
   display: flex; align-items: center; gap: 10px;
   flex-shrink: 0;
 }
@@ -230,7 +233,7 @@ html.ios-standalone .ios-top-strip {
   font-size: 0.6rem; letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--accent);
-  margin-bottom: 1px;
+  margin-bottom: var(--hdr-eb-mb, 0px);
 }
 .hdr-title {
   font-size: clamp(13px, 4vw, 17px);
@@ -252,14 +255,15 @@ html.ios-standalone .ios-top-strip {
 /* Bolus tab only: extra header bottom padding so the gap above the tab
    capsules is 15px here specifically (5px default + 4px), without
    affecting Infusion/Special/Cardio (which keep the original 11px = 5+6). */
-body[data-active-tab="bolus"] .app-header { padding-bottom: 9px; }
+/* (the old Bolus-only header padding is gone: header gaps AND the capsule position are identical on every tab) */
 
 /* ── Tab Bar ── */
 .tab-bar {
   position: static; z-index: 99;
   background: var(--bg);
   display: grid; grid-template-columns: 1fr 1fr;
-  gap: 4px; padding: 6px 10px 4px;
+  gap: 4px; /* capsule top = subtitle's line-box bottom + 7px, FIXED on every tab */
+  padding: calc(7px - var(--hdr-pad-b, 0.7px) - var(--hdr-eb-mb, 0px)) 10px 4px;
 }
 .tab-btn {
   position: relative; z-index: 0;
@@ -2325,7 +2329,7 @@ ul.vent-facts code{
 .about-overlay.open { display: flex; }
 .about-panel {
   position: relative; width: 100%; max-width: 420px;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 60px);
   display: flex; flex-direction: column; box-sizing: border-box;
   background: color-mix(in srgb, var(--surface2) 35%, transparent);
   -webkit-backdrop-filter: blur(5px); backdrop-filter: blur(5px);
@@ -17826,8 +17830,8 @@ function specialGapModeOn() {
   var tabBar = document.querySelector('.tab-bar');
   var tabEl = document.getElementById('tab-special');
   var footer = document.querySelector('.app-footer');
-  if (header) header.style.paddingBottom = '0px';
-  if (tabBar) { tabBar.style.paddingTop = '0px'; tabBar.style.paddingBottom = '0px'; }
+  if (header) header.style.paddingBottom = ''; /* keep the header's own bottom padding: gap under the subtitle == gap above the title */
+  if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = '0px'; }  /* capsule position stays fixed */
   if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; }
   if (footer) footer.style.paddingTop = '0px';
 }
@@ -17870,13 +17874,14 @@ function syncSpecialGaps() {
   footer.style.marginTop = '0px';
 
   var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  var eyebrowBottom = eyebrow.getBoundingClientRect().bottom;
+  var hdrEl = document.querySelector('.app-header');
+  var eyebrowBottom = hdrEl ? hdrEl.getBoundingClientRect().bottom : eyebrow.getBoundingClientRect().bottom;   // header's real bottom edge
   var footerH = footer.getBoundingClientRect().height;
   var used = tabBar.getBoundingClientRect().height;
   kids.forEach(function (k) { used += k.getBoundingClientRect().height; });
 
-  // Gap slots: subtitle→tab-bar, tab-bar→1st row, (N-1) between rows, last row→footer = N+2
-  var gapCount = kids.length + 2;
+  // Gap slots: tab-bar→1st row, (N-1) between rows, last row→footer = N+1 (the tab bar itself sits at a fixed position)
+  var gapCount = kids.length + 1;   // tab-bar->1st row, (N-1) between rows, last row->footer (the capsule position itself is fixed)
   var spaceForGapsAndContent = viewportH - eyebrowBottom - footerH;
   var gap = (spaceForGapsAndContent - used) / gapCount;
   if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) gap = SPECIAL_GAP_MIN;
@@ -17892,7 +17897,7 @@ function syncSpecialGaps() {
   var footerOffset = 3;
 
   function applySpecialGaps(g) {
-    tabBar.style.marginTop = g + 'px';
+    tabBar.style.marginTop = '0px';
     kids.forEach(function (k, i) { k.style.marginTop = Math.max(SPECIAL_GAP_MIN, g + kidOffsets[i]) + 'px'; });
     footer.style.marginTop = Math.max(SPECIAL_GAP_MIN, g + footerOffset) + 'px';
   }
@@ -17969,8 +17974,8 @@ function defibGapModeOn() {
   var tabBar = document.querySelector('.tab-bar');
   var tabEl = document.getElementById('tab-defib');
   var footer = document.querySelector('.app-footer');
-  if (header) header.style.paddingBottom = '0px';
-  if (tabBar) { tabBar.style.paddingTop = '0px'; tabBar.style.paddingBottom = '0px'; }
+  if (header) header.style.paddingBottom = ''; /* keep the header's own bottom padding: gap under the subtitle == gap above the title */
+  if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = '0px'; }  /* capsule position stays fixed */
   if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; }
   if (footer) footer.style.paddingTop = '0px';
 }
@@ -18020,7 +18025,8 @@ function syncDefibGaps() {
   titles.forEach(function (tt) { tt.style.paddingTop = ''; tt.style.paddingBottom = ''; });
 
   var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-  var eyebrowBottom = eyebrow.getBoundingClientRect().bottom;
+  var hdrEl = document.querySelector('.app-header');
+  var eyebrowBottom = hdrEl ? hdrEl.getBoundingClientRect().bottom : eyebrow.getBoundingClientRect().bottom;   // header's real bottom edge
   var footerH = footer.getBoundingClientRect().height;
   function usedHeight() {
     var u = tabBar.getBoundingClientRect().height;
@@ -18028,9 +18034,9 @@ function syncDefibGaps() {
     return u;
   }
 
-  // Gap slots: subtitle→tab-bar, tab-bar→1st card, (N-1) between cards, last
-  // card→footer = N+2, exactly mirroring Special Calc's slot count.
-  var gapCount = kids.length + 2;
+  // Gap slots: tab-bar→1st card, (N-1) between cards, last card→footer = N+1,
+  // exactly mirroring Special Calc's slot count (the tab bar itself is at a fixed position).
+  var gapCount = kids.length + 1;
   var space = viewportH - eyebrowBottom - footerH - 1;   // 1px safety so sub-pixel rounding never causes a 1px scroll
   var gap = (space - usedHeight()) / gapCount;
   var squeezed = false;
@@ -18066,7 +18072,7 @@ function syncDefibGaps() {
   }
 
   function applyGaps(g) {
-    tabBar.style.marginTop = g + 'px';
+    tabBar.style.marginTop = '0px';
     // 5px less above the first card (tab-bar -> "10 ECG Emergencies"), 5px more above the
     // footer; the offset shrinks with the gap so the two always cancel out exactly.
     var floor = squeezed ? 0 : DEFIB_GAP_MIN;
@@ -18704,7 +18710,53 @@ try { hgInit(); } catch(e) {}
       var newSize = Math.max(11, baseSize * scale);
       title.style.fontSize = newSize.toFixed(2) + 'px';
     }
+    fixHeaderGaps();
     kickHeaderRepaint();
+  }
+  /* Make the VISIBLE gaps exactly HDR_GAP px on every tab: title ink (ascender/cap top) -> panel top, and
+     subtitle ink (descender bottom) -> panel bottom. The rendered baseline of each line is read from a zero-size
+     probe (so line-box rounding in any browser is accounted for) and the glyph extents come from canvas
+     measureText, then --hdr-pad-t / --hdr-pad-b / --hdr-eb-mb are corrected by the remaining difference. */
+  var HDR_GAP = 5;
+  function baselineY(el) {
+    var pr = document.createElement('span');
+    pr.style.cssText = 'display:inline-block;width:0;height:0;vertical-align:baseline;';
+    el.appendChild(pr);
+    var y = pr.getBoundingClientRect().bottom;
+    el.removeChild(pr);
+    return y;
+  }
+  function inkExtent(el) {
+    var cs = getComputedStyle(el);
+    _twCanvas3 = _twCanvas3 || document.createElement('canvas');
+    var ctx = _twCanvas3.getContext('2d');
+    ctx.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + parseFloat(cs.fontSize) + 'px ' + cs.fontFamily;
+    var m = ctx.measureText(el.textContent);
+    if (m.actualBoundingBoxAscent === undefined) return null;
+    return { asc: m.actualBoundingBoxAscent, desc: m.actualBoundingBoxDescent };
+  }
+  function fixHeaderGaps() {
+    var header = document.querySelector('.app-header');
+    var title = document.getElementById('hdrTitle');
+    var eb = header && header.querySelector('.hdr-eyebrow');
+    if (!header || !title || !eb) return;
+    var tInk = inkExtent(title), eInk = inkExtent(eb);
+    if (!tInk || !eInk) return;
+    var root = document.documentElement.style;
+    for (var pass = 0; pass < 2; pass++) {
+      var hr = header.getBoundingClientRect();
+      var gapTop = (baselineY(title) - tInk.asc) - hr.top;
+      var gapBot = hr.bottom - (baselineY(eb) + eInk.desc);
+      var curT = parseFloat(root.getPropertyValue('--hdr-pad-t'));  if (!isFinite(curT)) curT = 4.5;
+      var curB = parseFloat(root.getPropertyValue('--hdr-pad-b'));  if (!isFinite(curB)) curB = 0.7;
+      var curM = parseFloat(root.getPropertyValue('--hdr-eb-mb'));  if (!isFinite(curM)) curM = 0;
+      var newT = Math.max(0, curT + (HDR_GAP - gapTop));
+      var newBM = curB + curM + (HDR_GAP - gapBot);        // total space under the subtitle's line box
+      root.setProperty('--hdr-pad-t', newT.toFixed(2) + 'px');
+      root.setProperty('--hdr-pad-b', Math.max(0, newBM).toFixed(2) + 'px');
+      root.setProperty('--hdr-eb-mb', Math.min(0, newBM).toFixed(2) + 'px');
+      if (Math.abs(HDR_GAP - gapTop) < 0.05 && Math.abs(HDR_GAP - gapBot) < 0.05) break;
+    }
   }
   // iOS WebKit can leave the old (pre-resize / pre-font-swap) title raster smeared inside the
   // header's backdrop layer. Dropping the backdrop for one frame and restoring it forces a clean redraw.
@@ -18717,8 +18769,8 @@ try { hgInit(); } catch(e) {}
       requestAnimationFrame(function () { h.classList.remove('hdr-repaint'); });
     });
   }
-  window.addEventListener('load', function () { setTimeout(kickHeaderRepaint, 120); setTimeout(kickHeaderRepaint, 900); });
-  window.addEventListener('pageshow', function () { setTimeout(kickHeaderRepaint, 60); });
+  window.addEventListener('load', function () { setTimeout(function () { fixHeaderGaps(); kickHeaderRepaint(); }, 120); setTimeout(function () { fixHeaderGaps(); kickHeaderRepaint(); }, 900); });
+  window.addEventListener('pageshow', function () { setTimeout(function () { fixHeaderGaps(); kickHeaderRepaint(); }, 60); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden) setTimeout(kickHeaderRepaint, 60); });
   function runWhenReady3() {
     if (document.fonts && document.fonts.ready) {
@@ -19945,9 +19997,9 @@ if ('serviceWorker' in navigator) {
   if (!ov || !btn) return;
 
   var panelEl = document.getElementById('aboutPanel');
-  var ABOUT_OVER_MENU = 10; // popup is exactly this many px taller than the hamburger menu window
+  var ABOUT_OVER_MENU = 30; // popup is exactly this many px taller than the hamburger menu window
   function syncAboutHeight() {
-    // Height = hamburger menu window's height + 10px. The menu panel is display:none until opened, so it is
+    // Height = hamburger menu window's height + 30px. The menu panel is display:none until opened, so it is
     // measured live by showing it invisibly for one synchronous reflow (never painted). Bottom edge stays put.
     if (!panelEl) return;
     var mp = document.getElementById('menuPanel'), mh = 0;
@@ -19962,7 +20014,7 @@ if ('serviceWorker' in navigator) {
       var w = Math.min(420, document.documentElement.clientWidth - 16);
       mh = w + 17 - ABOUT_OVER_MENU;
     }
-    panelEl.style.height = Math.min(mh + ABOUT_OVER_MENU, window.innerHeight - 80) + 'px';
+    panelEl.style.height = Math.min(mh + ABOUT_OVER_MENU, window.innerHeight - 60) + 'px';
   }
   function syncAboutBottom() {
     // Panel's bottom edge = bottom edge of the footer icon buttons (measured live)
