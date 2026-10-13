@@ -20126,7 +20126,7 @@ if ('serviceWorker' in navigator) {
 /* Header glass fade zone: --hdr-ext grows from 0 (page top) to HDR_FADE px as the page scrolls, so the fade sits just
    below the header while scrolled but never touches the tab capsules at rest. */
 (function () {
-  var HDR_FADE = 28, raf = null, last = -1;
+  var HDR_FADE = 16, raf = null, last = -1;
   function apply() {
     raf = null;
     var h = document.querySelector('.app-header'); if (!h) return;
