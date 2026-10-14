@@ -3264,7 +3264,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-thio">
  <div class="drug-header" onclick="toggleCard('thio')">
  <div class="drug-dot" style="color:#a78bfa"></div>
- <div style="flex:1"><div class="drug-name">Thiopental Sodium <span class="brand-name">(TPS)</span></div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml • Conc: <span id="thio-conc">50</span>mg/ml</span></div></div>
+ <div style="flex:1"><div class="drug-name">Thiopental Sodium</div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml • Conc: <span id="thio-conc">50</span>mg/ml</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-thio">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3397,7 +3397,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-kcl">
  <div class="drug-header" onclick="toggleCard('kcl')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Potassium Chloride <span class="brand-name" style="font-size:1em">(KCl)</span> &mdash; CV Line/PICC</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KT + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml &nbsp;|&nbsp; <span class="kcl-mmolhr"><span id="dv-kcl">8</span> mmol/hr</span></div></div>
+ <div style="flex:1"><div class="drug-name">Potassium Chloride <span class="brand-name" style="font-size:1em">(KCl)</span> &mdash; PICC/CV Line</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-kcl-amp"><button type="button" class="mini-select-trigger" id="mini-kcl-amp-trigger" onclick="toggleMiniSelect(event,'mini-kcl-amp')">2 amp</button><span class="mini-select-panel" data-owner="mini-kcl-amp"><span class="mini-select-option selected" onclick="pickKclAmp(event,2)">2 amp (50ml)</span><span class="mini-select-option" onclick="pickKclAmp(event,3)">3 amp (60ml)</span></span></span> KCl + 30ml NS = <span id="kcl-total">50</span>ml over <span id="kcl-hrs">5</span> hrs<br>Conc: <span id="kcl-conc">0.8</span>mmol/ml &nbsp;|&nbsp; <span class="kcl-mmolhr"><span id="dv-kcl">8</span> mmol/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-kcl">10</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3438,7 +3438,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-ins">
  <div class="drug-header" onclick="toggleCard('ins')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Human Regular Insulin <span class="brand-name" style="font-size:0.72em">100 units/ml</span></div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-ins-units"><button type="button" class="mini-select-trigger" id="mini-ins-units-trigger" onclick="toggleMiniSelect(event,'mini-ins-units')">50 unit</button><span class="mini-select-panel" data-owner="mini-ins-units"><span class="mini-select-option selected" onclick="pickInsUnits(event,50)">50 unit</span><span class="mini-select-option" onclick="pickInsUnits(event,100)">100 unit</span></span></span> in 50ml NS<br>Conc: <span id="ins-conc">1</span> unit/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Regular Insulin (Human) <span class="brand-name" style="font-size:0.72em">100 units/ml</span></div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-ins-units"><button type="button" class="mini-select-trigger" id="mini-ins-units-trigger" onclick="toggleMiniSelect(event,'mini-ins-units')">50 unit</button><span class="mini-select-panel" data-owner="mini-ins-units"><span class="mini-select-option selected" onclick="pickInsUnits(event,50)">50 unit</span><span class="mini-select-option" onclick="pickInsUnits(event,100)">100 unit</span></span></span> in 50ml NS<br>Conc: <span id="ins-conc">1</span> unit/ml</div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-ins">6</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -5929,7 +5929,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--border)">
       <span>Drug</span><span style="text-align:center">Onset</span><span style="text-align:center">Peak</span><span style="text-align:center">Duration</span>
      </div>
-     <div class="ins-type-row"><span>Actrapid / Humulin R</span><span>30–60 min</span><span>2–4 hr</span><span>6–8 hr</span></div>
+     <div class="ins-type-row"><span>Regular insulin</span><span>30–60 min</span><span>2–4 hr</span><span>6–8 hr</span></div>
     </div>
     <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 IV infusion in ICU • S/C 30 min before meal • Only insulin safe IV</div>
    </div>
@@ -5940,7 +5940,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--border)">
       <span>Drug</span><span style="text-align:center">Onset</span><span style="text-align:center">Peak</span><span style="text-align:center">Duration</span>
      </div>
-     <div class="ins-type-row"><span>NPH / Insulatard / Humulin N</span><span>1–3 hr</span><span>6–10 hr</span><span>12–18 hr</span></div>
+     <div class="ins-type-row"><span>NPH (isophane)<small style="display:block;font-size:9px;font-weight:400;color:var(--text-faint);margin-top:1px">e.g. Insulatard, Humulin N</small></span><span>1–3 hr</span><span>6–10 hr</span><span>12–18 hr</span></div>
     </div>
     <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Cloudy — mix gently • Twice daily typical • Avoid in ICU (unpredictable absorption)</div>
    </div>
@@ -5951,8 +5951,8 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:0;font-size:9px;font-weight:700;color:var(--text-faint);text-transform:uppercase;padding:5px 8px;border-bottom:1px solid var(--border)">
       <span>Drug</span><span style="text-align:center">Onset</span><span style="text-align:center">Peak</span><span style="text-align:center">Duration</span>
      </div>
-     <div class="ins-type-row"><span>Glargine (Lantus/Basaglar)</span><span>2–4 hr</span><span>Peakless</span><span>20–24 hr</span></div>
-     <div class="ins-type-row"><span>Detemir (Levemir)</span><span>1–3 hr</span><span>Flat</span><span>12–24 hr</span></div>
+     <div class="ins-type-row"><span>Glargine U-100<small style="display:block;font-size:9px;font-weight:400;color:var(--text-faint);margin-top:1px">e.g. Lantus, Basaglar</small></span><span>2–4 hr</span><span>Peakless</span><span>20–24 hr</span></div>
+     <div class="ins-type-row"><span>Detemir<small style="display:block;font-size:9px;font-weight:400;color:var(--text-faint);margin-top:1px">e.g. Levemir</small></span><span>1–3 hr</span><span>Flat</span><span>12–24 hr</span></div>
     </div>
     <div style="font-size:10px;color:var(--text-faint);margin-top:4px;padding-left:4px">💡 Clear — do NOT mix with other insulins • Once daily (Glargine), once/twice (Detemir) • S/C only</div>
    </div>
@@ -6050,7 +6050,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
 
   <!-- ── SLIDING SCALE ── -->
   <div id="ins-panel-sliding" style="display:none">
-   <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:8px;border-left:3px solid #06b6d4">Sliding Scale — Actrapid S/C</div>
+   <div style="font-size:10px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.2px;margin-bottom:8px;padding-left:8px;border-left:3px solid #06b6d4">Sliding Scale — Regular Insulin S/C</div>
 
    <div style="margin-bottom:8px">
     <div style="font-size:11px;color:var(--text-muted);margin-bottom:4px">Scale Intensity</div>
@@ -6097,7 +6097,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
      <span class="bl-dot"></span> Type 1 DM (absolute — no endogenous insulin)<br>
      <span class="bl-dot"></span> Type 2 DM — inadequate oral control, acute illness, surgery<br>
      <span class="bl-dot"></span> Hyperglycaemia in ICU / critical illness (CBG &gt;10 mmol/L)<br>
-     <span class="bl-dot"></span> DKA / HHS — IV Actrapid infusion<br>
+     <span class="bl-dot"></span> DKA / HHS — IV regular insulin infusion<br>
      <span class="bl-dot"></span> Hyperkalaemia — insulin + dextrose (drives K⁺ intracellular)<br>
      <span class="bl-dot"></span> TPN / enteral feeding — blood glucose control<br>
      <span class="bl-dot"></span> Gestational DM / Pregnancy (oral agents contraindicated)<br>
@@ -6123,8 +6123,8 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
    <div style="background:transparent;border-radius: 4px;padding:8px 10px;margin-bottom:8px;border:1px solid #f59e0b66">
     <div style="font-size:10px;font-weight:700;color:#f59e0b;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ICU-Specific Pearls</div>
     <div style="font-size:11.5px;color:var(--text);line-height:1.7">
-     <span class="bl-dot"></span> Only Regular (Actrapid) insulin is safe IV — never give analogue IV<br>
-     <span class="bl-dot"></span> IV infusion: 50 units Actrapid in 50ml NS = 1 unit/ml<br>
+     <span class="bl-dot"></span> Only regular insulin is safe IV — never give analogue IV<br>
+     <span class="bl-dot"></span> IV infusion: 50 units regular insulin in 50ml NS = 1 unit/ml<br>
      <span class="bl-dot"></span> Transition IV → S/C: give first S/C dose 1–2 hr before stopping infusion<br>
      <span class="bl-dot"></span> NICE-SUGAR trial: target 7.8–10 mmol/L in ICU (intensive control ↑mortality)<br>
      <span class="bl-dot"></span> Stress hyperglycaemia: common in sepsis, post-op, steroids — treat if CBG &gt;10 consistently<br>
@@ -12656,8 +12656,8 @@ function toggleRef(id) {
 const bolusData = [
  // ── Cardiac & Anti-arrhythmic ──
  { name:"Amiodarone", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 3ml = 150mg", doseMin:null, doseMax:null, unit:"150mg fixed bolus", headerLabel:"150 – 300 mg", onset:"5-10 min", duration:"Variable", note:"Inj. 150mg (1 amp) in 20ml 5% DA IV over 20-30 min. N.B. Maximum 2 bolus doses. If AF not corrected after 2nd bolus → start maintenance infusion." },
- { name:"Adenosine <span class=\"brand-name\">(Adecard)</span>", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 2ml = 6mg", doseMin:null, doseMax:null, unit:"mg rapid push", headerLabel:"6 – 12 mg", onset:"30 sec", duration:"2 min", note:"Standard (any peripheral line, incl. patients on CCB/BB): 6-12-12mg | Central line only: 3-6-6mg (reduced dose recognised for central administration) | FLUSH 20ml NS | <span style='color:#ef4444'>CI:</span> Asthma, Heart block" },
- { name:"Verapamil <span class=\"brand-name\">(Veracal)</span>", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 2ml = 5mg", doseMin:0.075, doseMax:0.15, unit:"mg/kg IV push over 30sec-2min", onset:"5 min", duration:"2-8 hr", note:"EASY: 5-10mg | SVT only (NOT WPW) | If BP down: Ca gluconate 10% 10ml over 10min" },
+ { name:"Adenosine", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 2ml = 6mg", doseMin:null, doseMax:null, unit:"mg rapid push", headerLabel:"6 – 12 mg", onset:"30 sec", duration:"2 min", note:"Standard (any peripheral line, incl. patients on CCB/BB): 6-12-12mg | Central line only: 3-6-6mg (reduced dose recognised for central administration) | FLUSH 20ml NS | <span style='color:#ef4444'>CI:</span> Asthma, Heart block" },
+ { name:"Verapamil", group:"Cardiac & Anti-arrhythmic", cat:"Anti-arrhythmic", color:"#f59e0b", amp:"1 amp = 2ml = 5mg", doseMin:0.075, doseMax:0.15, unit:"mg/kg IV push over 30sec-2min", onset:"5 min", duration:"2-8 hr", note:"EASY: 5-10mg | SVT only (NOT WPW) | If BP down: Ca gluconate 10% 10ml over 10min" },
  { name:"Labetalol", group:"Cardiac & Anti-arrhythmic", cat:"Anti-hypertensive", color:"#f59e0b", amp:"1 amp = 10ml = 50mg", doseMin:0.25, doseMax:0.5, unit:"mg/kg IV over 10 min", onset:"5-10 min", duration:"3-6 hr", note:"Usual dose: 20-80mg slow IV | Repeat every 10 min PRN | Max cumulative: 300mg | <span style='color:#ef4444'>CI:</span> Asthma, bradycardia, heart block, decompensated HF" },
  // ── Sedation & Analgesia ──
  { name:"Midazolam", group:"Sedation & Analgesia", cat:"Sedation", color:"#58a6ff", amp:"5mg/5cc OR 15mg/3cc amp", doseMin:0.02, doseMax:0.1, unit:"mg/kg slow IV", onset:"2-3 min", duration:"15-30 min", note:"IV bolus slowly over 2 min | Titrate to effect | Reduce dose in elderly & hepatic impairment" },
@@ -12667,17 +12667,17 @@ const bolusData = [
  { name:"Ketamine", group:"Induction & NMB (RSI)", cat:"Induction / Dissociative", color:"#ef4444", amp:"500mg/10ml vial (50mg/ml)", doseMin:1, doseMax:2, unit:"mg/kg IV induction", onset:"30-60 sec", duration:"10-15 min", note:"RSI/induction: 1-2mg/kg IV | Sub-dissociative analgesia: 0.1-0.3mg/kg IV | Preferred in haemodynamic instability, bronchospasm/asthma | Raises BP &amp; HR — caution in IHD, uncontrolled HTN | Emergence reactions — co-administer Midazolam | <span style='color:#ef4444'>CI:</span> severe uncontrolled hypertension, eclampsia" },
  { name:"Suxamethonium", group:"Induction & NMB (RSI)", cat:"NMB (RSI)", color:"#ef4444", amp:"100mg/2ml amp (50mg/ml)", doseMin:1, doseMax:2, unit:"mg/kg", onset:"45-60 sec", duration:"5 min", note:"RSI drug of choice" },
  { name:"Atracurium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"25mg/2.5ml amp (10mg/ml)", doseMin:0.5, doseMax:0.5, unit:"mg/kg", onset:"90 sec", duration:"-", note:"Safe in hepatic & renal impairment" },
- { name:"Vecuronium <span class=\"brand-name\">(Norcuron)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"10mg dry powder + 10ml NS", doseMin:0.08, doseMax:0.1, unit:"mg/kg (intubation)", onset:"90-120 sec", duration:"30 min", note:"Maintenance: 0.02-0.03mg/kg | 70kg ~ half amp" },
+ { name:"Vecuronium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"10mg dry powder + 10ml NS", doseMin:0.08, doseMax:0.1, unit:"mg/kg (intubation)", onset:"90-120 sec", duration:"30 min", note:"Maintenance: 0.02-0.03mg/kg | 70kg ~ half amp" },
  { name:"Rocuronium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"50mg/5ml vial (10mg/ml)", doseMin:0.6, doseMax:1.2, unit:"mg/kg (RSI)", onset:"45-60 sec", duration:"30-60 min", note:"RSI/intubation: Rocuronium 0.6-1.2 mg/kg IV push<span style=\"display:block;height:8px\"></span>Ventilator dyssynchrony: first optimise analgosedation, PEEP, FiO2, flow/asynchrony, prone positioning &amp; ventilator settings | If still essential: intermittent bolus (e.g. 0.15mg/kg) — assess clinical recovery before &amp; after each dose | Guidelines prefer intermittent bolus over infusion in ARDS" },
- { name:"Pipecuronium <span class=\"brand-name\">(Arduan)</span>", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"4mg dry powder + 2ml NS", doseMin:0.06, doseMax:0.08, unit:"mg/kg", onset:"90-120 sec", duration:"60 min", note:"Renal failure: 0.04mg/kg | <span style='color:#ef4444'>CI:</span> Myasthenia Gravis | Antidote: Neostigmine" },
- { name:"Thiopental Sodium <span class=\"brand-name\">(TPS)</span>", group:"Status Epilepticus / Neuro-critical", cat:"Barbiturate coma", color:"#a78bfa", amp:"<span onclick=\"event.stopPropagation()\"><span class=\"mini-select\" id=\"mini-thiob-vial\"><button type=\"button\" class=\"mini-select-trigger\" id=\"mini-thiob-vial-trigger\" onclick=\"toggleMiniSelect(event,'mini-thiob-vial')\">500mg</button><span class=\"mini-select-panel\" data-owner=\"mini-thiob-vial\"><span class=\"mini-select-option selected\" onclick=\"pickThiobVial(event,500)\">500mg</span><span class=\"mini-select-option\" onclick=\"pickThiobVial(event,1000)\">1000mg</span></span></span> vial + 10ml<br><span style=\"white-space:nowrap\">WFI or 5% DA or 0.9% NS = <span id=\"thiob-conc\">50</span>mg/ml</span></span>", doseMin:2, doseMax:5, unit:"IV loading bolus", onset:"<30 sec", duration:"5-10 min", note:"ICU use is mainly refractory status epilepticus or barbiturate coma for raised ICP &mdash; NOT routine RSI/induction. Loading 2-5mg/kg (barbiturate coma protocols cite 2-3mg/kg; status epilepticus protocols cite 3-5mg/kg) &mdash; source table's 3-6mg/kg is the general-anaesthesia induction dose. Follow bolus with maintenance infusion (see Infusion Drugs), titrated to EEG burst suppression/seizure control. Significant myocardial depression/hypotension &mdash; caution in haemodynamic instability | <span style='color:#ef4444'>CI:</span> porphyria, status asthmaticus, severe shock" },
+ { name:"Pipecuronium", group:"Induction & NMB (RSI)", cat:"NMB", color:"#ef4444", amp:"4mg dry powder + 2ml NS", doseMin:0.06, doseMax:0.08, unit:"mg/kg", onset:"90-120 sec", duration:"60 min", note:"Renal failure: 0.04mg/kg | <span style='color:#ef4444'>CI:</span> Myasthenia Gravis | Antidote: Neostigmine" },
+ { name:"Thiopental Sodium", group:"Status Epilepticus / Neuro-critical", cat:"Barbiturate coma", color:"#a78bfa", amp:"<span onclick=\"event.stopPropagation()\"><span class=\"mini-select\" id=\"mini-thiob-vial\"><button type=\"button\" class=\"mini-select-trigger\" id=\"mini-thiob-vial-trigger\" onclick=\"toggleMiniSelect(event,'mini-thiob-vial')\">500mg</button><span class=\"mini-select-panel\" data-owner=\"mini-thiob-vial\"><span class=\"mini-select-option selected\" onclick=\"pickThiobVial(event,500)\">500mg</span><span class=\"mini-select-option\" onclick=\"pickThiobVial(event,1000)\">1000mg</span></span></span> vial + 10ml<br><span style=\"white-space:nowrap\">WFI or 5% DA or 0.9% NS = <span id=\"thiob-conc\">50</span>mg/ml</span></span>", doseMin:2, doseMax:5, unit:"IV loading bolus", onset:"<30 sec", duration:"5-10 min", note:"ICU use is mainly refractory status epilepticus or barbiturate coma for raised ICP &mdash; NOT routine RSI/induction. Loading 2-5mg/kg (barbiturate coma protocols cite 2-3mg/kg; status epilepticus protocols cite 3-5mg/kg) &mdash; source table's 3-6mg/kg is the general-anaesthesia induction dose. Follow bolus with maintenance infusion (see Infusion Drugs), titrated to EEG burst suppression/seizure control. Significant myocardial depression/hypotension &mdash; caution in haemodynamic instability | <span style='color:#ef4444'>CI:</span> porphyria, status asthmaticus, severe shock" },
  // ── GI Bleed – Vasoactive Drugs ──
  { name:"Terlipressin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasopressor", color:"#a78bfa", amp:"1 mg vial<br><span style=\"white-space:nowrap\">(lyophilized) + 8.5ml diluent</span>", doseMin:null, doseMax:null, unit:"IV bolus, every 4–6 hr", headerLabel:"1 – 2 mg", onset:"~30 min", duration:"4-6 hr", note:"For acute variceal bleeding &amp; hepatorenal syndrome | Give as slow IV bolus over 1 min | Reduce dose/frequency in elderly &amp; cardiovascular disease | Monitor for peripheral/cardiac ischaemia &amp; hyponatraemia | <span style='color:#ef4444'>CI:</span> uncontrolled hypertension, septic shock, pregnancy" },
  { name:"Somatostatin", group:"GI Bleed – Vasoactive Drugs", cat:"Splanchnic Vasoactive", color:"#a78bfa", amp:"3 mg vial (lyophilized) + solvent", doseMin:null, doseMax:null, unit:"IV slow bolus over 3–5 min", headerLabel:"250 mcg", onset:"1-2 min", duration:"~3 min (very short half-life)", note:"For acute variceal bleeding | <span style='font-size:0.8em;vertical-align:0.10em'>&#9888;&#65039;</span> Bolus alone is not enough — follow immediately with continuous infusion 250 mcg/hr, or effect wears off within minutes | May repeat bolus once in first hour if bleeding continues | Watch for hyperglycaemia, bradycardia, abdominal cramps" },
  { name:"Octreotide", group:"GI Bleed – Vasoactive Drugs", cat:"Somatostatin Analogue", color:"#a78bfa", amp:"1 amp = 1ml = 50mcg", doseMin:null, doseMax:null, unit:"IV bolus", headerLabel:"50 mcg", onset:"few min", duration:"~1.5-2 hr", note:"For acute variceal bleeding | Follow bolus with continuous infusion 25–50 mcg/hr | Longer acting than Somatostatin, less frequent redosing needed | Monitor blood glucose (can cause hyper- or hypoglycaemia)" },
  // ── Anti-epileptic & Endocrine ──
  { name:"Phenytoin IV", group:"Anti-epileptic & Endocrine", cat:"Anti-epileptic", color:"#10b981", amp:"1 amp = 2ml = 100mg", doseMin:15, doseMax:15, unit:"mg/kg loading", onset:"-", duration:"-", note:"Dilute each amp to 5ml | Max rate 50 mg/min (never exceed) | Caution: bradycardia, hypotension — pregnancy is not an absolute CI in status epilepticus, weigh risk/benefit" },
- { name:"Human Insulin Regular <span class=\"brand-name\" style=\"font-size:0.78em\">100 units/ml</span>", group:"Anti-epileptic & Endocrine", cat:"Endocrine", color:"#10b981", amp:"100 IU/ml vial | S/C injection", doseMin:null, doseMax:null, unit:"units S/C", onset:"15-30 min", duration:"4-6 hr", slidingScale:true, smallHeader:true },
+ { name:"Regular Insulin (Human) <span class=\"brand-name\" style=\"font-size:0.78em\">100 units/ml</span>", group:"Anti-epileptic & Endocrine", cat:"Endocrine", color:"#10b981", amp:"100 units/ml vial | S/C injection", doseMin:null, doseMax:null, unit:"units S/C", onset:"15-30 min", duration:"4-6 hr", slidingScale:true, smallHeader:true },
 ];
 
 function pickThiobVial(e, vialMg) {
@@ -16642,7 +16642,7 @@ function calcInsDosingAll() {
    hlEl.innerHTML = '<div style="font-size:12px;font-weight:700;color:#ef4444">🚨 CBG &lt;4.0 — HOLD insulin • Treat hypoglycaemia first</div>';
    hlEl.style.borderColor = '#ef444460';
   } else {
-   const doseText = dose === 0 ? 'No insulin needed' : dose + ' units Actrapid S/C';
+   const doseText = dose === 0 ? 'No insulin needed' : dose + ' units regular insulin S/C';
    const callText = cbg > 22 ? ' + Notify doctor' : '';
    hlEl.innerHTML = '<div style="font-size:10px;color:var(--text-faint);margin-bottom:4px">CBG ' + cbg.toFixed(1) + ' mmol/L → Range: ' + rangeLabel + '</div><div style="font-size:16px;font-weight:800;color:' + color + '">' + doseText + callText + '</div><div style="font-size:10px;color:var(--text-faint);margin-top:3px">Scale: ' + insScaleLevel.charAt(0).toUpperCase() + insScaleLevel.slice(1) + '</div>';
    hlEl.style.borderColor = color + '60';
@@ -17678,7 +17678,7 @@ function calcDKA() {
       criteria = '✅ High glucose (&ge;33.3) • ✅ High eff. osmolality (>300) • ✅ Acidosis (pH&lt;7.30 and/or HCO₃&lt;18) • ✅ Ketonaemia present';
       management = `<strong style="color:#f97316">Treat as DKA primarily.</strong><br>
 IV 0.9% NaCl — correct volume deficit carefully (avoid rapid osmolality drop)<br>
-IV Actrapid infusion 0.1 unit/kg/hr • Add 5–10% dextrose when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin<br>
+IV regular insulin infusion 0.1 unit/kg/hr • Add 5–10% dextrose when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin<br>
 Check K⁺ — replace before starting insulin if &lt;3.5 mEq/L<br>
 Monitor osmolality 4-hourly — target drop &lt;3 mOsm/kg/hr<br>
 <span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Rapid osmolality correction risks cerebral oedema`;
@@ -17696,7 +17696,7 @@ Monitor osmolality 4-hourly — target drop &lt;3 mOsm/kg/hr<br>
       if (flags.length) criteria += `<br><span style="color:var(--accent);font-weight:600">Trigger: ${flags.join(' • ')}</span>`;
 
       management = `<strong style="color:var(--accent)">Do NOT be misled by normal glucose.</strong><br>
-IV Actrapid 0.05–0.1 unit/kg/hr<br>
+IV regular insulin 0.05–0.1 unit/kg/hr<br>
 Start 5–10% Dextrose infusion immediately (glucose normal — still needs insulin to clear ketones)<br>
 IV 0.9% NaCl — volume replacement<br>
 K⁺ replacement — check hourly initially<br>
@@ -17721,7 +17721,7 @@ Target: ketones &lt;0.6 mmol/L • (pH &ge;7.30 or HCO₃ &ge;18) before stoppin
 
       management = `<strong style="color:#ef4444">ICU/HDU management:</strong><br>
 IV 0.9% NaCl: 1L over 1st hr • then 500ml/hr × 2h • then 250ml/hr (reassess)<br>
-IV Actrapid infusion: 0.1 unit/kg/hr (fixed rate) — do NOT bolus<br>
+IV regular insulin infusion: 0.1 unit/kg/hr (fixed rate) — do NOT bolus<br>
 K⁺ replacement: if K &lt;3.5 → hold insulin, give ~10 mmol/hr KCl until K&gt;3.5; K 3.5–5.5 → add 20–30 mmol KCl per litre IV fluid; K &gt;5.5 → hold K<br>
 Switch to 5% Dextrose + 0.45% NaCl when glucose &lt;13.9 mmol/L (250 mg/dL) — continue insulin until ketosis resolves<br>
 Bicarbonate: only if pH &lt;6.9 (100 mEq NaHCO₃ over 2h)<br>
@@ -17738,7 +17738,7 @@ Target resolution: ketones &lt;0.6 • (pH &ge;7.30 or HCO₃ &ge;18)`;
 Average fluid deficit: 9–10 litres (replace over 24–48h — NOT rapidly)<br>
 IV 0.9% NaCl: 1L over 1st hr • then titrate (250–500ml/hr based on response)<br>
 Target osmolality drop: &lt;3 mOsm/kg/hr — risk cerebral oedema if faster<br>
-IV Actrapid: start only after adequate volume — 0.05 unit/kg/hr; add dextrose when glucose &lt;15 mmol/L<br>
+IV regular insulin: start only after adequate volume — 0.05 unit/kg/hr; add dextrose when glucose &lt;15 mmol/L<br>
 K⁺ replacement: always — total body deficit severe despite apparent normoK<br>
 DVT prophylaxis mandatory — very high thrombosis risk<br>
 Identify precipitant: infection, MI, stroke, medications<br>
