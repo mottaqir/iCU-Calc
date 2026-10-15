@@ -339,7 +339,28 @@ body:not([data-theme="light"]) .tab-btn.active {
 /* Bolus tab only: extra top padding so the gap below the tab capsules is
    17px here specifically (tab-bar's own bottom padding is 4px, shared by
    all tabs, +13px here = 17px), without affecting Infusion/Special/Cardio. */
-#tab-bolus.active { padding-top: 13px; }
+#tab-bolus.active { padding-top: 8.7px; }
+/* Bolus + Infusion tabs: every vertical gap (tab-bar → first row, between categories,
+   category label → first card, card → card) is HALF of the shared defaults.
+   Every gap = TWO-THIRDS of the shared defaults. Visible gap between two card titles =
+   header padding-bottom + margin + next padding-top: was 8+6+8 = 22px → now 5.3+4+5.3 ≈ 14.7px.
+   Category: 16px → 10.7px; label → card: 8px → 5.3px. */
+#tab-bolus .cat-block, #tab-infusion .cat-block { margin-bottom: 10.7px; }
+#tab-bolus .cat-block:last-child, #tab-infusion .cat-block:last-child { margin-bottom: 0; }
+#tab-bolus .cat-label, #tab-infusion .cat-label { margin-bottom: 5.3px; }
+#tab-bolus .bolus-card, #tab-bolus .drug-card,
+#tab-infusion .bolus-card, #tab-infusion .drug-card { margin-bottom: 4px; }
+#tab-bolus .bolus-card:last-child, #tab-bolus .drug-card:last-child,
+#tab-infusion .bolus-card:last-child, #tab-infusion .drug-card:last-child { margin-bottom: 0; }
+#tab-bolus .bolus-header, #tab-bolus .drug-header,
+#tab-infusion .bolus-header, #tab-infusion .drug-header { padding-top: 5.3px; padding-bottom: 5.3px; }
+/* Infusion: Syringe Pump row (calc-card) sits above the first category — two-thirds gaps too */
+#tab-infusion #calccard-syringe { margin-bottom: 5.3px; }
+#tab-infusion #calccard-syringe > .calc-title { padding-top: 6.7px; padding-bottom: 6.7px; }
+/* Last card -> footer text: same visible gap as card -> card. (The shared 12px tab padding + footer
+   padding made it ~10-12px bigger than the gaps between the cards on these two scrolling tabs.) */
+#tab-bolus.active { padding-bottom: 2px; }
+#tab-infusion.active { padding-bottom: 0px; }
 /* Special Calc: "everything fits on one screen" with EQUAL gaps that span
    further than just this element — from the header subtitle's baseline all
    the way down to the footer's top edge, including the tab-bar capsule and
@@ -800,7 +821,12 @@ input[type=range]::-moz-range-progress {
   transition: color .2s ease;
 }
 .calc-pin-icon {
-  display: inline-block;
+  /* Outline star (rounded joins, uniform stroke) drawn as a mask so it takes the button's
+     colour (faint → accent when pinned). The ☆ glyph in the markup is hidden (font-size:0). */
+  display: inline-block; width: 13px; height: 12.4px; font-size: 0; line-height: 0;
+  background-color: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='262 154 700 670'%3E%3Cpath d='M612 182 L715 379 L934 416 L778 575 L811 795 L612 696 L413 795 L446 575 L290 416 L509 379Z' fill='none' stroke='black' stroke-width='47' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='262 154 700 670'%3E%3Cpath d='M612 182 L715 379 L934 416 L778 575 L811 795 L612 696 L413 795 L446 575 L290 416 L509 379Z' fill='none' stroke='black' stroke-width='47' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 @media (hover: hover) {
   .calc-pin:hover { color: var(--accent); }
@@ -883,11 +909,21 @@ input[type=range]::-moz-range-progress {
 .special-cat-body .calc-card { border: none; background: transparent; margin-bottom: 4px; }
 #special-pinned-body .calc-card { border: none; background: transparent; margin-bottom: 4px; }
 #special-pinned-body .calc-card:last-child { margin-bottom: 0; }
+/* Pinned (favourite) rows: visible gap between titles = TWO-THIRDS of the original.
+   was calc-title padding 10+10 + margin 4 = 24px → now 6.7+6.7 + 2.7 ≈ 16px. */
+#special-pinned-body .calc-card { margin-bottom: 2.7px; }
+#special-pinned-body .calc-card:last-child { margin-bottom: 0; }
+#special-pinned-body .calc-title { padding-top: 6.7px; padding-bottom: 6.7px; }
 .special-cat-body .calc-title > span:not(.calc-title-dot) {
   color: var(--text-strong);
   padding: 4px 10px;
 }
 .special-cat-body .calc-card:last-child { margin-bottom: 0; }
+/* Cards inside an expanded category: visible gap between titles HALVED
+   (was calc-title padding 10+10 + margin 4 = 24px → now 5+5 + 2 = 12px). */
+.special-cat-body .calc-card { margin-bottom: 2px; }
+.special-cat-body .calc-card:last-child { margin-bottom: 0; }
+.special-cat-body .calc-title { padding-top: 5px; padding-bottom: 5px; }
 /* #calccard-glance ("At a Glance") is rendered as a standalone sibling, not inside
    .special-cat-body — but more importantly, it's a CATEGORY in its own right
    (it holds ABG / Mechanical Ventilator as sub-items), so its header gets the
@@ -1378,7 +1414,7 @@ div:has(> .field-inputs) { padding-left: 2px !important; padding-right: 2px !imp
    shrunk/inset next to the other pinned rows; strip it back to plain
    .calc-title's padding (10px 14px on the header, none on the text) so every
    row in the pinned strip lines up the same. */
-#special-pinned-body .gl-sub-header { padding-top: 10px; padding-bottom: 10px; padding-left: 2px; padding-right: 2px; }
+#special-pinned-body .gl-sub-header { padding-top: 6.7px; padding-bottom: 6.7px; padding-left: 2px; padding-right: 2px; }
 #special-pinned-body .gl-sub-header-txt > span:not(.gl-sub-emoji) { padding: 0; }
 .gl-sub-body { padding: 0 0 3px; display: none; }
 .gl-sub-body.gl-open { display: block; }
@@ -2901,7 +2937,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
 <input type="hidden" id="globalWt" value="60">
 <input type="hidden" id="globalWtNum" value="60">
 
-<div id="tab-infusion" class="tab-content" style="padding-top:14px">
+<div id="tab-infusion" class="tab-content" style="padding-top:9.3px">
  <div class="formula-banner">Formula: ml/hr = (Dose &times; Weight &times; 60) &divide; Concentration</div>
 
  <!-- ─── Syringe Pump Dose Calculator ─── -->
@@ -17844,8 +17880,50 @@ window.addEventListener('resize', function () {
    eyebrow and the footer — that distance collapses to equal the content's
    own natural height once margins are zeroed for measurement, which was an
    earlier bug here that made the computed gap always hit the floor. */
-var SPECIAL_GAP_MIN = 6; // px floor once content no longer fits the screen — falls back to normal scroll
+var SPECIAL_FAV_FIT_MAX = 4;   // up to this many pinned cards: shrink the equal gap so everything stays on one screen
+var SPECIAL_GAP_SCROLL = 12;   // more pinned cards than that: fixed equal gap (px) everywhere, page scrolls
+var SPECIAL_GAP_MIN = 5; // px floor once content no longer fits the screen — falls back to normal scroll
 var specialGapRaf = null;
+
+/* ── Last row → footer gap balance (shared by Special Calc and Cardio/Defib) ──────────────────
+   The box-based maths in syncSpecialGaps()/syncDefibGaps() cannot see where the lettering really
+   sits (the 9px footer text is centred between 36px icon buttons; each row has its own line-height
+   leading), so the LAST gap (last row's text -> footer text) came out a few px smaller than the gaps
+   between the rows. This pass MEASURES the real text line positions after layout and moves the
+   difference between the footer margin and the row margins. The total height is unchanged, so
+   nothing starts scrolling and the page still fills the screen exactly. */
+var FOOTER_GAP_BIAS = 0;   // fine trim (px): + = a little more room above the footer text
+function textExtent(el) {
+  if (!el) return null;
+  var r = document.createRange(); r.selectNodeContents(el);
+  var b = r.getBoundingClientRect();
+  if (!b || (!b.width && !b.height)) return null;
+  var sy = window.pageYOffset || 0;
+  return { top: b.top + sy, bot: b.bottom + sy };
+}
+function balanceFooterGap(kids, footer, topOf, botOf) {
+  if (!kids || kids.length < 2 || !footer) return;
+  var ext = [];
+  for (var i = 0; i < kids.length; i++) {
+    var t = topOf(kids[i]), b = botOf(kids[i]);
+    if (!t || !b || t.top == null || b.bot == null) return;
+    ext.push({ top: t.top, bot: b.bot });
+  }
+  var f = textExtent(footer.querySelector('.ft-line1'));
+  if (!f) return;
+  var gaps = [];
+  for (var j = 1; j < ext.length; j++) gaps.push(ext[j].top - ext[j - 1].bot);
+  gaps.push(f.top - ext[ext.length - 1].bot - FOOTER_GAP_BIAS);
+  var sum = 0; gaps.forEach(function (g) { sum += g; });
+  var target = sum / gaps.length;
+  var cur = [];
+  for (var m = 1; m < kids.length; m++) cur.push(parseFloat(kids[m].style.marginTop) || 0);
+  cur.push(parseFloat(footer.style.marginTop) || 0);
+  var next = cur.map(function (c, idx) { return c + (target - gaps[idx]); });
+  for (var n = 0; n < next.length; n++) if (!isFinite(next[n]) || next[n] < 0) return;   // never push a margin below 0
+  for (var q = 1; q < kids.length; q++) kids[q].style.marginTop = next[q - 1] + 'px';
+  footer.style.marginTop = next[next.length - 1] + 'px';
+}
 
 function specialGapModeOn() {
   var header = document.querySelector('.app-header');
@@ -17854,7 +17932,7 @@ function specialGapModeOn() {
   var footer = document.querySelector('.app-footer');
   if (header) header.style.paddingBottom = ''; /* keep the header's own bottom padding: gap under the subtitle == gap above the title */
   if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = '0px'; }  /* capsule position stays fixed */
-  if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; }
+  if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; tabEl.style.flexGrow = '0'; }
   if (footer) footer.style.paddingTop = '0px';
 }
 
@@ -17869,7 +17947,8 @@ function specialGapModeOff() {
   if (tabEl) {
     tabEl.style.paddingTop = '';
     tabEl.style.paddingBottom = '';
-    Array.prototype.forEach.call(tabEl.children, function (k) { k.style.marginTop = ''; });
+    tabEl.style.flexGrow = '';
+    Array.prototype.forEach.call(tabEl.children, function (k) { k.style.marginTop = ''; k.style.marginBottom = ''; });
   }
 }
 
@@ -17892,59 +17971,95 @@ function syncSpecialGaps() {
   // Zero every margin first so the measurements below are natural, ungapped
   // heights, not last run's already-gapped ones.
   tabBar.style.marginTop = '0px';
-  kids.forEach(function (k) { k.style.marginTop = '0px'; });
+  kids.forEach(function (k) { k.style.marginTop = '0px'; k.style.marginBottom = '0px'; });
   footer.style.marginTop = '0px';
 
   var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
   var hdrEl = document.querySelector('.app-header');
   var GB = window.HDR_GAP_BOT || 8;   // header bottom edge sits GB px below the subtitle's ink
   var eyebrowBottom = hdrEl ? hdrEl.getBoundingClientRect().bottom - GB : eyebrow.getBoundingClientRect().bottom;   // subtitle's visible bottom
-  var footerH = footer.getBoundingClientRect().height;
-  var used = tabBar.getBoundingClientRect().height;
-  kids.forEach(function (k) { used += k.getBoundingClientRect().height; });
 
-  // The capsule sits at ONE common position on every tab (CAP px below the subtitle's ink, scaled to the screen height),
-  // so switching tabs doesn't make the tab bar jump. The remaining gaps are split equally:
-  // Gap slots: tab-bar→1st row, (N-1) between rows, last row→footer = N+1
-  var CAP = window.hdrCapGap ? window.hdrCapGap() : 15;
-  var gapCount = kids.length + 1;
-  var spaceForGapsAndContent = viewportH - eyebrowBottom - footerH - CAP;
-  var gap = (spaceForGapsAndContent - used) / gapCount;
-  if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) gap = SPECIAL_GAP_MIN;
+  /* PRIMARY VIEW = ONE equal VISIBLE gap everywhere:
+       subtitle ink → tab bar → 1st row … row → row … last row → footer text.
+     "Visible" = ink to ink: each row's own built-in padding (title padding, subtitle line-box, footer
+     padding) is measured and subtracted, so every slot LOOKS the same, not just has the same margin. */
+  var INK_TOP_SEL = '.special-cat-label, .special-cat-title-text, .calc-title > span:not(.calc-title-dot):not(.calc-pin)';
+  function inkOf(k) {
+    var kr = k.getBoundingClientRect();
+    var te = k.querySelector(INK_TOP_SEL);
+    var be = null;
+    if (k.id === 'special-pinned-wrap') {
+      var t = k.querySelectorAll('.calc-title > span:not(.calc-title-dot):not(.calc-pin)');
+      be = t.length ? t[t.length - 1] : null;
+    } else if (!k.classList.contains('is-open') && !k.classList.contains('is-expanded')) {
+      var subs = k.querySelectorAll('.special-cat-sub');
+      be = subs.length ? subs[subs.length - 1] : null;      // collapsed category → bottom ink = last subtitle line
+    }                                                         // expanded → its own bottom edge
+    return {
+      h: kr.height,
+      top: te ? Math.max(0, te.getBoundingClientRect().top - kr.top) : 0,
+      bot: be ? Math.max(0, kr.bottom - be.getBoundingClientRect().bottom) : 0
+    };
+  }
+  var ink = kids.map(inkOf);
+  var footerRect = footer.getBoundingClientRect();
+  var ftEl = footer.querySelector('.footer-text');
+  var fTop = ftEl ? Math.max(0, ftEl.getBoundingClientRect().top - footerRect.top) : 0;   // footer padding above its text
+  var inkUsed = tabBar.getBoundingClientRect().height + (footerRect.height - fTop);
+  ink.forEach(function (o) { inkUsed += o.h - o.top - o.bot; });
 
-  // Per-slot fine-tuning: the tab-bar→1st-row slot carries 8px of extra
-  // static padding baked into the first category header that the eyebrow→
-  // tab-bar slot above it doesn't have, which made it look visually
-  // heavier than every other gap. Shave 8px off that one slot and hand it
-  // straight back to the 5 between-row slots (+1px each) and the
-  // last-row→footer slot (+3px) — offsets net to zero, so the whole-screen
-  // fill math above still holds exactly.
-  var kidOffsets = kids.map(function (_, i) { return i === 0 ? -8 : 1; });
-  var footerOffset = 3;
+  var slots = kids.length + 2;   // subtitle→tab bar, tab bar→1st row, (N-1) between rows, last row→footer
+  var gap = (viewportH - eyebrowBottom - 1 - inkUsed) / slots;   // 1px safety so sub-pixel rounding never causes a 1px scroll
+  var fallback = false;
+  if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) { gap = SPECIAL_GAP_MIN; fallback = true; }   // doesn't fit → normal scroll
+
+  /* Pinned (favourite) cards: up to SPECIAL_FAV_FIT_MAX of them still squeeze into ONE screen (the equal
+     gap above just gets smaller as they are added). Beyond that the page is allowed to scroll and EVERY
+     slot (subtitle→tab bar … last row→footer) is a fixed SPECIAL_GAP_SCROLL px. */
+  var favWrap = document.getElementById('special-pinned-body');
+  var favCount = favWrap ? favWrap.querySelectorAll(':scope > .calc-card').length : 0;
+  if (favCount > SPECIAL_FAV_FIT_MAX) {
+    gap = SPECIAL_GAP_SCROLL;
+    fallback = true;                    // fixed gap: no fit-to-screen correction pass
+    tabEl.style.flexGrow = '1';         // if it still happens to be shorter than the screen, keep the footer at the bottom
+  }
 
   function applySpecialGaps(g) {
-    tabBar.style.marginTop = Math.max(0, CAP - GB) + 'px';   // GB of the subtitle→capsule distance is the header's own solid bottom gap
-    kids.forEach(function (k, i) { k.style.marginTop = Math.max(SPECIAL_GAP_MIN, g + kidOffsets[i]) + 'px'; });
-    footer.style.marginTop = Math.max(SPECIAL_GAP_MIN, g + footerOffset) + 'px';
+    tabBar.style.marginTop = Math.max(0, g - GB) + 'px';   // GB of the subtitle→capsule distance is the header's own solid bottom gap
+    kids.forEach(function (k, i) {
+      var prevBot = i ? ink[i - 1].bot : 0;
+      k.style.marginTop = Math.max(0, g - prevBot - ink[i].top) + 'px';
+    });
+    footer.style.marginTop = Math.max(0, g - (ink.length ? ink[ink.length - 1].bot : 0) - fTop) + 'px';
   }
   applySpecialGaps(gap);
 
-  // Self-correcting pass (same idea as Cardio/Defib): measure where the footer REALLY ended
-  // up and spread any leftover/overshoot, so the footer sits exactly on the screen's bottom
-  // edge instead of 2-3px past it (which also made Special's footer gap differ from Defib's).
-  var fitsHere = (spaceForGapsAndContent - used) / gapCount >= SPECIAL_GAP_MIN;
-  if (fitsHere) {
+  // Self-correcting pass: measure where the footer REALLY ended up and spread any leftover (or
+  // overshoot) equally over all slots — independent of late font swaps / viewport settling.
+  if (!fallback) {
     var bodyPad = parseFloat(getComputedStyle(document.body).paddingBottom) || 0;
-    var slack = viewportH - 0.5 - (footer.getBoundingClientRect().bottom + (window.pageYOffset || 0) + bodyPad);
+    var docBottom = footer.getBoundingClientRect().bottom + (window.pageYOffset || 0) + bodyPad;
+    var slack = viewportH - 0.5 - docBottom;
     if (isFinite(slack) && Math.abs(slack) > 0.3) {
-      gap = Math.max(SPECIAL_GAP_MIN, gap + slack / gapCount);
+      gap = Math.max(SPECIAL_GAP_MIN, gap + slack / slots);
       applySpecialGaps(gap);
-      slack = viewportH - 0.5 - (footer.getBoundingClientRect().bottom + (window.pageYOffset || 0) + bodyPad);
-      if (isFinite(slack) && Math.abs(slack) > 0.3) {   // clamped slots: hand the remainder to the footer slot
-        footer.style.marginTop = Math.max(0, parseFloat(footer.style.marginTop) + slack) + 'px';
-      }
     }
   }
+
+  // Last row -> footer text gap == gap between rows (measured on the real text lines).
+  balanceFooterGap(kids, footer,
+    function (k) { return textExtent(k.querySelector(INK_TOP_SEL)); },
+    function (k) {
+      if (k.id === 'special-pinned-wrap') {
+        var t = k.querySelectorAll('.calc-title > span:not(.calc-title-dot):not(.calc-pin)');
+        return t.length ? textExtent(t[t.length - 1]) : null;
+      }
+      if (!k.classList.contains('is-open') && !k.classList.contains('is-expanded')) {
+        var sb = k.querySelectorAll('.special-cat-sub');
+        return sb.length ? textExtent(sb[sb.length - 1]) : null;
+      }
+      return { bot: k.getBoundingClientRect().bottom + (window.pageYOffset || 0) };
+    });
 }
 
 function scheduleSpecialCompactFit() {
@@ -18123,6 +18238,15 @@ function syncDefibGaps() {
       applyGaps(gap);
     }
   }
+
+  // Last card -> footer text gap == gap between cards (measured on the real text lines).
+  var TITLE_SPAN = ':scope > .calc-title > span:not(.calc-title-dot):not(.calc-pin)';
+  balanceFooterGap(kids, footer,
+    function (k) { return textExtent(k.querySelector(TITLE_SPAN)); },
+    function (k) {
+      if (k.classList.contains('is-expanded')) return { bot: k.getBoundingClientRect().bottom + (window.pageYOffset || 0) };
+      return textExtent(k.querySelector(TITLE_SPAN));
+    });
 }
 
 function scheduleDefibCompactFit() {
