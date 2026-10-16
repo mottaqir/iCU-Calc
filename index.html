@@ -11307,6 +11307,7 @@ function eiwSwitchPO4(which){
   <div class="calc-body" id="ecgemerg-body" style="display:block;padding:0px 6px 3px;">
 
   <style>
+   #calccard-ecgemerg > .calc-title { position: relative; z-index: 1; }   /* the sheet may overlap the title's bottom padding (equal-gap fit) — the title stays on top and tappable */
    .ecg-card { background:var(--surface); border:1px solid var(--border); border-radius: 4px; margin-bottom:7px; overflow:hidden; }
    .ecg-card-header { display:flex; align-items:center; gap:8px; padding:8px 10px; }
    .ecg-num { width:24px; height:24px; border-radius: 4px; display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:900; flex-shrink:0; }
@@ -18114,7 +18115,7 @@ function syncSpecialGaps() {
     var cv = document.createElement('canvas').getContext('2d');
     /* TRUE glyph ink of an element's text: cap-top of the first line → baseline of the last line (what the eye
        sees), instead of the taller line box. Font-agnostic, so a late font swap / different phone font still lines up. */
-    function inkExtent(el) {
+    function inkExtent(el, fixedPos) {
       if (!el) return null;
       var r = document.createRange(); r.selectNodeContents(el);
       var rects = Array.prototype.filter.call(r.getClientRects(), function (x) { return x.width > 0 && x.height > 0; });
@@ -18128,7 +18129,7 @@ function syncSpecialGaps() {
       rects.forEach(function (x) { if (x.top < first.top - 0.5) first = x; if (x.bottom > last.bottom + 0.5) last = x; });
       var baseFirst = first.top + (first.height - (fa + fd)) / 2 + fa;
       var baseLast = last.bottom - (last.height - (fa + fd)) / 2 - fd;
-      return { top: baseFirst - cap + sy, bot: baseLast + sy };
+      var off = fixedPos ? 0 : sy; return { top: baseFirst - cap + off, bot: baseLast + off };
     }
     var TXT = '.calc-title > span:not(.calc-title-dot):not(.calc-pin), .gl-sub-header-txt > span:not(.gl-sub-emoji)';
     var blocks = [];   // { top, bot, mEl }  — mEl = element whose marginTop sets the gap ABOVE this block
@@ -18158,7 +18159,8 @@ function syncSpecialGaps() {
       if (!tt || bb == null) { ok = false; return; }
       blocks.push({ top: tt.top, bot: bb, mEl: k });
     });
-    var eb = inkExtent(eyebrow), fl = inkExtent(footer.querySelector('.ft-line1'));
+    var hdrStuck = /sticky|fixed/.test(getComputedStyle(document.querySelector('.app-header')).position);   // sticky header: its viewport position does NOT move with the scroll offset
+    var eb = inkExtent(eyebrow, hdrStuck), fl = inkExtent(footer.querySelector('.ft-line1'));
     if (!ok || !blocks.length || !eb || !fl) return;
     var tbR = tabBar.getBoundingClientRect();
     var gaps = [], els = [];
@@ -18256,6 +18258,7 @@ function defibGapModeOff() {
     tabEl.style.paddingTop = '';
     tabEl.style.paddingBottom = '';
     tabEl.style.flexGrow = '';
+    var ew = document.getElementById('ecgEmergImgWrap'); if (ew) ew.style.marginTop = '';
     Array.prototype.forEach.call(tabEl.children, function (k) {
       k.style.marginTop = ''; k.style.marginBottom = '';
       var tt = k.querySelector(':scope > .calc-title');
@@ -18285,6 +18288,8 @@ function syncDefibGaps() {
   tabBar.style.marginTop = '0px';
   kids.forEach(function (k) { k.style.marginTop = '0px'; k.style.marginBottom = '0px'; });
   footer.style.marginTop = '0px';
+  var ecgWrapEl = document.getElementById('ecgEmergImgWrap');
+  if (ecgWrapEl) ecgWrapEl.style.marginTop = '0px';   // the infographic's own spacing is set by the final pass below
 
   var titles = kids.map(function (k) { return k.querySelector(':scope > .calc-title'); }).filter(Boolean);
   titles.forEach(function (tt) { tt.style.paddingTop = ''; tt.style.paddingBottom = ''; });
@@ -18369,7 +18374,7 @@ function syncDefibGaps() {
   (function equalizeAllSlots() {
     var sy = window.pageYOffset || 0;
     var cv = document.createElement('canvas').getContext('2d');
-    function inkExtent(el) {   // cap-top of the first line → baseline of the last line (what the eye sees)
+    function inkExtent(el, fixedPos) {   // cap-top of the first line → baseline of the last line (what the eye sees)
       if (!el) return null;
       var r = document.createRange(); r.selectNodeContents(el);
       var rects = Array.prototype.filter.call(r.getClientRects(), function (x) { return x.width > 0 && x.height > 0; });
@@ -18381,33 +18386,61 @@ function syncDefibGaps() {
       if (!isFinite(fa) || !isFinite(fd) || !isFinite(cap)) return textExtent(el);   // very old WebView: line box
       var first = rects[0], last = rects[0];
       rects.forEach(function (x) { if (x.top < first.top - 0.5) first = x; if (x.bottom > last.bottom + 0.5) last = x; });
-      return { top: first.top + (first.height - (fa + fd)) / 2 + fa - cap + sy,
-               bot: last.bottom - (last.height - (fa + fd)) / 2 - fd + sy };
+      var off = fixedPos ? 0 : sy;
+      return { top: first.top + (first.height - (fa + fd)) / 2 + fa - cap + off,
+               bot: last.bottom - (last.height - (fa + fd)) / 2 - fd + off };
     }
     var TITLE_SPAN = ':scope > .calc-title > span:not(.calc-title-dot):not(.calc-pin)';
-    var blocks = [], ok = true;
+    /* ECG sheet (the always-open "10 ECG Emergencies" infographic): its visible ink runs from its first to its last
+       horizontal rule (the svg's own blank margins are not part of what the eye sees). The window shows one page
+       (rows 1-5, rows 6-10) or all 10, so the visible rules are worked out from the pager's current crop. */
+    var ECG_RULES = [13.5, 116.5, 223, 313.5, 407.5, 503.5, 597.5, 694, 797.5, 891.5, 984];   // y of the sheet's separator lines (viewBox units, W = 783)
+    function ecgSheetInk(k) {
+      if (k.id !== 'calccard-ecgemerg') return null;
+      var wrap = document.getElementById('ecgEmergImgWrap'), svg = document.getElementById('ecgEmergSvg');
+      if (!wrap || !svg || !wrap.offsetHeight) return null;
+      var wr = wrap.getBoundingClientRect(), sc = wrap.clientWidth / 783;
+      var m = /translate3d\(\s*0(?:px)?\s*,\s*(-?[\d.]+)px/.exec(svg.style.transform || '');
+      var r0 = m ? -parseFloat(m[1]) / sc : 0;                 // viewBox y at the wrap's top edge
+      var r1 = r0 + wr.height / sc;
+      var vis = ECG_RULES.filter(function (y) { return y >= r0 - 0.01 && y <= r1 + 0.01; });
+      if (vis.length < 2) return null;
+      return { wrap: wrap, top: wr.top + sy + (vis[0] - 0.7 - r0) * sc, bot: wr.top + sy + (vis[vis.length - 1] + 0.7 - r0) * sc };
+    }
+    var blocks = [], ok = true, afterSplit = false;
     kids.forEach(function (k) {
       var te = inkExtent(k.querySelector(TITLE_SPAN));
       if (!te) { ok = false; return; }
+      var sheet = ecgSheetInk(k);
+      if (sheet) {
+        /* the gap this card is allotted is shared: HALF above the infographic, HALF below it */
+        blocks.push({ top: te.top, bot: te.bot, mEl: k, wAbove: afterSplit ? 0.5 : 1, lo: -4 });
+        blocks.push({ top: sheet.top, bot: sheet.bot, mEl: sheet.wrap, wAbove: 0.5, lo: -24 });
+        afterSplit = true;
+        return;
+      }
       var open = k.classList.contains('is-expanded');
-      blocks.push({ top: te.top, bot: open ? k.getBoundingClientRect().bottom + sy : te.bot, mEl: k });
+      blocks.push({ top: te.top, bot: open ? k.getBoundingClientRect().bottom + sy : te.bot, mEl: k, wAbove: afterSplit ? 0.5 : 1, lo: -4 });
+      afterSplit = false;
     });
-    var eb = inkExtent(eyebrow), fl = inkExtent(footer.querySelector('.ft-line1'));
+    var hdrStuck = /sticky|fixed/.test(getComputedStyle(document.querySelector('.app-header')).position);   // sticky header: its viewport position does NOT move with the scroll offset
+    var eb = inkExtent(eyebrow, hdrStuck), fl = inkExtent(footer.querySelector('.ft-line1'));
     if (!ok || !blocks.length || !eb || !fl) return;
     var tbR = tabBar.getBoundingClientRect();
-    var gaps = [], els = [];
-    gaps.push(tbR.top + sy - eb.bot);             els.push(tabBar);
-    gaps.push(blocks[0].top - (tbR.bottom + sy)); els.push(blocks[0].mEl);
-    for (var i = 1; i < blocks.length; i++) { gaps.push(blocks[i].top - blocks[i - 1].bot); els.push(blocks[i].mEl); }
-    gaps.push(fl.top - blocks[blocks.length - 1].bot); els.push(footer);
-    var sum = 0; gaps.forEach(function (g) { sum += g; });
-    var mean = sum / gaps.length;
+    var gaps = [], els = [], wts = [], los = [];
+    function slot(g, el, w, lo) { gaps.push(g); els.push(el); wts.push(w); los.push(lo); }
+    slot(tbR.top + sy - eb.bot, tabBar, 1, -4);
+    slot(blocks[0].top - (tbR.bottom + sy), blocks[0].mEl, 1, blocks[0].lo);
+    for (var i = 1; i < blocks.length; i++) slot(blocks[i].top - blocks[i - 1].bot, blocks[i].mEl, blocks[i].wAbove, blocks[i].lo);
+    slot(fl.top - blocks[blocks.length - 1].bot, footer, afterSplit ? 0.5 : 1, -4);
+    var sum = 0, wsum = 0; gaps.forEach(function (g, ix) { sum += g; wsum += wts[ix]; });
+    var mean = sum / wsum;   // the full-size gap; a half-slot gets mean / 2
     var cur = els.map(function (e) { return parseFloat(e.style.marginTop) || 0; });
     var floorGap = -Infinity;   // a card's own padding limits how small its gap can get; lift the common gap to that floor
-    for (var f = 0; f < gaps.length; f++) floorGap = Math.max(floorGap, gaps[f] - cur[f] - 4);
+    for (var f = 0; f < gaps.length; f++) floorGap = Math.max(floorGap, (gaps[f] - cur[f] + los[f]) / wts[f]);
     if (isFinite(floorGap)) mean = Math.max(mean, floorGap);
-    var nxt = cur.map(function (c, idx) { return c + (mean - gaps[idx]); });
-    for (var n = 0; n < nxt.length; n++) if (!isFinite(nxt[n]) || nxt[n] < -4.01) return;
+    var nxt = cur.map(function (c, idx) { return c + wts[idx] * mean - gaps[idx]; });
+    for (var n = 0; n < nxt.length; n++) if (!isFinite(nxt[n]) || nxt[n] < los[n] - 0.01) return;
     for (var q = 0; q < els.length; q++) els[q].style.marginTop = nxt[q] + 'px';
   })();
 }
