@@ -985,6 +985,10 @@ input[type=range]::-moz-range-progress {
   align-items: flex-start;
 }
 #tab-special .calc-title > .calc-pin { align-self: center; }
+/* Pinned (favourite) rows: the text span has no vertical padding here (unlike rows inside a category,
+   where .special-cat-body gives it 4px top/bottom), so the 24px star button made the row taller than the
+   text line and the flex-start text sat ~3px ABOVE the centred star/chevron. Centre everything on the row. */
+#tab-special #special-pinned-body .calc-title { align-items: center; }
 #tab-special .calc-card > .calc-body { padding-left: 2px; padding-right: 2px; }
 /* ── Flatten remaining decorative content boxes throughout Special Calc & Cardio/
    Defib: strip the shaded gray background and plain gray border wherever an
