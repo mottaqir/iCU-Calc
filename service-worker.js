@@ -3,11 +3,11 @@
 // network fetch runs in the background to refresh the cache. If it fails (offline / flaky signal) it is
 // swallowed silently — the page already got its response from cache.
 //
-// AUTO-UPDATE (replaces the old hand-edited VERSION): on every open, the app shell (index.html) is re-fetched
-// with cache:'no-store' and compared by SHA-256 against the cached copy. If the content differs, the cache is
-// updated and every open page gets an APP_UPDATED message (index.html reloads once if the app was only just
-// opened, otherwise the fresh copy is simply served on the next launch). So a deploy = push to GitHub Pages,
-// open the app once. CACHE_NAME is constant on purpose — change it ONLY if you ever need a full forced wipe.
+// AUTO-UPDATE (replaces the old hand-edited VERSION): the app shell (index.html) is re-fetched with
+// cache:'no-store' and compared by SHA-256 against the cached copy — on every open AND whenever the page sends
+// 'CHECK_UPDATE' (page becomes visible, network comes back, and every 5 s while the app is open and online). If the content differs, the cache
+// is updated and every open page gets an APP_UPDATED message; index.html then reloads itself, so a deploy
+// reaches an already-open (active) session as soon as it is online. CACHE_NAME is constant on purpose — change it ONLY if you ever need a full forced wipe.
 const CACHE_NAME = 'icu-calc-rt';
 
 const APP_SHELL = [
@@ -57,6 +57,9 @@ self.addEventListener('activate', (event) => {
 // Let the page force an update check / immediate activation on demand.
 self.addEventListener('message', (event) => {
   if (event.data === 'SKIP_WAITING') self.skipWaiting();
+  // The page asks for an update check whenever it becomes visible / comes back online / on a timer, so an
+  // ALREADY-OPEN app notices a new deploy without needing a navigation (fetch event) first.
+  if (event.data === 'CHECK_UPDATE') event.waitUntil(checkShellNow());
 });
 
 async function sha256(buf) {
@@ -71,10 +74,12 @@ async function notifyUpdated() {
 
 // Fetch the app shell from the network, store it, and tell the pages if its content changed.
 // oldCopy = a clone of the cached response that was just served (null on first install).
-async function refreshShell(oldCopy) {
+async function refreshShell(oldCopy, extraHeaders) {
   try {
-    const res = await fetch(SHELL_URL, { cache: 'no-store' });
-    if (!res || res.status !== 200) return null;
+    // Unique query string = also bypasses the GitHub Pages CDN's ~10-min cache, so a fresh deploy is seen at once.
+    // (The response is still stored under the plain SHELL_URL key below.)
+    const res = await fetch(SHELL_URL + '?_=' + Date.now(), extraHeaders ? { cache: 'no-store', headers: extraHeaders } : { cache: 'no-store' });
+    if (!res || res.status !== 200) return null; // 304 = server says "unchanged" → nothing to do
     let changed = false;
     if (oldCopy) {
       const [a, b] = await Promise.all([res.clone().arrayBuffer(), oldCopy.arrayBuffer()]);
@@ -87,6 +92,32 @@ async function refreshShell(oldCopy) {
   } catch (err) {
     return null; // offline / network error — never surfaced to the page
   }
+}
+
+// Page-triggered check (no navigation involved): compare the network copy with whatever is cached right now.
+// De-duplicated so overlapping triggers (visibilitychange + online + timer) share one network round-trip.
+let checking = null;
+function checkShellNow() {
+  if (checking) return checking;
+  checking = (async () => {
+    try {
+      const cached = await caches.match(SHELL_URL);
+      // Page polls every ~5 s, so ask conditionally: if the cached copy's ETag / Last-Modified still matches the
+      // server, the reply is a tiny 304 (no 1.6 MB download). A 200 means the file changed → full hash-compare path.
+      // If the server sends neither header, this falls back to a plain full fetch.
+      let cond = null;
+      if (cached) {
+        const etag = cached.headers.get('etag');
+        const lm = cached.headers.get('last-modified');
+        if (etag) cond = { 'If-None-Match': etag };
+        else if (lm) cond = { 'If-Modified-Since': lm };
+      }
+      await refreshShell(cached ? cached.clone() : null, cond);
+    } finally {
+      checking = null;
+    }
+  })();
+  return checking;
 }
 
 const OFFLINE_503 = () => new Response(

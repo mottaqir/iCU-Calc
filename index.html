@@ -490,9 +490,9 @@ body:not([data-theme="light"]) .tab-btn.active {
 .dose-row { padding-top: 10px; }
 .dose-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 5px; }
 .dose-val { font-family: var(--heading); font-weight: 400; font-size: 13px; }
-/* KT card header: blue mmol/hr (readable in dark + light theme) */
-.kcl-mmolhr { color: #58a6ff; font-weight: 600; }
-[data-theme="light"] .kcl-mmolhr { color: #0969da; }
+/* Infusion drug cards (Conc line): the dynamic "| xx /hr" value is dim grey, same as the Conc value on its left (inherits the line colour in both themes) */
+.kcl-mmolhr { color: inherit; font-weight: 600; }
+[data-theme="light"] .kcl-mmolhr { color: inherit; }
 .range-limits { display: flex; justify-content: space-between; font-size: 10px; color: var(--faint); margin-top: 2px; }
 input[type=range] {
   width: 100%;
@@ -758,7 +758,7 @@ input[type=range]::-moz-range-progress {
 /* Cardioversion & Defibrillation (#calccard-cvd) and Antihypertensives (#calccard-aht): the tap-flash ring on each sub-card
    sits 5px outside it on the left/right, so the parent card must not clip it (these cards have no border/background in the
    Cardio/Defib tab, so nothing else depends on the clipping). */
-#calccard-cvd, #calccard-aht { overflow: visible; }
+#calccard-cvd, #calccard-aht, #calccard-carrest { overflow: visible; }
 .calc-title {
   padding: 10px 14px;
   font-size: 12px; font-weight: 700;
@@ -1035,7 +1035,8 @@ input[type=range]::-moz-range-progress {
 #tab-defib > #calccard-af,
 #tab-defib > #calccard-wct,
 #tab-defib > #calccard-svt,
-#tab-defib > #calccard-bls { margin-bottom: 0px; }
+#tab-defib > #calccard-bls,
+#tab-defib > #calccard-carrest { margin-bottom: 0px; }
 #tab-defib > .calc-card > .calc-title {
   padding: 11px 2px;
 }
@@ -8150,6 +8151,177 @@ function eiwSwitchPO4(which){
 </div>
 
 
+<!-- ─── CSF / ASCITIC FLUID ANALYSIS ─── -->
+<style>
+ #calccard-bodyfluid .bf-g1, #calccard-bodyfluid .bf-g2, #calccard-bodyfluid .bf-g3 { display: grid; gap: 6px; margin-bottom: 6px; align-items: end; }
+ /* Fluid-type switch: one long line above + one below (full width, no side margin), a short "|" divider in the middle that
+    does NOT touch either line, and a centred label on each side. Label size = the value text of the boxes below (12px bold), height = the boxes below (30px). */
+ #calccard-bodyfluid .bf-seg { position: relative; display: grid; grid-template-columns: 1fr 1fr; height: 30px; margin: 0 0 10px; border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong); }
+ #calccard-bodyfluid .bf-seg-btn { display: flex; align-items: center; justify-content: center; margin: 0; padding: 0; border: 0; background: transparent; color: var(--text-muted); font-family: inherit; font-size: 12px; font-weight: 700; text-align: center; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+ #calccard-bodyfluid .bf-seg-btn.bf-seg-active { color: var(--accent); font-weight: 700; }
+ #calccard-bodyfluid .bf-seg-div { position: absolute; left: 50%; top: 50%; width: 1px; height: 16px; margin-left: -0.5px; transform: translateY(-50%); background: var(--muted); pointer-events: none; }
+ #calccard-bodyfluid .bf-g1 { grid-template-columns: 1fr; }
+ #calccard-bodyfluid .bf-g2 { grid-template-columns: 1fr 1fr; }
+ #calccard-bodyfluid .bf-g3 { grid-template-columns: 1fr 1fr 1fr; }
+ #calccard-bodyfluid .bf-g1 > div, #calccard-bodyfluid .bf-g2 > div, #calccard-bodyfluid .bf-g3 > div { min-width: 0; }
+ #calccard-bodyfluid .bf-l { font-size: 10px; color: var(--text-muted); margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; }
+ #calccard-bodyfluid .bf-in { width: 100%; height: 30px; box-sizing: border-box; padding: 0 4px; background: var(--surface); border: 1px solid var(--muted); border-radius: 4px; color: var(--text); font-size: 13px; font-weight: 700; text-align: center; font-family: inherit; outline: none; }
+ #calccard-bodyfluid select.bf-in { font-size: 12px; text-align-last: center; padding: 0 2px; }
+ #calccard-bodyfluid .bf-in:focus { border-color: var(--accent); }
+ #calccard-bodyfluid .bf-sec, #calccard-bodyfluid .bf-lab { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; text-align: left; }
+ #calccard-bodyfluid .bf-sec { margin: 10px 0 6px; padding-left: 8px; border-left: 3px solid var(--accent); }
+ #calccard-bodyfluid .bf-lab { margin: 10px 0 5px; }
+ #calccard-bodyfluid .bf-res { margin-top: 10px; padding-top: 2px; border-top: 1px solid var(--border); }
+ #calccard-bodyfluid .bf-hint { font-size: 11px; color: var(--text-muted); text-align: center; padding: 8px 0 2px; }
+ #calccard-bodyfluid .bf-calc { background: var(--surface-deep); border-radius: 4px; padding: 7px 10px; margin-top: 8px; display: flex; flex-direction: column; gap: 4px; }
+ #calccard-bodyfluid .bf-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 11px; color: var(--text-muted); text-align: left; }
+ #calccard-bodyfluid .bf-row b { font-size: 12px; font-weight: 800; font-family: 'IBM Plex Mono', monospace; color: var(--text); text-align: right; }
+ #calccard-bodyfluid .bf-flag { margin: 5px 0; padding: 6px 8px; border-radius: 4px; border: 1px solid; border-left-width: 3px; font-size: 11px; font-weight: 600; line-height: 1.45; text-align: left; }
+ #calccard-bodyfluid .bf-bad { color: #ef4444; border-color: #ef444450; background: #ef44440f; }
+ #calccard-bodyfluid .bf-warn { color: #f59e0b; border-color: #f59e0b50; background: #f59e0b0f; }
+ #calccard-bodyfluid .bf-ok { color: #10b981; border-color: #10b98150; background: #10b9810f; }
+ #calccard-bodyfluid .bf-info { color: var(--accent); border-color: var(--border-strong); border-left-color: var(--accent); }
+ #calccard-bodyfluid .bf-diff { font-size: 11px; color: var(--text-muted); line-height: 1.7; text-align: left; }
+ #calccard-bodyfluid .bf-verdict { border-radius: 4px; padding: 9px 12px; border: 1px solid; font-size: 13px; font-weight: 800; line-height: 1.4; text-align: left; }
+</style>
+<div class="calc-card" id="calccard-bodyfluid">
+ <div class="calc-title" onclick="toggleCalc('calccard-bodyfluid')"><span class="calc-title-dot"></span><span>CSF/Ascitic Fluid Analysis</span><button type="button" class="calc-pin" data-cid="calccard-bodyfluid" onclick="event.stopPropagation(); toggleFavoriteCalc('calccard-bodyfluid', this)" title="Pin to top" aria-label="Pin to top"><span class="calc-pin-icon">☆</span></button></div>
+ <div class="calc-body" style="display:none">
+
+  <div class="bf-seg">
+   <button type="button" id="bf-tab-csf" class="bf-seg-btn bf-seg-active" onclick="bfTab('csf')">CSF</button>
+   <span class="bf-seg-div"></span>
+   <button type="button" id="bf-tab-asc" class="bf-seg-btn" onclick="bfTab('asc')">Ascitic Fluid</button>
+  </div>
+
+  <div id="bf-panel-csf">
+   <div class="bf-g2"><div><div class="bf-l">Age group</div><select id="bf-c-age" class="bf-in" onchange="bfCalc('csf')"><option value="Adult">Adult</option><option value="Child">Child (&gt;1 yr)</option><option value="Infant">Infant (1–12 mo)</option><option value="Neonate">Neonate</option></select></div><div><div class="bf-l">Serum glucose (mg/dL)</div><input type="number" inputmode="decimal" step="any" id="bf-c-sg" class="bf-in" oninput="bfCalc('csf')"></div></div><div class="bf-g3"><div><div class="bf-l">WBC (/µL)</div><input type="number" inputmode="decimal" step="any" id="bf-c-wbc" class="bf-in" oninput="bfCalc('csf')"></div><div><div class="bf-l">Neutrophils (%)</div><input type="number" inputmode="decimal" step="any" id="bf-c-neu" class="bf-in" oninput="bfCalc('csf')"></div><div><div class="bf-l">Lymphocytes (%)</div><input type="number" inputmode="decimal" step="any" id="bf-c-lym" class="bf-in" oninput="bfCalc('csf')"></div></div><div class="bf-g3"><div><div class="bf-l">RBC (/µL)</div><input type="number" inputmode="decimal" step="any" id="bf-c-rbc" class="bf-in" oninput="bfCalc('csf')"></div><div><div class="bf-l">Protein (mg/dL)</div><input type="number" inputmode="decimal" step="any" id="bf-c-pro" class="bf-in" oninput="bfCalc('csf')"></div><div><div class="bf-l">Glucose (mg/dL)</div><input type="number" inputmode="decimal" step="any" id="bf-c-glu" class="bf-in" oninput="bfCalc('csf')"></div></div><div class="bf-g3"><div><div class="bf-l">Lactate (mmol/L)</div><input type="number" inputmode="decimal" step="any" id="bf-c-lac" class="bf-in" oninput="bfCalc('csf')"></div><div><div class="bf-l">OP (cm H₂O)</div><input type="number" inputmode="decimal" step="any" id="bf-c-op" class="bf-in" oninput="bfCalc('csf')"></div><div><div class="bf-l">Xanthochromia</div><select id="bf-c-xan" class="bf-in" onchange="bfCalc('csf')"><option value="Not done">Not done</option><option value="Absent">Absent</option><option value="Present">Present</option></select></div></div><div class="bf-sec">Microbiology / Special Tests</div><div class="bf-g3"><div><div class="bf-l">Gram stain</div><select id="bf-c-gram" class="bf-in" onchange="bfCalc('csf')"><option value="Not done">Not done</option><option value="Negative">Negative</option><option value="Positive">Positive</option></select></div><div><div class="bf-l">Culture</div><select id="bf-c-cult" class="bf-in" onchange="bfCalc('csf')"><option value="Pending">Pending</option><option value="Negative">Negative</option><option value="Positive">Positive</option></select></div><div><div class="bf-l">CRAG / India ink</div><select id="bf-c-crag" class="bf-in" onchange="bfCalc('csf')"><option value="Not done">Not done</option><option value="Negative">Negative</option><option value="Positive">Positive</option></select></div></div><div class="bf-g3"><div><div class="bf-l">TB (Xpert/AFB)</div><select id="bf-c-tb" class="bf-in" onchange="bfCalc('csf')"><option value="Not done">Not done</option><option value="Negative">Negative</option><option value="Positive">Positive</option></select></div><div><div class="bf-l">HSV / viral PCR</div><select id="bf-c-pcr" class="bf-in" onchange="bfCalc('csf')"><option value="Not done">Not done</option><option value="Negative">Negative</option><option value="Positive">Positive</option></select></div><div><div class="bf-l">ADA (U/L)</div><input type="number" inputmode="decimal" step="any" id="bf-c-ada" class="bf-in" oninput="bfCalc('csf')"></div></div><div class="bf-sec">Clinical Context</div><div class="bf-g2"><div><div class="bf-l">Immunocompromised</div><select id="bf-c-imm" class="bf-in" onchange="bfCalc('csf')"><option value="No">No</option><option value="Yes">Yes</option></select></div><div><div class="bf-l">Recent antibiotics</div><select id="bf-c-abx" class="bf-in" onchange="bfCalc('csf')"><option value="No">No</option><option value="Yes">Yes</option></select></div></div>
+   <div class="bf-res" id="bf-c-out"></div>
+  </div>
+
+  <div id="bf-panel-asc" style="display:none">
+   <div class="bf-g2"><div><div class="bf-l">Serum albumin (g/dL)</div><input type="number" inputmode="decimal" step="0.1" id="bf-a-salb" class="bf-in" oninput="bfCalc('asc')"></div><div><div class="bf-l">Ascitic albumin (g/dL)</div><input type="number" inputmode="decimal" step="0.1" id="bf-a-aalb" class="bf-in" oninput="bfCalc('asc')"></div></div><div class="bf-g3"><div><div class="bf-l">PMN (/µL)</div><input type="number" inputmode="decimal" step="any" id="bf-a-pmn" class="bf-in" oninput="bfCalc('asc')"></div><div><div class="bf-l">Protein (g/dL)</div><input type="number" inputmode="decimal" step="0.1" id="bf-a-prot" class="bf-in" oninput="bfCalc('asc')"></div><div><div class="bf-l">Glucose (mg/dL)</div><input type="number" inputmode="decimal" step="any" id="bf-a-glu" class="bf-in" oninput="bfCalc('asc')"></div></div><div class="bf-g3"><div><div class="bf-l">Ascitic LDH (U/L)</div><input type="number" inputmode="decimal" step="any" id="bf-a-ldh" class="bf-in" oninput="bfCalc('asc')"></div><div><div class="bf-l">Serum LDH (U/L)</div><input type="number" inputmode="decimal" step="any" id="bf-a-sldh" class="bf-in" oninput="bfCalc('asc')"></div><div><div class="bf-l">TG (mg/dL)</div><input type="number" inputmode="decimal" step="any" id="bf-a-tg" class="bf-in" oninput="bfCalc('asc')"></div></div><div class="bf-g3"><div><div class="bf-l">Asc. bili (mg/dL)</div><input type="number" inputmode="decimal" step="0.1" id="bf-a-bili" class="bf-in" oninput="bfCalc('asc')"></div><div><div class="bf-l">Serum bili (mg/dL)</div><input type="number" inputmode="decimal" step="0.1" id="bf-a-sbili" class="bf-in" oninput="bfCalc('asc')"></div><div><div class="bf-l">Amylase (U/L)</div><input type="number" inputmode="decimal" step="any" id="bf-a-amy" class="bf-in" oninput="bfCalc('asc')"></div></div><div class="bf-g2"><div><div class="bf-l">Culture</div><select id="bf-a-cult" class="bf-in" onchange="bfCalc('asc')"><option value="Pending">Pending</option><option value="Negative">Negative</option><option value="Monomicrobial">Monomicrobial</option><option value="Polymicrobial">Polymicrobial</option></select></div><div><div class="bf-l">Cytology</div><select id="bf-a-cyt" class="bf-in" onchange="bfCalc('asc')"><option value="Not done">Not done</option><option value="Negative">Negative</option><option value="Malignant cells">Malignant cells</option></select></div></div><div class="bf-g1"><div><div class="bf-l">Clinical suspicion</div><select id="bf-a-ctx" class="bf-in" onchange="bfCalc('asc')"><option value="None specific">None specific</option><option value="Cirrhosis">Cirrhosis</option><option value="Heart failure">Heart failure</option><option value="Malignancy">Malignancy</option><option value="TB risk">TB risk</option><option value="Pancreatitis">Pancreatitis</option></select></div></div>
+   <div class="bf-res" id="bf-a-out"></div>
+  </div>
+
+ </div>
+</div>
+<script>
+(function () {
+ function $(id) { return document.getElementById(id); }
+ function N(id) { var e = $(id); if (!e || e.value === '') return null; var x = parseFloat(e.value); return isNaN(x) ? null : x; }
+ function S(id) { var e = $(id); return e ? e.value : ''; }
+ function F(c, t) { return '<div class="bf-flag bf-' + c + '">' + t + '</div>'; }
+ function H(t) { return '<div class="bf-hint">' + t + '</div>'; }
+ function R(label, val, color) { return '<div class="bf-row"><span>' + label + '</span><b' + (color ? ' style="color:' + color + '"' : '') + '>' + val + '</b></div>'; }
+ function L(t) { return '<div class="bf-lab">' + t + '</div>'; }
+ function V(c, t) { return L('Overall Interpretation') + '<div class="bf-verdict bf-' + c + '">' + t + '</div>'; }
+ function D(items) { return '<div class="bf-diff">' + items.map(function (t) { return '<div><span class="bl-dot"></span> ' + t + '</div>'; }).join('') + '</div>'; }
+
+ window.bfTab = function (m) {
+  ['csf', 'asc'].forEach(function (t) {
+   var panel = $('bf-panel-' + t), btn = $('bf-tab-' + t);
+   if (panel) panel.style.display = (t === m) ? '' : 'none';
+   if (btn) btn.classList.toggle('bf-seg-active', t === m);
+  });
+  if (typeof scheduleSpecialCompactFit === 'function') scheduleSpecialCompactFit();
+ };
+ window.bfCalc = function (m) { if (m === 'csf') csf(); else asc(); };
+
+ function csf() {
+  var age = S('bf-c-age'), wbc = N('bf-c-wbc'), neu = N('bf-c-neu'), lym = N('bf-c-lym'), rbc = N('bf-c-rbc') || 0,
+      pro = N('bf-c-pro'), glu = N('bf-c-glu'), sg = N('bf-c-sg'), lac = N('bf-c-lac'), op = N('bf-c-op'),
+      gram = S('bf-c-gram'), cult = S('bf-c-cult'), crag = S('bf-c-crag'), tbt = S('bf-c-tb'), pcr = S('bf-c-pcr'), ada = N('bf-c-ada'),
+      imm = S('bf-c-imm'), abx = S('bf-c-abx'), xan = S('bf-c-xan'), o = $('bf-c-out');
+  if (!o) return;
+  if (wbc === null || pro === null || glu === null) { o.innerHTML = H('— Enter CSF WBC, protein &amp; glucose —'); return; }
+  var ratio = sg ? (glu / sg * 100) : null;
+  var normalWbc = 5;
+  if (age === 'Neonate') normalWbc = 30; else if (age === 'Infant') normalWbc = 20; else if (age === 'Child') normalWbc = 10;
+  var neutPct = neu !== null ? neu : (lym !== null ? Math.max(0, 100 - lym) : null);
+  var out = '<div class="bf-calc">' + R('CSF/serum glucose ratio', ratio === null ? '—' : ratio.toFixed(2) + '%' + (ratio < 40 ? ' (LOW)' : ''), (ratio !== null && ratio < 40) ? '#ef4444' : '');
+  if (neutPct !== null) out += R('Neutrophil predominance', (neutPct >= 50 ? 'YES' : 'No') + ' (' + neutPct + '%)');
+  out += '</div>' + L('Pattern Analysis');
+  var bacterial = 0, viral = 0, tb = 0, fungal = 0;
+  if (wbc > normalWbc) out += F('warn', 'Pleocytosis: CSF WBC ' + wbc + '/µL (age reference ≤' + normalWbc + '/µL)');
+  if (neutPct !== null && neutPct >= 80) { bacterial += 2; out += F('bad', 'Marked neutrophilic pleocytosis — acute bacterial meningitis pattern'); }
+  else if (neutPct !== null && neutPct >= 50) { bacterial += 1; out += F('warn', 'Neutrophil predominance — consider early bacterial meningitis'); }
+  if (ratio !== null && ratio < 40) { bacterial += 2; tb += 1; fungal += 1; out += F('bad', 'Low CSF/serum glucose ratio (&lt;40%) — bacterial, TB or fungal meningitis'); }
+  if (pro > 45) { bacterial += 1; tb += 1; fungal += 1; out += F('warn', 'Elevated CSF protein'); }
+  if (lac !== null && lac > 3.5) { bacterial += 2; out += F('bad', 'CSF lactate &gt;3.5 mmol/L — supports bacterial meningitis'); }
+  if (lac !== null && lac >= 2 && lac <= 3.5) { viral += 1; out += F('info', 'Lactate mildly elevated/upper-normal — nonspecific'); }
+  if (gram === 'Positive') { bacterial += 3; out += F('bad', 'Gram stain positive — bacterial meningitis'); }
+  if (cult === 'Positive') { bacterial += 3; out += F('bad', 'CSF culture positive — confirm organism and susceptibility'); }
+  if (tbt === 'Positive') { tb += 3; out += F('bad', 'CSF TB test positive — tuberculous meningitis'); }
+  if (crag === 'Positive') { fungal += 3; out += F('bad', 'Cryptococcal antigen/India ink positive — cryptococcal meningitis'); }
+  if (pcr === 'Positive') { viral += 3; out += F('bad', 'Viral PCR positive — viral CNS infection'); }
+  if (ada !== null && ada >= 10) { tb += 1; out += F('warn', 'ADA elevated — supportive of TB meningitis in appropriate context'); }
+  if (rbc > 10000) out += F('warn', 'High CSF RBC — traumatic tap or SAH; interpret WBC/protein/glucose cautiously');
+  if (xan === 'Present') out += F('bad', 'Xanthochromia present — consider SAH; correlate with timing and imaging');
+  if (op !== null && op > 20) out += F('warn', 'Opening pressure elevated (&gt;20 cm H₂O)');
+  if (abx === 'Yes') out += F('info', 'Recent antibiotics may reduce culture yield and alter CSF findings');
+  if (imm === 'Yes') { fungal += 1; tb += 1; out += F('info', 'Immunocompromise: consider cryptococcus, TB, listeria, viral encephalitides'); }
+  var verdict = 'Indeterminate pattern — correlate clinically.', cls = 'info';
+  if (bacterial >= 4) { verdict = 'HIGHLY COMPATIBLE WITH ACUTE BACTERIAL MENINGITIS'; cls = 'bad'; }
+  else if (bacterial >= 2) { verdict = 'POSSIBLE BACTERIAL MENINGITIS — treat empirically if clinically suspected'; cls = 'bad'; }
+  else if (fungal >= 3) { verdict = 'COMPATIBLE WITH CRYPTOCOCCAL/FUNGAL MENINGITIS'; cls = 'bad'; }
+  else if (tb >= 3) { verdict = 'COMPATIBLE WITH TUBERCULOUS MENINGITIS'; cls = 'bad'; }
+  else if (viral >= 3) { verdict = 'COMPATIBLE WITH VIRAL MENINGITIS/ENCEPHALITIS'; cls = 'warn'; }
+  else if (wbc <= normalWbc && pro <= 45 && (ratio === null || ratio >= 40)) { verdict = 'CSF largely unremarkable for routine meningitis parameters'; cls = 'ok'; }
+  o.innerHTML = out + V(cls, verdict);
+ }
+
+ function asc() {
+  var sa = N('bf-a-salb'), aa = N('bf-a-aalb'), pmn = N('bf-a-pmn'), prot = N('bf-a-prot'), glu = N('bf-a-glu'),
+      ldh = N('bf-a-ldh'), sldh = N('bf-a-sldh'), cult = S('bf-a-cult'), bili = N('bf-a-bili'), sbili = N('bf-a-sbili'),
+      amy = N('bf-a-amy'), tg = N('bf-a-tg'), cyt = S('bf-a-cyt'), ctx = S('bf-a-ctx'), o = $('bf-a-out');
+  if (!o) return;
+  if (sa === null || aa === null) { o.innerHTML = H('— Enter serum &amp; ascitic albumin —'); return; }
+  var saag = sa - aa, high = saag >= 1.1;
+  var out = '<div class="bf-calc">' + R('SAAG = ' + sa.toFixed(1) + ' − ' + aa.toFixed(1), saag.toFixed(2) + ' g/dL', high ? '#ef4444' : '#f59e0b') + '</div>';
+  out += high ? F('bad', 'HIGH SAAG (≥1.1 g/dL) — ascites due to portal hypertension')
+              : F('warn', 'LOW SAAG (&lt;1.1 g/dL) — non-portal-hypertensive ascites');
+  out += L('Differential') + D(high
+   ? ['Cirrhosis / alcoholic hepatitis', 'Cardiac ascites, constrictive pericarditis', 'Budd-Chiari syndrome, portal/splenic vein thrombosis', 'Myxedema (rare)']
+   : ['Peritoneal carcinomatosis', 'Tuberculous peritonitis', 'Pancreatic ascites', 'Nephrotic syndrome / hypoalbuminemia', 'Serositis / connective tissue disease']);
+  out += L('Findings');
+  var any = false;
+  function add(c, t) { out += F(c, t); any = true; }
+  if (pmn !== null) {
+   if (pmn >= 250) {
+    add('bad', 'PMN ≥250/µL (' + pmn + '/µL) — SBP or culture-negative neutrocytic ascites');
+    if (cult === 'Monomicrobial') add('bad', 'Culture-positive: spontaneous bacterial peritonitis (SBP)');
+    else if (cult === 'Pending') add('warn', 'Culture pending — treat as SBP until proven otherwise if clinically consistent');
+    else add('warn', 'Culture-negative neutrocytic ascites — consider prior antibiotics or early SBP');
+   } else add('ok', 'PMN &lt;250/µL (' + pmn + '/µL) — SBP not supported by cell count');
+  }
+  if (prot !== null) {
+   if (high && prot < 2.5) add('info', 'Ascitic total protein &lt;2.5 g/dL with high SAAG — consistent with cirrhotic ascites');
+   if (!high && prot >= 2.5) add('warn', 'High ascitic protein with low SAAG — consider TB peritonitis or malignancy');
+  }
+  if (glu !== null && glu < 50) add('bad', 'Ascitic glucose &lt;50 mg/dL — consider secondary bacterial peritonitis, TB or malignancy');
+  if (ldh !== null && sldh && ldh / sldh > 1) add('warn', 'Ascitic LDH &gt; serum LDH — consider secondary bacterial peritonitis or malignancy');
+  if (cult === 'Polymicrobial') add('bad', 'Polymicrobial culture — strongly suggests secondary bacterial peritonitis (e.g., perforation), not uncomplicated SBP');
+  if (bili !== null && sbili && bili / sbili > 1) add('bad', 'Ascitic bilirubin &gt; serum bilirubin — consider biliary leak / choleperitoneum');
+  if (amy !== null && amy > 1000) add('bad', 'Ascitic amylase markedly elevated — pancreatic ascites or gut perforation');
+  if (tg !== null && tg > 200) add('bad', 'Ascitic triglyceride &gt;200 mg/dL — chyloperitoneum');
+  if (cyt === 'Malignant cells') add('bad', 'Malignant cells on cytology — peritoneal carcinomatosis');
+  if (ctx === 'TB risk' && !high) add('info', 'TB peritonitis workup: AFB/GeneXpert, ADA, culture, peritoneal biopsy if feasible');
+  if (ctx === 'Malignancy' && !high) add('info', 'Malignancy workup: cytology, CEA/CA-125 as appropriate, imaging, peritoneal biopsy');
+  if (!any) out = out.replace(L('Findings'), '');
+  var verdict, cls = 'info';
+  if (pmn !== null && pmn >= 250) { verdict = 'NEUTROCYTIC ASCITES — evaluate/treat as SBP unless secondary peritonitis is evident'; cls = 'bad'; }
+  else if (cult === 'Polymicrobial' || (glu !== null && glu < 50 && ldh !== null && sldh && ldh / sldh > 1)) { verdict = 'SUGGESTIVE OF SECONDARY BACTERIAL PERITONITIS'; cls = 'bad'; }
+  else if (cyt === 'Malignant cells') { verdict = 'MALIGNANT ASCITES'; cls = 'bad'; }
+  else if (high) { verdict = 'PORTAL-HYPERTENSIVE ASCITES (HIGH SAAG)'; cls = 'warn'; }
+  else { verdict = 'NON-PORTAL-HYPERTENSIVE ASCITES (LOW SAAG)'; cls = 'warn'; }
+  o.innerHTML = out + V(cls, verdict);
+ }
+
+ csf(); asc();
+})();
+</script>
+
 <!-- ─── ICU UNIT CONVERTER ─── -->
 <div class="calc-card" id="calccard-unitconv">
  <div class="calc-title" onclick="toggleCalc('calccard-unitconv')">
@@ -12294,8 +12466,226 @@ function eiwSwitchPO4(which){
   </div>
  </div>
 
+ <!-- ══════════════════ CARDIAC ARREST — CAUSES & CIRCUMSTANCES ══════════════════ -->
+ <div class="calc-card" id="calccard-carrest">
+  <style>
+   /* Only the sub-card header — the ■ and the subtitle line — starts at the card title's text x (title text sits after the ◉ bullet,
+      15px beyond the 2px body padding). All content inside the sub-cards stays at the card's ◉ x (body padding only).
+      Sub-card label: ■ (8px) + 8px gap, then the label text; the subtitle sits flush under the ■.
+      Main point (.cac-h): • (6px, centred on the text line) + 7px gap, then the underlined name.
+      Small points (.cac-li): no bullet — bold name in the SAME dim colour as the rest of the text; text starts under the main point's text (6px + 7px = 13px). */
+   #calccard-carrest .aht-header { padding-left:15px; }
+   #calccard-carrest .aht-header > div:first-child > div:first-child { display:flex; align-items:center; gap:8px; }
+   #calccard-carrest .aht-header > div:first-child > div:first-child::before { content:""; flex:none; width:8px; height:8px; background:var(--text-strong); }
+   #calccard-carrest .cac-h { display:flex; align-items:center; gap:7px; font-size:11.5px; font-weight:700; letter-spacing:1.2px; line-height:1.5; color:var(--text-strong); margin:9px 0 3px; text-align:left; }
+   #calccard-carrest .cac-h::before { content:""; flex:none; width:6px; height:6px; border-radius:50%; background:currentColor; }
+   #calccard-carrest .aht-body > .cac-h:first-child,
+   #calccard-carrest .aht-body > .cac-lead + .cac-h { margin-top:4px; }
+   #calccard-carrest .cac-h u { text-decoration:underline; text-decoration-thickness:1px; text-underline-offset:1.5px; }
+   #calccard-carrest .cac-li { font-size:11.5px; color:var(--text-muted); line-height:1.75; padding-left:13px; }
+   #calccard-carrest .cac-li b { color:inherit; font-weight:700; }
+   #calccard-carrest .cac-lead { font-size:10.5px; color:var(--text-faint); line-height:1.6; padding:0 0 2px; }
+   #calccard-carrest .cac-see { font-size:10.5px; color:var(--text-faint); line-height:1.6; margin-top:10px; }
+   #calccard-carrest .drug-ref a { text-decoration:none; }
+   #calccard-carrest .alg-fig { margin:2px 0 10px; text-align:left; }
+   #calccard-carrest svg.alg { display:block; }
+   #calccard-carrest svg.alg text { font-family:inherit; }
+   #calccard-carrest .alg-b,#calccard-carrest .alg-nc { fill:var(--surface-deep,#161b22); stroke:var(--border-strong,#30363d); stroke-width:1; }
+   #calccard-carrest .alg-nc { fill:var(--bg,#0d1117); stroke:var(--text-faint); }
+   #calccard-carrest .alg-bl { fill:rgba(59,130,246,.13); stroke:rgba(59,130,246,.55); stroke-width:1; }
+   #calccard-carrest .alg-g { fill:rgba(34,197,94,.12); stroke:rgba(34,197,94,.5); stroke-width:1; }
+   #calccard-carrest .alg-o { fill:rgba(245,158,11,.16); stroke:rgba(245,158,11,.65); stroke-width:1; }
+   #calccard-carrest .alg-red,#calccard-carrest .alg-d { fill:rgba(239,68,68,.11); stroke:rgba(239,68,68,.6); stroke-width:1; }
+   #calccard-carrest .alg-t { fill:var(--text-muted); font-size:10px; }
+   #calccard-carrest .alg-tb { fill:var(--text-strong); font-size:10.5px; font-weight:700; }
+   #calccard-carrest .alg-r { fill:#ef4444; font-size:9.5px; font-weight:700; }
+   #calccard-carrest .alg-lb { fill:var(--text-faint); font-size:9px; font-weight:700; letter-spacing:1px; }
+   #calccard-carrest .alg-nt { fill:var(--text-strong); font-size:8px; font-weight:700; }
+   #calccard-carrest .alg-ln { stroke:var(--text-muted); stroke-width:1.2; fill:none; }
+   #calccard-carrest .alg-mk { fill:var(--text-muted); }
+   #calccard-carrest .alg-cap { font-size:9.5px; color:var(--text-faint); margin:4px 0 6px; }
+   #calccard-carrest .alg-note { font-size:10.5px; color:var(--text-muted); line-height:1.6; margin:0 0 5px; text-align:left; }
+   #calccard-carrest .alg-note b { color:inherit; font-weight:700; }
+  </style>
+  <div class="calc-title" onclick="toggleCalc('calccard-carrest')">
+   <span class="calc-title-dot"></span>
+   <span>Cardiac Arrest <span style="color:var(--text-faint);font-weight:400">— Causes &amp; Circumstances</span></span>
+   <span class="calc-chevron" style="margin-left:auto;font-size:10px;transition:transform 0.2s;color:var(--text-faint)">&#9660;</span>
+  </div>
+  <div class="calc-body" style="display:none;padding:8px 2px 8px;">
+
+   <div class="alg-fig"><svg class="alg" viewBox="0 0 392 612" width="100%" role="img" aria-label="algorithm"><defs><marker id="ar1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mk"/></marker></defs><rect x="95" y="10" width="194" height="49.5" rx="8" class="alg-bl"/><text x="192.0" y="26.5" class="alg-tb" text-anchor="middle">Start CPR</text><text x="192.0" y="39.0" class="alg-t" text-anchor="middle">Bag-mask ventilation + oxygen</text><text x="192.0" y="51.5" class="alg-t" text-anchor="middle">Attach monitor/defibrillator</text><circle cx="96" cy="11" r="7" class="alg-nc"/><text x="96" y="14.0" class="alg-nt" text-anchor="middle">1</text><path d="M192 59.5 L192 71.5" class="alg-ln" marker-end="url(#ar1)"/><polygon points="192 71.5,267.0 91.5,192 111.5,117.0 91.5" class="alg-d"/><text x="192" y="95.0" class="alg-tb" text-anchor="middle">Rhythm shockable?</text><text x="120" y="86.5" class="alg-r" text-anchor="end">Yes</text><text x="264" y="86.5" class="alg-r" text-anchor="start">No</text><path d="M117 91.5 H95 V117.5" class="alg-ln" marker-end="url(#ar1)"/><path d="M267 91.5 H290 V117.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="10" y="117.5" width="170" height="22" rx="11" class="alg-b"/><text x="95.0" y="132.0" class="alg-tb" text-anchor="middle">VF / pVT</text><circle cx="11" cy="118.5" r="7" class="alg-nc"/><text x="11" y="121.5" class="alg-nt" text-anchor="middle">2</text><path d="M95 139.5 L95 151.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="10" y="151.5" width="170" height="22" rx="11" class="alg-red"/><text x="95.0" y="166.0" class="alg-r" text-anchor="middle">Shock</text><circle cx="11" cy="152.5" r="7" class="alg-nc"/><text x="11" y="155.5" class="alg-nt" text-anchor="middle">3</text><path d="M95 173.5 L95 185.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="10" y="185.5" width="170" height="37.0" rx="8" class="alg-bl"/><text x="95.0" y="202.0" class="alg-tb" text-anchor="middle">CPR 2 min</text><text x="95.0" y="214.5" class="alg-t" text-anchor="middle">IV/IO access</text><circle cx="11" cy="186.5" r="7" class="alg-nc"/><text x="11" y="189.5" class="alg-nt" text-anchor="middle">4</text><path d="M95 222.5 L95 234.5" class="alg-ln" marker-end="url(#ar1)"/><polygon points="95 234.5,165.0 254.5,95 274.5,25.0 254.5" class="alg-d"/><text x="95" y="258.0" class="alg-tb" text-anchor="middle">Rhythm shockable?</text><text x="167" y="250.5" class="alg-r" text-anchor="start">No→12</text><text x="100" y="284.0" class="alg-r" text-anchor="start">Yes</text><path d="M95 274.5 L95 286.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="10" y="286.5" width="170" height="22" rx="11" class="alg-red"/><text x="95.0" y="301.0" class="alg-r" text-anchor="middle">Shock</text><circle cx="11" cy="287.5" r="7" class="alg-nc"/><text x="11" y="290.5" class="alg-nt" text-anchor="middle">5</text><path d="M95 308.5 L95 320.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="10" y="320.5" width="170" height="62.0" rx="8" class="alg-bl"/><text x="95.0" y="337.0" class="alg-tb" text-anchor="middle">CPR 2 min</text><text x="95.0" y="349.5" class="alg-t" text-anchor="middle">Epinephrine every 3–5 min</text><text x="95.0" y="362.0" class="alg-t" text-anchor="middle">Consider advanced airway,</text><text x="95.0" y="374.5" class="alg-t" text-anchor="middle">capnography</text><circle cx="11" cy="321.5" r="7" class="alg-nc"/><text x="11" y="324.5" class="alg-nt" text-anchor="middle">6</text><path d="M95 382.5 L95 394.5" class="alg-ln" marker-end="url(#ar1)"/><polygon points="95 394.5,165.0 414.5,95 434.5,25.0 414.5" class="alg-d"/><text x="95" y="418.0" class="alg-tb" text-anchor="middle">Rhythm shockable?</text><text x="167" y="410.5" class="alg-r" text-anchor="start">No→12</text><text x="100" y="444.0" class="alg-r" text-anchor="start">Yes</text><path d="M95 434.5 L95 446.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="10" y="446.5" width="170" height="22" rx="11" class="alg-red"/><text x="95.0" y="461.0" class="alg-r" text-anchor="middle">Shock</text><circle cx="11" cy="447.5" r="7" class="alg-nc"/><text x="11" y="450.5" class="alg-nt" text-anchor="middle">7</text><path d="M95 468.5 L95 480.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="10" y="480.5" width="170" height="49.5" rx="8" class="alg-bl"/><text x="95.0" y="497.0" class="alg-tb" text-anchor="middle">CPR 2 min</text><text x="95.0" y="509.5" class="alg-t" text-anchor="middle">Amiodarone or lidocaine</text><text x="95.0" y="522.0" class="alg-t" text-anchor="middle">Treat reversible causes</text><circle cx="11" cy="481.5" r="7" class="alg-nc"/><text x="11" y="484.5" class="alg-nt" text-anchor="middle">8</text><path d="M10 505.2 H3 V254.5 H25" class="alg-ln" marker-end="url(#ar1)"/><rect x="204" y="117.5" width="170" height="22" rx="11" class="alg-b"/><text x="289.0" y="132.0" class="alg-tb" text-anchor="middle">Asystole / PEA</text><circle cx="205" cy="118.5" r="7" class="alg-nc"/><text x="205" y="121.5" class="alg-nt" text-anchor="middle">9</text><path d="M289 139.5 L289 151.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="204" y="151.5" width="170" height="22" rx="11" class="alg-red"/><text x="289.0" y="166.0" class="alg-r" text-anchor="middle">Epinephrine ASAP</text><path d="M289 173.5 L289 185.5" class="alg-ln" marker-end="url(#ar1)"/><rect x="204" y="185.5" width="170" height="74.5" rx="8" class="alg-bl"/><text x="289.0" y="202.0" class="alg-tb" text-anchor="middle">CPR 2 min</text><text x="289.0" y="214.5" class="alg-t" text-anchor="middle">IV/IO access</text><text x="289.0" y="227.0" class="alg-t" text-anchor="middle">Epinephrine every 3–5 min</text><text x="289.0" y="239.5" class="alg-t" text-anchor="middle">Consider advanced airway,</text><text x="289.0" y="252.0" class="alg-t" text-anchor="middle">capnography</text><circle cx="205" cy="186.5" r="7" class="alg-nc"/><text x="205" y="189.5" class="alg-nt" text-anchor="middle">10</text><path d="M289 260.0 L289 272.0" class="alg-ln" marker-end="url(#ar1)"/><polygon points="289 272.0,354.0 292.0,289 312.0,224.0 292.0" class="alg-d"/><text x="289" y="295.5" class="alg-tb" text-anchor="middle">Rhythm shockable?</text><text x="356" y="288.0" class="alg-r" text-anchor="start">Yes→5</text><text x="284" y="321.5" class="alg-r" text-anchor="end">No</text><path d="M289 312.0 L289 324.0" class="alg-ln" marker-end="url(#ar1)"/><rect x="204" y="324.0" width="170" height="37.0" rx="8" class="alg-bl"/><text x="289.0" y="340.5" class="alg-tb" text-anchor="middle">CPR 2 min</text><text x="289.0" y="353.0" class="alg-t" text-anchor="middle">Treat reversible causes</text><circle cx="205" cy="325.0" r="7" class="alg-nc"/><text x="205" y="328.0" class="alg-nt" text-anchor="middle">11</text><path d="M289 361.0 L289 373.0" class="alg-ln" marker-end="url(#ar1)"/><polygon points="289 373.0,354.0 393.0,289 413.0,224.0 393.0" class="alg-d"/><text x="289" y="396.5" class="alg-tb" text-anchor="middle">Rhythm shockable?</text><text x="356" y="389.0" class="alg-r" text-anchor="start">Yes→5</text><text x="284" y="422.5" class="alg-r" text-anchor="end">No</text><path d="M289 413.0 L289 546.0" class="alg-ln" marker-end="url(#ar1)"/><rect x="105" y="546.0" width="270" height="62.0" rx="8" class="alg-b"/><text x="240.0" y="562.5" class="alg-t" text-anchor="middle">If no signs of ROSC → go to 10</text><text x="240.0" y="575.0" class="alg-t" text-anchor="middle">If ROSC → post–cardiac arrest care</text><text x="240.0" y="587.5" class="alg-t" text-anchor="middle">Consider appropriateness of continued</text><text x="240.0" y="600.0" class="alg-t" text-anchor="middle">resuscitation</text><circle cx="106" cy="547.0" r="7" class="alg-nc"/><text x="106" y="550.0" class="alg-nt" text-anchor="middle">12</text></svg><div class="alg-cap">■ Adult Cardiac Arrest Algorithm ( AHA 2025 )</div>
+<div class="alg-note"><b>High-quality CPR:</b> push hard (≥5 cm) and fast (100–120/min), full recoil, minimise interruptions, avoid excessive ventilation, change compressor every 2 min · no advanced airway: 30:2 · advanced airway: 1 breath every 6 s (10/min) with continuous compressions · continuous waveform capnography — if ETCO₂ low or decreasing, reassess CPR quality.</div>
+<div class="alg-note"><b>Shock energy:</b> biphasic — manufacturer recommendation (e.g. initial 120–200 J); if unknown, use maximum available; second and subsequent doses equivalent, higher doses may be considered · monophasic 360 J.</div>
+<div class="alg-note"><b>Drugs:</b> epinephrine 1 mg IV/IO every 3–5 min · amiodarone 300 mg, then 150 mg — or lidocaine 1–1.5 mg/kg, then 0.5–0.75 mg/kg.</div>
+<div class="alg-note"><b>Advanced airway:</b> ET tube or supraglottic device; confirm and monitor placement with continuous waveform capnography/capnometry.</div></div>
+
+   <!-- 1. Reversible Causes Checklist (Hs & Ts) -->
+   <div class="aht-card" id="cac-hts">
+    <div class="aht-header" onclick="toggleAHT('cac-hts')">
+     <div style="flex:1">
+      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">Reversible Causes Checklist</div>
+      <div style="font-size:10px;color:var(--text-faint)">Hs &amp; Ts</div>
+     </div>
+     <span class="aht-chevron"></span>
+    </div>
+    <div class="aht-body">
+     <div class="cac-lead">Search for and treat in parallel with high-quality CPR — do not interrupt compressions.</div>
+     <div class="cac-h"><u>Hs</u></div>
+     <div class="cac-li"><b>Hypovolaemia</b> — haemorrhage, dehydration, fluid loss</div>
+     <div class="cac-li"><b>Hypoxia</b> — airway, ventilation, O₂ delivery, tube position</div>
+     <div class="cac-li"><b>Hydrogen ion</b> — severe acidosis or inadequate ventilation</div>
+     <div class="cac-li"><b>Hypo-/Hyperkalaemia</b> &amp; metabolic disturbances — renal failure, drugs, electrolyte results</div>
+     <div class="cac-li"><b>Hypothermia</b> — exposure or immersion; measure core temperature</div>
+     <div class="cac-h"><u>Ts</u></div>
+     <div class="cac-li"><b>Tension pneumothorax</b> — compatible history or clinical findings</div>
+     <div class="cac-li"><b>Cardiac tamponade</b> — trauma, malignancy, recent cardiac procedure, pericardial disease</div>
+     <div class="cac-li"><b>Toxins</b> — overdose, medication error, occupational exposure</div>
+     <div class="cac-li"><b>Pulmonary thrombosis</b> — sudden collapse with compatible risk factors</div>
+     <div class="cac-li"><b>Coronary thrombosis</b> — acute coronary occlusion</div>
+    </div>
+   </div>
+
+   <!-- 2. Cause-Specific Treatment (for the Hs & Ts not already covered in Special Circumstances) -->
+   <div class="aht-card" id="cac-treat">
+    <div class="aht-header" onclick="toggleAHT('cac-treat')">
+     <div style="flex:1">
+      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">Cause-Specific Treatment</div>
+      <div style="font-size:10px;color:var(--text-faint)">What to do for each H &amp; T</div>
+     </div>
+     <span class="aht-chevron"></span>
+    </div>
+    <div class="aht-body">
+     <div class="cac-h"><u>Hypovolaemia</u></div>
+     <div class="cac-li">Treat the cause; give appropriate fluid or blood replacement</div>
+     <div class="cac-h"><u>Hypoxia</u></div>
+     <div class="cac-li">Verify airway patency, ventilation, oxygen delivery and tube position; correct problems</div>
+     <div class="cac-h"><u>Hydrogen ion (Acidosis)</u></div>
+     <div class="cac-li">Optimise CPR and ventilation; treat the underlying cause</div>
+     <div class="cac-li">Sodium bicarbonate is not routine for every cardiac arrest</div>
+     <div class="cac-h"><u>Hypo-/Hyperkalaemia</u></div>
+     <div class="cac-li">Cause-specific management per protocol; evidence for IV calcium, bicarbonate and insulin–glucose during arrest remains uncertain</div>
+     <div class="cac-li">Correct documented or strongly suspected metabolic causes per the relevant protocol</div>
+     <div class="cac-h"><u>Tension Pneumothorax</u></div>
+     <div class="cac-li">Immediate decompression when strongly suspected</div>
+     <div class="cac-h"><u>Cardiac Tamponade</u></div>
+     <div class="cac-li">Urgent drainage or procedural management</div>
+     <div class="cac-h"><u>Coronary Thrombosis</u></div>
+     <div class="cac-li">Urgent coronary evaluation and reperfusion when indicated</div>
+     <div class="cac-see">Hypothermia • Toxins • Pulmonary thrombosis → see Special Circumstances</div>
+    </div>
+   </div>
+
+   <!-- 3. Special Circumstances (each with its own cause-specific treatment) -->
+   <div class="aht-card" id="cac-special">
+    <div class="aht-header" onclick="toggleAHT('cac-special')">
+     <div style="flex:1">
+      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">Special Circumstances</div>
+      <div style="font-size:10px;color:var(--text-faint);text-align:left">Pregnancy <span style="white-space:nowrap">• Drowning</span> <span style="white-space:nowrap">• Hypothermia</span> <span style="white-space:nowrap">• Poisoning</span> <span style="white-space:nowrap">• PE</span> <span style="white-space:nowrap">• Procedure-related</span></div>
+     </div>
+     <span class="aht-chevron"></span>
+    </div>
+    <div class="aht-body">
+     <div class="cac-h"><u>Pregnancy</u></div>
+     <div class="cac-li">Activate obstetric and resuscitation teams</div>
+     <div class="cac-li">Manual left uterine displacement when the uterus is large enough to cause aortocaval compression</div>
+     <div class="cac-li">Prepare for resuscitative delivery when indicated; do not delay resuscitation while waiting</div>
+     <div class="cac-h"><u>Drowning / Asphyxia</u></div>
+     <div class="cac-li">Prioritise effective oxygenation and ventilation alongside CPR</div>
+     <div class="cac-li">Follow the pathway for the underlying hypoxic event</div>
+     <div class="cac-h"><u>Hypothermia</u></div>
+     <div class="cac-li">Continue resuscitation while rewarming; consider ECLS rewarming at an appropriate centre</div>
+     <div class="cac-li">Defibrillation and drug timing may need modification per core temperature and local protocol</div>
+     <div class="cac-h"><u>Poisoning / Drug Toxicity</u></div>
+     <div class="cac-li">Identify agent, dose and time of exposure when possible; involve toxicology early</div>
+     <div class="cac-li">Targeted treatment: β-blockers, Ca-channel blockers, digoxin, Na-channel blockers, local anaesthetic toxicity, opioids</div>
+     <div class="cac-li">Presumed opioid overdose: an opioid antagonist may be reasonable if CPR is not interrupted</div>
+     <div class="cac-h"><u>Pulmonary Embolism</u></div>
+     <div class="cac-li">Suspect with sudden collapse, PEA, VTE risk factors or acute RV strain</div>
+     <div class="cac-li">Consider systemic fibrinolysis, catheter-based or surgical embolectomy, ECLS — per circumstances and availability</div>
+     <div class="cac-h"><u>Procedure-related Arrest</u></div>
+     <div class="cac-li"><b>Post-cardiac surgery:</b> call the cardiac surgical team early; emergency resternotomy per local protocol</div>
+     <div class="cac-li"><b>Cath lab:</b> look for the procedural cause (occlusion, perforation / tamponade); mechanical CPR or ECLS per local capability</div>
+     <div class="cac-li"><b>LVAD failure:</b> check device, power and connections; involve the VAD team; follow the LVAD-specific protocol</div>
+    </div>
+   </div>
+
+   <!-- 4. After ROSC -->
+   <div class="aht-card" id="cac-rosc">
+    <div class="aht-header" onclick="toggleAHT('cac-rosc')">
+     <div style="flex:1">
+      <div style="font-weight:700;font-size:12px;color:var(--text-strong)">After ROSC</div>
+      <div style="font-size:10px;color:var(--text-faint)">Post-arrest priorities</div>
+     </div>
+     <span class="aht-chevron"></span>
+    </div>
+    <div class="aht-body">
+     <div class="cac-h"><u>Oxygenation &amp; Ventilation</u></div>
+     <div class="cac-li">Secure oxygenation and ventilation; avoid both hypoxaemia and hyperoxaemia (targets: see BLS &amp; ACLS card)</div>
+     <div class="cac-h"><u>Haemodynamics</u></div>
+     <div class="cac-li">Support blood pressure and perfusion</div>
+     <div class="cac-h"><u>Find the Cause</u></div>
+     <div class="cac-li">12-lead ECG; evaluate for coronary occlusion</div>
+     <div class="cac-li">Identify and treat the cause of arrest</div>
+     <div class="cac-h"><u>Neuroprotection</u></div>
+     <div class="cac-li">Temperature control and neurological monitoring as indicated</div>
+     <div class="cac-see">Refer to the dedicated Post-ROSC care protocol.</div>
+     <div class="alg-fig" style="margin-top:12px"><svg class="alg" viewBox="0 0 384 590" width="100%" role="img" aria-label="algorithm"><defs><marker id="ar2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mk"/></marker></defs><rect x="132" y="4" width="120" height="24" rx="12" class="alg-g"/><text x="192" y="19.5" class="alg-tb" text-anchor="middle">ROSC obtained</text><path d="M192 28 L192 40" class="alg-ln" marker-end="url(#ar2)"/><text x="12" y="47.0" class="alg-lb" text-anchor="start">INITIAL STABILIZATION AFTER ROSC</text><rect x="12" y="52" width="360" height="112.0" rx="8" class="alg-g"/><text x="192.0" y="68.5" class="alg-tb" text-anchor="middle">Manage airway</text><text x="192.0" y="81.0" class="alg-t" text-anchor="middle">Assess; place or exchange an advanced airway as needed;</text><text x="192.0" y="93.5" class="alg-t" text-anchor="middle">confirm correct placement (waveform capnography)</text><text x="192.0" y="106.0" class="alg-tb" text-anchor="middle">Oxygenation &amp; ventilation</text><text x="192.0" y="118.5" class="alg-t" text-anchor="middle">100% FiO₂ until SpO₂ can be measured reliably, then</text><text x="192.0" y="131.0" class="alg-t" text-anchor="middle">SpO₂ 90–98% (PaO₂ 60–105 mmHg) · PaCO₂ 35–45 mmHg</text><text x="192.0" y="143.5" class="alg-tb" text-anchor="middle">Hemodynamics</text><text x="192.0" y="156.0" class="alg-t" text-anchor="middle">Target MAP ≥65 mmHg (vasopressors / fluids)</text><path d="M192 164.0 L192 176.0" class="alg-ln" marker-end="url(#ar2)"/><rect x="12" y="176.0" width="360" height="37.0" rx="8" class="alg-g"/><text x="192.0" y="192.5" class="alg-tb" text-anchor="middle">Early diagnostic testing</text><text x="192.0" y="205.0" class="alg-t" text-anchor="middle">12-lead ECG · consider diagnostic imaging (CT and/or ultrasound)</text><text x="12" y="230.0" class="alg-lb" text-anchor="start">CONTINUED MANAGEMENT</text><rect x="12" y="235.0" width="360" height="49.5" rx="8" class="alg-o"/><text x="192.0" y="251.5" class="alg-tb" text-anchor="middle">Treat arrest etiologies and complications</text><text x="192.0" y="264.0" class="alg-t" text-anchor="middle">Consider emergency coronary angiography</text><text x="192.0" y="276.5" class="alg-t" text-anchor="middle">and/or mechanical circulatory support</text><path d="M192 284.5 L192 296.5" class="alg-ln" marker-end="url(#ar2)"/><rect x="12" y="296.5" width="360" height="37.0" rx="8" class="alg-g"/><text x="192.0" y="313.0" class="alg-tb" text-anchor="middle">Assess patient off sedation and neuromuscular</text><text x="192.0" y="325.5" class="alg-tb" text-anchor="middle">blockade, if able</text><path d="M192 333.5 L192 345.5" class="alg-ln" marker-end="url(#ar2)"/><polygon points="192 345.5,267.0 365.5,192 385.5,117.0 365.5" class="alg-d"/><text x="192" y="369.0" class="alg-tb" text-anchor="middle">Follows commands?</text><path d="M117 365.5 H100 V399.5" class="alg-ln" marker-end="url(#ar2)"/><path d="M267 365.5 H284 V399.5" class="alg-ln" marker-end="url(#ar2)"/><text x="114" y="360.5" class="alg-r" text-anchor="end">No or unsure</text><text x="270" y="360.5" class="alg-r" text-anchor="start">Yes</text><rect x="12" y="399.5" width="176" height="24.5" rx="8" class="alg-g"/><text x="100.0" y="416.0" class="alg-tb" text-anchor="middle">Ongoing critical care</text><rect x="12" y="430.0" width="176" height="37.0" rx="8" class="alg-g"/><text x="100.0" y="446.5" class="alg-t" text-anchor="middle">Deliberate strategy for</text><text x="100.0" y="459.0" class="alg-tb" text-anchor="middle">temperature control</text><rect x="12" y="473.0" width="176" height="24.5" rx="8" class="alg-g"/><text x="100.0" y="489.5" class="alg-tb" text-anchor="middle">EEG</text><rect x="12" y="503.5" width="176" height="37.0" rx="8" class="alg-g"/><text x="100.0" y="520.0" class="alg-tb" text-anchor="middle">Coronary angiography</text><text x="100.0" y="532.5" class="alg-t" text-anchor="middle">when appropriate</text><rect x="12" y="546.5" width="176" height="37.0" rx="8" class="alg-g"/><text x="100.0" y="563.0" class="alg-t" text-anchor="middle">Appropriately timed,</text><text x="100.0" y="575.5" class="alg-tb" text-anchor="middle">multimodal prognostication</text><rect x="200" y="399.5" width="172" height="24.5" rx="8" class="alg-g"/><text x="286.0" y="416.0" class="alg-tb" text-anchor="middle">Ongoing critical care</text><rect x="200" y="430.0" width="172" height="37.0" rx="8" class="alg-g"/><text x="286.0" y="446.5" class="alg-tb" text-anchor="middle">Coronary angiography</text><text x="286.0" y="459.0" class="alg-t" text-anchor="middle">when appropriate</text></svg><div class="alg-cap">■ Adult Post–Cardiac Arrest Care Algorithm ( AHA 2025 )</div>
+<div class="alg-note"><b>Emergency cardiac intervention:</b> persistent ST-segment elevation · cardiogenic shock · recurrent or refractory ventricular arrhythmias · severe myocardial ischemia.</div>
+<div class="alg-note"><b>Temperature control:</b> if not following commands off sedation/neuromuscular blockade (or unable to assess), start a deliberate strategy, goal 32–37.5 °C, as soon as possible.</div>
+<div class="alg-note"><b>Seizure:</b> evaluate clinically; EEG in patients not following commands. <b>Prognostication:</b> multimodal, delayed impressions (≥72 h from ROSC or achieving normothermia).</div>
+<div class="alg-note"><b>Ongoing critical care:</b> PaO₂ 60–105 mmHg, PaCO₂ 35–45 mmHg (unless severe acidemia) · avoid hypoglycemia (&lt;70 mg/dL) and hyperglycemia (&gt;180 mg/dL) · MAP ≥65 mmHg · consider antibiotics.</div></div>
+    </div>
+   </div>
+
+   <div class="drug-ref" style="padding:0 2px"><span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> Adjunct to the standard ACLS algorithm, not a replacement. Interventions depend on the suspected cause, clinical context, resources and local protocol; evidence for some interventions during arrest is limited.</div>
+   <div class="drug-ref" style="padding:0 2px">Ref: <a href="https://professional.heart.org/en/science-news/2025-aha-guidelines-for-cpr-and-ecc" target="_blank" rel="noopener">AHA 2025 Guidelines</a> — <a href="https://professional.heart.org/en/guidelines-statements/part-9-adult-advanced-life-support-2025-american-heart-association-guidelinescir0000000000001376" target="_blank" rel="noopener">Adult ALS</a>, <a href="https://professional.heart.org/en/guidelines-statements/part-10-adult-and-pediatric-special-circumstances-of-resuscitation-2025cir0000000000001380" target="_blank" rel="noopener">Special Circumstances</a></div>
+
+  </div>
+ </div>
+
  <!-- BLS & ACLS integrated card -->
  <div class="calc-card" id="calccard-bls">
+  <style>
+   /* BLS card — algorithm figures (same visual system as the Cardiac Arrest card) */
+   #calccard-bls .alg-fig { margin:8px 0 6px; text-align:left; }
+   #calccard-bls svg.alg { display:block; }
+   #calccard-bls svg.alg text { font-family:inherit; }
+   #calccard-bls .alg-b { fill:var(--surface,#161b22); stroke:var(--border-strong,#30363d); stroke-width:1; }
+   #calccard-bls .alg-bl { fill:rgba(59,130,246,.13); stroke:rgba(59,130,246,.55); stroke-width:1; }
+   #calccard-bls .alg-g { fill:rgba(34,197,94,.12); stroke:rgba(34,197,94,.5); stroke-width:1; }
+   #calccard-bls .alg-o { fill:rgba(245,158,11,.16); stroke:rgba(245,158,11,.65); stroke-width:1; }
+   #calccard-bls .alg-d { fill:rgba(239,68,68,.11); stroke:rgba(239,68,68,.6); stroke-width:1; }
+   #calccard-bls .alg-t { fill:var(--text-muted); font-size:10px; }
+   #calccard-bls .alg-tb { fill:var(--text-strong); font-size:10.5px; font-weight:700; }
+   #calccard-bls .alg-r { fill:#ef4444; font-size:9.5px; font-weight:700; }
+   #calccard-bls .alg-ln { stroke:var(--text-muted); stroke-width:1.2; fill:none; }
+   #calccard-bls .alg-lnf { stroke:var(--border-strong,#30363d); stroke-width:1.2; fill:none; }
+   #calccard-bls .alg-dash { stroke:rgba(59,130,246,.8); stroke-width:1.4; stroke-dasharray:4 3; fill:none; }
+   #calccard-bls .alg-dot { fill:var(--bg,#0d1117); stroke:rgba(59,130,246,.9); stroke-width:1.4; }
+   #calccard-bls .alg-cy { stroke:#3b82f6; stroke-width:2.6; fill:none; stroke-linecap:round; }
+   #calccard-bls .alg-gn { stroke:#22c55e; stroke-width:2.6; fill:none; }
+   #calccard-bls .alg-fb { fill:#3b82f6; }
+   #calccard-bls .alg-fg { fill:#22c55e; }
+   #calccard-bls .alg-tile { fill:var(--bg,#0d1117); stroke:var(--border-strong,#30363d); stroke-width:1; }
+   #calccard-bls .alg-ring { stroke:#3b82f6; stroke-width:9; fill:none; }
+   #calccard-bls .alg-h1 { fill:var(--text-strong); font-size:17px; font-weight:800; }
+   #calccard-bls .alg-pg1 { fill:var(--text-faint); } #calccard-bls .alg-pg2 { fill:var(--text-muted); opacity:.85; }
+   #calccard-bls .alg-pgs1 { stroke:var(--text-faint); } #calccard-bls .alg-pgs2 { stroke:var(--text-muted); opacity:.9; }
+   #calccard-bls .alg-arm { stroke:var(--text); opacity:.85; } #calccard-bls .alg-arm-f { fill:var(--text); opacity:.85; }
+   #calccard-bls .alg-push { stroke:#ef4444; }
+   #calccard-bls .alg-sil { fill:var(--text-muted); }
+   #calccard-bls .alg-sil-s { stroke:var(--text-muted); fill:none; stroke-linecap:round; }
+   #calccard-bls .alg-silk { fill:none; stroke:var(--surface-deep,#161b22); stroke-width:7; stroke-linecap:round; stroke-linejoin:round; }
+   #calccard-bls .alg-sil.alg-silk { fill:var(--text-muted); }
+   #calccard-bls .alg-mk { fill:var(--text-muted); }
+   #calccard-bls .alg-mkb { fill:#3b82f6; }
+   #calccard-bls .alg-mkg { fill:#22c55e; }
+   #calccard-bls .alg-fig + .alg-fig { margin-top:30px; padding-top:14px; border-top:1px solid var(--border,#30363d); }
+   #calccard-bls .alg-cap { font-size:10px; font-weight:700; letter-spacing:.2px; color:var(--text-muted); margin:0 0 8px; line-height:1.5; }
+   #calccard-bls .alg-note { font-size:10.5px; color:var(--text-muted); line-height:1.6; margin:0 0 5px; text-align:left; }
+   #calccard-bls .alg-note b { color:inherit; font-weight:700; }
+  </style>
   <div class="calc-title" onclick="toggleCalc('calccard-bls')">
    <span class="calc-title-dot"></span>
    <span>BLS &amp; ACLS Algorithm (AHA 2025)</span>
@@ -12316,6 +12706,10 @@ function eiwSwitchPO4(which){
      <strong style="color:var(--text-strong)">6.</strong> Advanced airway placed: 10 breaths/min async<br>
      <span style="font-size:10.5px;color:var(--text-faint)">2025: CPR feedback devices recommended • Passive O₂ during compressions acceptable</span>
     </div>
+
+    <div class="alg-fig" style="margin-top:14px"><div class="alg-cap">■ Lay-Rescuer Action Steps — Adult &amp; Child CPR ( AHA 2025 )</div><svg class="alg" viewBox="0 64 390 496" width="100%" role="img" aria-label="Lay rescuer action steps"><defs><marker id="arB1" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mk"/></marker><marker id="arB1b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mkb"/></marker><marker id="arB1g" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mkg"/></marker><marker id="arB1t" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="2.7" markerHeight="2.7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#3b82f6"/></marker></defs><path d="M142.2 306.8 A119.9 119.9 0 0 1 219.7 350.0" class="alg-ring"/><path d="M245.5 442.4 A119.9 119.9 0 1 1 20.4 370.3" class="alg-ring"/><polygon points="228.5 362.2 210.0 357.9 229.4 342.1" class="alg-fb"/><polygon points="28.2 357.5 31.5 376.1 9.3 364.5" class="alg-fb"/><text x="268" y="101" class="alg-h1" text-anchor="middle">Act Now. Save a Life.</text><text x="268" y="118" class="alg-t" text-anchor="middle">Follow these steps to take action.</text><rect x="1" y="74" width="142" height="62" rx="8" class="alg-b"/><text x="72" y="95.3" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Unresponsive</tspan></text><text x="72" y="107.5" class="alg-t" text-anchor="middle"><tspan class="alg-tb">No breathing</tspan>, abnormal</text><text x="72" y="119.7" class="alg-t" text-anchor="middle">breathing (eg, gasping)</text><polygon points="67 136 77 136 77 158 84.5 158 72 171 59.5 158 67 158" class="alg-fb"/><rect x="1" y="179" width="142" height="62" rx="8" class="alg-b"/><text x="47" y="200.3" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Activate</tspan></text><text x="47" y="212.5" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">emergency</tspan></text><text x="47" y="224.7" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">response.</tspan></text><rect x="93" y="190" width="40" height="40" rx="7" class="alg-tile"/><g transform="translate(100 195)" fill="none" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="13" height="21" rx="3" fill="rgba(239,68,68,.12)"/><path d="M6.5 22.5h4"/><path d="M18 6.5a5 5 0 0 1 4.5 4.5M18 1.5a10 10 0 0 1 9.5 9.5"/></g><polygon points="67 241 77 241 77 262 84.5 262 72 275 59.5 262 67 262" class="alg-fb"/><rect x="1" y="282" width="142" height="62" rx="8" class="alg-b"/><text x="47" y="315.5" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Start CPR.</tspan></text><rect x="93" y="293" width="40" height="40" rx="7" class="alg-tile"/><g transform="translate(101 300)" fill="none" stroke="#ef4444" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2v13"/><path d="M8 10l5 6 5-6"/><rect x="2" y="19" width="22" height="6" rx="3" fill="rgba(239,68,68,.18)"/></g><rect x="196" y="176" width="143" height="68" rx="8" class="alg-b"/><text x="245" y="212.5" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Get AED.</tspan></text><g transform="translate(289 183)"><rect width="39" height="53" rx="4" fill="#22c55e"/><path d="M18 36C9 29.500 6 24.500 6 19.500A7 7 0 0 1 18 15.500A7 7 0 0 1 30 19.500C30 24.500 27 29.500 18 36z" fill="#fff"/><path d="M19.800 18.500l-5.600 8h4.600l-1.600 6.500 6.400-8.600h-4.600z" fill="#22c55e"/><path d="M31 5.500v9M26.500 10h9" stroke="#fff" stroke-width="2.600" stroke-linecap="round"/><rect y="41" width="39" height="12" rx="3" fill="#16a34a"/><text x="19.500" y="50.200" text-anchor="middle" fill="#fff" font-size="8.500" font-weight="800" letter-spacing="2.200">AED</text></g><path d="M143 210 H196" class="alg-lnf"/><polygon points="262 244 272 244 272 354 279.5 354 267 367 254.5 354 262 354" class="alg-fg"/><rect x="197" y="374" width="141" height="77" rx="8" class="alg-b"/><text x="242" y="390.6" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Apply AED</tspan></text><text x="242" y="402.8" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">pads. Follow</tspan></text><text x="242" y="415" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">AED prompts.</tspan></text><text x="242" y="427.2" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Resume CPR</tspan></text><text x="242" y="439.4" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">for 2 minutes.</tspan></text><g transform="translate(288 385)"><rect width="39" height="53" rx="4" fill="#22c55e"/><path d="M18 36C9 29.500 6 24.500 6 19.500A7 7 0 0 1 18 15.500A7 7 0 0 1 30 19.500C30 24.500 27 29.500 18 36z" fill="#fff"/><path d="M19.800 18.500l-5.600 8h4.600l-1.600 6.500 6.400-8.600h-4.600z" fill="#22c55e"/><path d="M31 5.500v9M26.500 10h9" stroke="#fff" stroke-width="2.600" stroke-linecap="round"/><rect y="41" width="39" height="12" rx="3" fill="#16a34a"/><text x="19.500" y="50.200" text-anchor="middle" fill="#fff" font-size="8.500" font-weight="800" letter-spacing="2.200">AED</text></g><path d="M338 412 H355 V458" class="alg-dash"/><circle cx="355" cy="463" r="6.500" class="alg-dot"/><rect x="256" y="464" width="115" height="87.2" rx="8" class="alg-bl"/><text x="313.5" y="479.6" class="alg-t" text-anchor="middle">If suspected</text><text x="313.5" y="491.8" class="alg-t" text-anchor="middle">opioid overdose,</text><text x="313.5" y="504" class="alg-t" text-anchor="middle">give a dose of</text><text x="313.5" y="516.2" class="alg-t" text-anchor="middle">naloxone (if</text><text x="313.5" y="528.4" class="alg-t" text-anchor="middle">available). Resume</text><text x="313.5" y="540.6" class="alg-t" text-anchor="middle">CPR.</text><g transform="translate(58 378) scale(0.17) translate(-211 -146)"><circle cx="277" cy="553" r="66" class="alg-sil"/><path d="M670 543 L888 551" class="alg-sil-s" stroke-width="68"/><rect x="362" y="496" width="340" height="124" rx="60" class="alg-sil"/><path d="M402 532 Q392 566 440 584 Q520 614 640 592 Q674 582 668 562 Q662 548 640 553 Q560 580 484 560 Q444 546 428 526 Q414 518 402 532 Z" class="alg-silk"/><rect x="405" y="430" width="160" height="72" class="alg-sil"/><path d="M438 266 H536 Q590 270 590 322 Q584 384 526 504 H448 Q386 384 380 322 Q380 270 438 266 Z" class="alg-sil"/><path d="M428 318 Q434 404 466 506" class="alg-silk"/><path d="M543 318 Q536 404 494 506" class="alg-silk"/><circle cx="466" cy="494" r="22" class="alg-sil alg-silk"/><circle cx="506" cy="494" r="22" class="alg-sil alg-silk"/><circle cx="485" cy="212" r="66" class="alg-sil alg-silk" stroke-width="9"/></g><text x="119" y="476" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Press hard. Press fast</tspan></text><text x="119" y="487" class="alg-t" text-anchor="middle">in the centre of the chest.</text></svg></div>
+    <div class="alg-fig"><div class="alg-cap">■ Adult* Basic Life Support Algorithm for Health Care Professionals ( AHA 2025 )</div><svg class="alg" viewBox="0 0 390 720" width="100%" role="img" aria-label="Adult basic life support algorithm"><defs><marker id="arB2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mk"/></marker><marker id="arB2b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mkb"/></marker><marker id="arB2g" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mkg"/></marker></defs><rect x="102" y="4" width="150" height="22.2" rx="8" class="alg-g"/><text x="177" y="17.6" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Verify scene safety.</tspan></text><path d="M177 26 V38" class="alg-ln" marker-end="url(#arB2)"/><rect x="52" y="38" width="250" height="60.8" rx="8" class="alg-o"/><text x="60" y="52.6" class="alg-t">•</text><text x="68" y="52.6" class="alg-t" text-anchor="start">Check for responsiveness.</text><text x="60" y="64.8" class="alg-t">•</text><text x="68" y="64.8" class="alg-t" text-anchor="start">Shout for nearby help.</text><text x="60" y="77" class="alg-t">•</text><text x="68" y="77" class="alg-t" text-anchor="start">Activate emergency response system.</text><text x="60" y="89.2" class="alg-t">•</text><text x="68" y="89.2" class="alg-t" text-anchor="start">Send someone to get AED/defibrillator.</text><path d="M177 98.8 V110.8" class="alg-ln" marker-end="url(#arB2)"/><polygon points="74 153.8 108 110.8 246 110.8 280 153.8 246 196.8 108 196.8" class="alg-d"/><text x="177" y="132.3" class="alg-t" text-anchor="middle">Look for no breathing</text><text x="177" y="144.5" class="alg-t" text-anchor="middle">or only gasping, and check</text><text x="177" y="156.7" class="alg-t" text-anchor="middle">pulse (simultaneously).</text><text x="177" y="168.9" class="alg-t" text-anchor="middle">Is pulse <tspan class="alg-tb">definitely</tspan> felt</text><text x="177" y="181.1" class="alg-t" text-anchor="middle">within 10 seconds?</text><path d="M177 196.8 V212.8 M50 212.8 H324" class="alg-ln"/><path d="M50 212.8 V218.8" class="alg-ln"/><text x="50" y="229.8" class="alg-r" text-anchor="middle">Normal</text><text x="50" y="241.3" class="alg-r" text-anchor="middle">breathing,</text><text x="50" y="252.8" class="alg-r" text-anchor="middle">pulse felt</text><path d="M50 257.8 V271.8" class="alg-ln" marker-end="url(#arB2)"/><path d="M177 212.8 V218.8" class="alg-ln"/><text x="177" y="229.8" class="alg-r" text-anchor="middle">No breathing</text><text x="177" y="241.3" class="alg-r" text-anchor="middle">or only gasping,</text><text x="177" y="252.8" class="alg-r" text-anchor="middle">pulse not felt</text><path d="M177 257.8 V271.8" class="alg-ln" marker-end="url(#arB2)"/><path d="M324 212.8 V218.8" class="alg-ln"/><text x="324" y="229.8" class="alg-r" text-anchor="middle">Abnormal</text><text x="324" y="241.3" class="alg-r" text-anchor="middle">breathing,</text><text x="324" y="252.8" class="alg-r" text-anchor="middle">pulse felt</text><path d="M324 257.8 V271.8" class="alg-ln" marker-end="url(#arB2)"/><rect x="4" y="271.8" width="92" height="48.6" rx="8" class="alg-g"/><text x="50" y="286.4" class="alg-t" text-anchor="middle">Monitor until</text><text x="50" y="298.6" class="alg-t" text-anchor="middle">advanced care</text><text x="50" y="310.8" class="alg-t" text-anchor="middle">arrives.</text><rect x="104" y="271.8" width="146" height="170.6" rx="8" class="alg-bl"/><text x="177" y="286.4" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Start CPR</tspan></text><text x="112" y="298.6" class="alg-t">•</text><text x="120" y="298.6" class="alg-t" text-anchor="start">Perform cycles of 30</text><text x="120" y="310.8" class="alg-t" text-anchor="start">compressions and 2</text><text x="120" y="323" class="alg-t" text-anchor="start">breaths.</text><text x="112" y="335.2" class="alg-t">•</text><text x="120" y="335.2" class="alg-t" text-anchor="start">Use AED/defibrillator</text><text x="120" y="347.4" class="alg-t" text-anchor="start">as soon as it is</text><text x="120" y="359.6" class="alg-t" text-anchor="start">available.</text><text x="112" y="371.8" class="alg-t">•</text><text x="120" y="371.8" class="alg-t" text-anchor="start">If suspected opioid</text><text x="120" y="384" class="alg-t" text-anchor="start">overdose, consider</text><text x="120" y="396.2" class="alg-t" text-anchor="start">opioid antagonist (eg,</text><text x="120" y="408.4" class="alg-t" text-anchor="start">naloxone).</text><rect x="262" y="271.8" width="124" height="170.6" rx="8" class="alg-g"/><text x="270" y="286.4" class="alg-t">•</text><text x="278" y="286.4" class="alg-t" text-anchor="start">Provide breaths, 1</text><text x="278" y="298.6" class="alg-t" text-anchor="start">breath every 6</text><text x="278" y="310.8" class="alg-t" text-anchor="start">seconds or 10</text><text x="278" y="323" class="alg-t" text-anchor="start">breaths/min.</text><text x="270" y="335.2" class="alg-t">•</text><text x="278" y="335.2" class="alg-t" text-anchor="start">Check pulse every</text><text x="278" y="347.4" class="alg-t" text-anchor="start">2 minutes; if no</text><text x="278" y="359.6" class="alg-t" text-anchor="start">pulse, start CPR.</text><text x="270" y="371.8" class="alg-t">•</text><text x="278" y="371.8" class="alg-t" text-anchor="start">If suspected</text><text x="278" y="384" class="alg-t" text-anchor="start">opioid overdose,</text><text x="278" y="396.2" class="alg-t" text-anchor="start">administer opioid</text><text x="278" y="408.4" class="alg-t" text-anchor="start">antagonist (eg,</text><text x="278" y="420.6" class="alg-t" text-anchor="start">naloxone) if</text><text x="278" y="432.8" class="alg-t" text-anchor="start">available.</text><path d="M177 442.4 V458.4" class="alg-ln" marker-end="url(#arB2)"/><rect x="127" y="458.4" width="100" height="22.2" rx="8" class="alg-b"/><text x="177" y="472" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">AED arrives.</tspan></text><path d="M177 480.4 V494.4" class="alg-ln" marker-end="url(#arB2)"/><polygon points="91 519.4 117 494.4 237 494.4 263 519.4 237 544.4 117 544.4" class="alg-d"/><text x="177" y="516.2" class="alg-t" text-anchor="middle">Check rhythm.</text><text x="177" y="528.4" class="alg-t" text-anchor="middle">Shockable rhythm?</text><path d="M177 544.4 V556.4 M99 556.4 H277" class="alg-ln"/><path d="M99 556.4 V562.4" class="alg-ln"/><text x="99" y="573.4" class="alg-r" text-anchor="middle">Yes,</text><text x="99" y="584.9" class="alg-r" text-anchor="middle">shockable</text><path d="M99 589.9 V603.9" class="alg-ln" marker-end="url(#arB2)"/><path d="M277 556.4 V562.4" class="alg-ln"/><text x="277" y="573.4" class="alg-r" text-anchor="middle">No,</text><text x="277" y="584.9" class="alg-r" text-anchor="middle">nonshockable</text><path d="M277 589.9 V603.9" class="alg-ln" marker-end="url(#arB2)"/><rect x="14" y="603.9" width="178" height="109.6" rx="8" class="alg-bl"/><text x="22" y="618.5" class="alg-t">•</text><text x="30" y="618.5" class="alg-t" text-anchor="start">Give 1 shock. Resume CPR</text><text x="30" y="630.7" class="alg-t" text-anchor="start">immediately for 2 minutes</text><text x="30" y="642.9" class="alg-t" text-anchor="start">(until prompted by</text><text x="30" y="655.1" class="alg-t" text-anchor="start">AED/defibrillator to allow</text><text x="30" y="667.3" class="alg-t" text-anchor="start">rhythm check).</text><text x="22" y="679.5" class="alg-t">•</text><text x="30" y="679.5" class="alg-t" text-anchor="start">Continue until ALS</text><text x="30" y="691.7" class="alg-t" text-anchor="start">professionals take over or</text><text x="30" y="703.9" class="alg-t" text-anchor="start">person starts to move.</text><rect x="198" y="603.9" width="178" height="109.6" rx="8" class="alg-bl"/><text x="206" y="618.5" class="alg-t">•</text><text x="214" y="618.5" class="alg-t" text-anchor="start">Resume CPR immediately for 2</text><text x="214" y="630.7" class="alg-t" text-anchor="start">minutes (until prompted by</text><text x="214" y="642.9" class="alg-t" text-anchor="start">AED/defibrillator to allow</text><text x="214" y="655.1" class="alg-t" text-anchor="start">rhythm check).</text><text x="206" y="667.3" class="alg-t">•</text><text x="214" y="667.3" class="alg-t" text-anchor="start">Continue until ALS</text><text x="214" y="679.5" class="alg-t" text-anchor="start">professionals take over or</text><text x="214" y="691.7" class="alg-t" text-anchor="start">person starts to move.</text><path d="M14 658.7 H6 V519.4 H91" class="alg-ln" marker-end="url(#arB2)"/><path d="M376 658.7 H384 V519.4 H263" class="alg-ln" marker-end="url(#arB2)"/></svg><div class="alg-note">*If signs of puberty, treat as adult.</div></div>
+    <div class="alg-fig"><div class="alg-cap">■ Pediatric BLS Algorithm (Infants to Puberty) — 2 or More Rescuers ( AHA 2025 &amp; AAP )</div><svg class="alg" viewBox="0 0 390 931" width="100%" role="img" aria-label="Pediatric basic life support algorithm, two or more rescuers"><defs><marker id="arB3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mk"/></marker><marker id="arB3b" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mkb"/></marker><marker id="arB3g" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="4.2" markerHeight="4.2" orient="auto"><path d="M0 0L10 5L0 10z" class="alg-mkg"/></marker></defs><rect x="102" y="4" width="150" height="22.2" rx="8" class="alg-g"/><text x="177" y="17.6" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Verify scene safety.</tspan></text><path d="M177 26 V38" class="alg-ln" marker-end="url(#arB3)"/><rect x="52" y="38" width="250" height="60.8" rx="8" class="alg-o"/><text x="60" y="52.6" class="alg-t">•</text><text x="68" y="52.6" class="alg-t" text-anchor="start">Check for responsiveness.</text><text x="60" y="64.8" class="alg-t">•</text><text x="68" y="64.8" class="alg-t" text-anchor="start">Shout for nearby help.</text><text x="60" y="77" class="alg-t">•</text><text x="68" y="77" class="alg-t" text-anchor="start">Activate emergency response system.</text><text x="60" y="89.2" class="alg-t">•</text><text x="68" y="89.2" class="alg-t" text-anchor="start">Send someone to get AED/defibrillator.</text><path d="M177 98.8 V110.8" class="alg-ln" marker-end="url(#arB3)"/><polygon points="74 153.8 108 110.8 246 110.8 280 153.8 246 196.8 108 196.8" class="alg-d"/><text x="177" y="132.3" class="alg-t" text-anchor="middle">Look for no breathing</text><text x="177" y="144.5" class="alg-t" text-anchor="middle">or only gasping, and check</text><text x="177" y="156.7" class="alg-t" text-anchor="middle">pulse (simultaneously).</text><text x="177" y="168.9" class="alg-t" text-anchor="middle">Is pulse <tspan class="alg-tb">definitely</tspan> felt</text><text x="177" y="181.1" class="alg-t" text-anchor="middle">within 10 seconds?</text><path d="M177 196.8 V212.8 M50 212.8 H324" class="alg-ln"/><path d="M50 212.8 V218.8" class="alg-ln"/><text x="50" y="229.8" class="alg-r" text-anchor="middle">Normal</text><text x="50" y="241.3" class="alg-r" text-anchor="middle">breathing,</text><text x="50" y="252.8" class="alg-r" text-anchor="middle">pulse felt</text><path d="M50 257.8 V271.8" class="alg-ln" marker-end="url(#arB3)"/><path d="M177 212.8 V218.8" class="alg-ln"/><text x="177" y="229.8" class="alg-r" text-anchor="middle">Abnormal</text><text x="177" y="241.3" class="alg-r" text-anchor="middle">breathing,</text><text x="177" y="252.8" class="alg-r" text-anchor="middle">pulse not felt</text><path d="M177 257.8 V271.8" class="alg-ln" marker-end="url(#arB3)"/><path d="M324 212.8 V218.8" class="alg-ln"/><text x="324" y="229.8" class="alg-r" text-anchor="middle">Abnormal</text><text x="324" y="241.3" class="alg-r" text-anchor="middle">breathing,</text><text x="324" y="252.8" class="alg-r" text-anchor="middle">pulse felt</text><path d="M324 257.8 V271.8" class="alg-ln" marker-end="url(#arB3)"/><rect x="4" y="271.8" width="92" height="48.6" rx="8" class="alg-g"/><text x="50" y="286.4" class="alg-t" text-anchor="middle">Monitor until</text><text x="50" y="298.6" class="alg-t" text-anchor="middle">advanced care</text><text x="50" y="310.8" class="alg-t" text-anchor="middle">arrives.</text><rect x="104" y="271.8" width="146" height="231.6" rx="8" class="alg-bl"/><text x="177" y="286.4" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Start CPR</tspan></text><text x="112" y="298.6" class="alg-t">•</text><text x="120" y="298.6" class="alg-t" text-anchor="start">First rescuer performs</text><text x="120" y="310.8" class="alg-t" text-anchor="start">cycles of 30</text><text x="120" y="323" class="alg-t" text-anchor="start">compressions and 2</text><text x="120" y="335.2" class="alg-t" text-anchor="start">breaths.</text><text x="112" y="347.4" class="alg-t">•</text><text x="120" y="347.4" class="alg-t" text-anchor="start">When second rescuer</text><text x="120" y="359.6" class="alg-t" text-anchor="start">returns, perform</text><text x="120" y="371.8" class="alg-t" text-anchor="start">cycles of 15</text><text x="120" y="384" class="alg-t" text-anchor="start">compressions and 2</text><text x="120" y="396.2" class="alg-t" text-anchor="start">breaths.</text><text x="112" y="408.4" class="alg-t">•</text><text x="120" y="408.4" class="alg-t" text-anchor="start">Use AED/defibrillator</text><text x="120" y="420.6" class="alg-t" text-anchor="start">as soon as it is</text><text x="120" y="432.8" class="alg-t" text-anchor="start">available.</text><text x="112" y="445" class="alg-t">•</text><text x="120" y="445" class="alg-t" text-anchor="start">If suspected opioid</text><text x="120" y="457.2" class="alg-t" text-anchor="start">overdose, administer</text><text x="120" y="469.4" class="alg-t" text-anchor="start">opioid antagonist (eg,</text><text x="120" y="481.6" class="alg-t" text-anchor="start">naloxone) if</text><text x="120" y="493.8" class="alg-t" text-anchor="start">available.</text><rect x="262" y="271.8" width="124" height="195" rx="8" class="alg-g"/><text x="324" y="286.4" class="alg-tb" text-anchor="middle"><tspan class="alg-tb">Support ventilation</tspan></text><text x="270" y="298.6" class="alg-t">•</text><text x="278" y="298.6" class="alg-t" text-anchor="start">Open the airway</text><text x="278" y="310.8" class="alg-t" text-anchor="start">and reposition.</text><text x="270" y="323" class="alg-t">•</text><text x="278" y="323" class="alg-t" text-anchor="start">Provide breaths, 1</text><text x="278" y="335.2" class="alg-t" text-anchor="start">breath every 2-3</text><text x="278" y="347.4" class="alg-t" text-anchor="start">seconds (20-30</text><text x="278" y="359.6" class="alg-t" text-anchor="start">breaths/min).</text><text x="270" y="371.8" class="alg-t">•</text><text x="278" y="371.8" class="alg-t" text-anchor="start">Assess pulse rate</text><text x="278" y="384" class="alg-t" text-anchor="start">after 2 minutes.</text><text x="270" y="396.2" class="alg-t">•</text><text x="278" y="396.2" class="alg-t" text-anchor="start">If suspected</text><text x="278" y="408.4" class="alg-t" text-anchor="start">opioid overdose,</text><text x="278" y="420.6" class="alg-t" text-anchor="start">administer opioid</text><text x="278" y="432.8" class="alg-t" text-anchor="start">antagonist (eg,</text><text x="278" y="445" class="alg-t" text-anchor="start">naloxone) if</text><text x="278" y="457.2" class="alg-t" text-anchor="start">available.</text><path d="M324 466.8 V480.8" class="alg-ln" marker-end="url(#arB3)"/><polygon points="254 530.8 272 480.8 348 480.8 366 530.8 348 580.8 272 580.8" class="alg-d"/><text x="310" y="503.2" class="alg-t" text-anchor="middle">HR &lt;60/min</text><text x="310" y="515.4" class="alg-t" text-anchor="middle">with signs of</text><text x="310" y="527.6" class="alg-t" text-anchor="middle">poor perfusion</text><text x="310" y="539.8" class="alg-t" text-anchor="middle">despite</text><text x="310" y="552" class="alg-t" text-anchor="middle">oxygenation and</text><text x="310" y="564.2" class="alg-t" text-anchor="middle">ventilation?</text><path d="M254 530.8 H228 V503.4" class="alg-ln" marker-end="url(#arB3)"/><text x="252" y="525.8" class="alg-r" text-anchor="end">Yes</text><path d="M310 580.8 V598.8" class="alg-ln" marker-end="url(#arB3)"/><text x="315" y="592.8" class="alg-r" text-anchor="start">No</text><rect x="256" y="598.8" width="108" height="73" rx="8" class="alg-g"/><text x="310" y="613.4" class="alg-t" text-anchor="middle">Continue</text><text x="310" y="625.6" class="alg-t" text-anchor="middle">providing</text><text x="310" y="637.8" class="alg-t" text-anchor="middle">breaths; check</text><text x="310" y="650" class="alg-t" text-anchor="middle">pulse every 2</text><text x="310" y="662.2" class="alg-t" text-anchor="middle">minutes.</text><path d="M364 635.3 H384 V530.8 H366" class="alg-ln" marker-end="url(#arB3)"/><path d="M177 503.4 V692.8" class="alg-ln"/><path d="M177 679.8 V693.8" class="alg-ln" marker-end="url(#arB3)"/><polygon points="91 718.8 117 693.8 237 693.8 263 718.8 237 743.8 117 743.8" class="alg-d"/><text x="177" y="715.6" class="alg-t" text-anchor="middle">Check rhythm.</text><text x="177" y="727.8" class="alg-t" text-anchor="middle">Rhythm shockable?</text><path d="M177 743.8 V755.8 M99 755.8 H277" class="alg-ln"/><path d="M99 755.8 V761.8" class="alg-ln"/><text x="99" y="772.8" class="alg-r" text-anchor="middle">Yes,</text><text x="99" y="784.3" class="alg-r" text-anchor="middle">shockable</text><path d="M99 789.3 V803.3" class="alg-ln" marker-end="url(#arB3)"/><path d="M277 755.8 V761.8" class="alg-ln"/><text x="277" y="772.8" class="alg-r" text-anchor="middle">No,</text><text x="277" y="784.3" class="alg-r" text-anchor="middle">nonshockable</text><path d="M277 789.3 V803.3" class="alg-ln" marker-end="url(#arB3)"/><rect x="14" y="803.3" width="178" height="121.8" rx="8" class="alg-bl"/><text x="22" y="817.9" class="alg-t">•</text><text x="30" y="817.9" class="alg-t" text-anchor="start">Give 1 shock. Resume CPR</text><text x="30" y="830.1" class="alg-t" text-anchor="start">immediately for 2 minutes</text><text x="30" y="842.3" class="alg-t" text-anchor="start">(until prompted by</text><text x="30" y="854.5" class="alg-t" text-anchor="start">AED/defibrillator to allow</text><text x="30" y="866.7" class="alg-t" text-anchor="start">rhythm check).</text><text x="22" y="878.9" class="alg-t">•</text><text x="30" y="878.9" class="alg-t" text-anchor="start">Continue until PALS</text><text x="30" y="891.1" class="alg-t" text-anchor="start">professionals take over or</text><text x="30" y="903.3" class="alg-t" text-anchor="start">the infant or child starts</text><text x="30" y="915.5" class="alg-t" text-anchor="start">to move.</text><rect x="198" y="803.3" width="178" height="121.8" rx="8" class="alg-bl"/><text x="206" y="817.9" class="alg-t">•</text><text x="214" y="817.9" class="alg-t" text-anchor="start">Resume CPR immediately for 2</text><text x="214" y="830.1" class="alg-t" text-anchor="start">minutes (until prompted by</text><text x="214" y="842.3" class="alg-t" text-anchor="start">AED/defibrillator to allow</text><text x="214" y="854.5" class="alg-t" text-anchor="start">rhythm check).</text><text x="206" y="866.7" class="alg-t">•</text><text x="214" y="866.7" class="alg-t" text-anchor="start">Continue until PALS</text><text x="214" y="878.9" class="alg-t" text-anchor="start">professionals take over or</text><text x="214" y="891.1" class="alg-t" text-anchor="start">the infant or child starts</text><text x="214" y="903.3" class="alg-t" text-anchor="start">to move.</text><path d="M14 864.2 H6 V718.8 H91" class="alg-ln" marker-end="url(#arB3)"/><path d="M376 864.2 H384 V718.8 H263" class="alg-ln" marker-end="url(#arB3)"/></svg></div>
    </div>
 
    <!-- ACLS Shockable -->
@@ -12355,7 +12749,6 @@ function eiwSwitchPO4(which){
 
   </div>
  </div>
-
 
  <div class="calc-card" id="calccard-cvd" style="margin-bottom:0;">
   <div class="calc-title" onclick="toggleCalc('calccard-cvd')">
@@ -18307,7 +18700,7 @@ function syncInfusionGaps() {
   var fb = ink(banner), st = ink(txt);
   var sb = (!open && sub) ? ink(sub) : null, lb = (!open && lab) ? ink(lab) : null;
   if (!fb || !st) return;
-  var g0 = fb.top - tabBar.getBoundingClientRect().bottom;   // tab bar -> formula text
+  var g0 = fb.top - (tabBar.getBoundingClientRect().bottom - (parseFloat(getComputedStyle(tabBar).paddingBottom) || 0));   // tab bar pills' visible bottom edge (the bar's own invisible bottom padding is not part of the gap) -> formula text
   var g1 = st.top - fb.bot;                                   // formula text -> Syringe Pump title
   var g2 = (sb && lb) ? lb.top - sb.bot : null;               // Syringe Pump subtitle -> first category label
   var gs = [g0, g1]; if (g2 !== null) gs.push(g2);
@@ -18560,7 +18953,27 @@ function syncDefibGaps() {
     var floorGap = -Infinity;   // a card's own padding limits how small its gap can get; lift the common gap to that floor
     for (var f = 0; f < gaps.length; f++) floorGap = Math.max(floorGap, (gaps[f] - cur[f] + los[f]) / wts[f]);
     if (isFinite(floorGap)) mean = Math.max(mean, floorGap);
-    var nxt = cur.map(function (c, idx) { return c + wts[idx] * mean - gaps[idx]; });
+    var tgt = wts.map(function (w) { return w * mean; });   // every slot = one common gap (the equal-gap result)
+    /* TAB BAR HALF-GAP: the capsule gets HALF the common gap above it (subtitle -> tab bar) and HALF below it
+       (tab bar -> 1st card). The 2 freed halves (= 1 full gap) are added to everything from the 1st card down to the
+       footer text (the card -> card gaps and last card -> footer), and that bigger total is shared equally between those
+       slots. The grand total is unchanged, so the page still fills the screen exactly and nothing starts scrolling.
+       Works for any screen height: it is all derived from the measured common gap. If a half-gap would be below what the
+       elements' own padding allows (or leaves the card slots below their floor), the plain equal gap above is kept. */
+    var restW = wsum - wts[0] - wts[1];
+    if (gaps.length > 2 && restW > 0) {
+      var half = mean / 2;
+      var t0 = Math.max(half, gaps[0] - cur[0] + los[0]);
+      var t1 = Math.max(half, gaps[1] - cur[1] + los[1]);
+      var rest = (mean * wsum - t0 - t1) / restW;   // common gap for every slot from the 1st card to the footer
+      var restOk = isFinite(rest);
+      for (var r = 2; restOk && r < gaps.length; r++) if (rest * wts[r] < gaps[r] - cur[r] + los[r] - 0.01) restOk = false;
+      if (restOk) {
+        tgt[0] = t0; tgt[1] = t1;
+        for (var r2 = 2; r2 < gaps.length; r2++) tgt[r2] = rest * wts[r2];
+      }
+    }
+    var nxt = cur.map(function (c, idx) { return c + tgt[idx] - gaps[idx]; });
     for (var n = 0; n < nxt.length; n++) if (!isFinite(nxt[n]) || nxt[n] < los[n] - 0.01) return;
     for (var q = 0; q < els.length; q++) els[q].style.marginTop = nxt[q] + 'px';
   })();
@@ -18631,7 +19044,7 @@ var SPECIAL_LAYOUT = [
     'calccard-sepsis3', 'calccard-dic', 'calccard-ards', 'calccard-gold', 'calccard-lights', 'calccard-saag', 'calccard-jones', 'calccard-braindeath', 'calccard-ckd'
   ] },
   { slot: 'specialcat-calculators-body', cards: [
-    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-abg', 'calccard-ventcalc', 'calccard-unitconv'
+    'calccard-calcium', 'calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-abg', 'calccard-ventcalc', 'calccard-unitconv', 'calccard-bodyfluid'
   ] },
   { slot: 'specialcat-correction-body', cards: [
     'calccard-bicarb', 'calccard-kdeficit', 'calccard-nacl', 'calccard-fwd', 'calccard-insulin', 'calccard-heparin', 'calccard-eiw'
@@ -18685,6 +19098,7 @@ var CATEGORY_TAG_OVERRIDES = {
   'calccard-renaldose': 'Renal Dose',
   'calccard-abg': 'ABG',
   'calccard-ventcalc': 'Ventilator',
+  'calccard-bodyfluid': 'Fluid Analysis',
   // Criteria
   'calccard-dic': 'DIC',
   'calccard-ards': 'Berlin ARDS',
@@ -20454,39 +20868,69 @@ if (navigator.storage && navigator.storage.persist) {
 }
 
 // ═══ PWA: register service worker + auto-update ═══
+// Deploy detection works by asking the service worker to re-fetch index.html and hash-compare it with the cached
+// copy (the SW file itself never changes any more, so reg.update() alone can no longer detect a new deploy).
+// The check runs: right after load, whenever the app becomes visible again, when the network comes back,
+// on window focus / bfcache restore, and every 5 SECONDS while visible and online. When the SW reports APP_UPDATED the page
+// reloads itself (immediately if visible; on next return to the app if it is hidden).
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function () {
+    let refreshed = false;
+    let pendingReload = false;
+    let lastCheck = 0;
+
+    function doReload() {
+      if (refreshed) return;
+      refreshed = true;
+      window.location.reload();
+    }
+
+    function requestCheck(force) {
+      if (navigator.onLine === false) return;
+      const now = Date.now();
+      if (!force && now - lastCheck < 15000) return; // throttle bursts (visibilitychange + focus + online fire together)
+      lastCheck = now;
+      navigator.serviceWorker.ready.then(function (reg) {
+        // 1) ask the SW to compare the deployed index.html with the cached one
+        const target = navigator.serviceWorker.controller || reg.active;
+        if (target) target.postMessage('CHECK_UPDATE');
+        // 2) also still check for a changed service-worker.js itself
+        reg.update().catch(function () {});
+      }).catch(function () {});
+    }
+
     navigator.serviceWorker.register('./service-worker.js', { updateViaCache: 'none' })
-      .then(function (reg) {
-        // Check for a newer service worker right away, then whenever
-        // network comes back, the tab becomes visible again, or every hour.
-        reg.update();
-        window.addEventListener('online', function () { reg.update(); });
+      .then(function () {
+        requestCheck(true);
+        window.addEventListener('online', function () { requestCheck(true); });
+        window.addEventListener('focus', function () { requestCheck(false); });
+        window.addEventListener('pageshow', function (e) { if (e.persisted) requestCheck(true); });
         document.addEventListener('visibilitychange', function () {
-          if (document.visibilityState === 'visible') reg.update();
+          if (document.visibilityState !== 'visible') return;
+          if (pendingReload) { doReload(); return; }
+          requestCheck(false);
         });
-        setInterval(function () { reg.update(); }, 60 * 60 * 1000);
+        // Poll every 5 s while the app is open, visible and online. The SW check is a cheap conditional request
+        // (304 when nothing changed), and overlapping checks are de-duplicated inside the SW.
+        setInterval(function () {
+          if (document.visibilityState === 'visible' && navigator.onLine !== false) requestCheck(true);
+        }, 5000);
       })
       .catch(function (err) {
         console.warn('Service worker registration failed:', err);
       });
 
-    // Once a new service worker activates and takes control (old cache
-    // already dropped in its 'activate' handler), reload once so this
-    // open tab picks up the fresh content immediately.
-    let refreshed = false;
+    // A changed service-worker.js (rare now) activates and takes control → reload once so this tab uses it.
     navigator.serviceWorker.addEventListener('controllerchange', function () {
-      if (refreshed) return;
-      refreshed = true;
-      window.location.reload();
+      doReload();
     });
 
-    // The service worker re-checks the network copy of the app on every open and, if it differs, updates the cache
-    // and sends APP_UPDATED (no manual version bump needed). Reload immediately only if the app was JUST opened
-    // (nothing entered yet); otherwise never yank the page mid-use — the fresh copy is already cached for next launch.
+    // The SW found a new index.html, already stored in the cache → reload to pick it up.
+    // NOTE: this reloads even mid-use (same as the old VERSION-bump behaviour); entered values are lost.
     navigator.serviceWorker.addEventListener('message', function (ev) {
       if (!ev.data || ev.data.type !== 'APP_UPDATED' || refreshed) return;
-      if (performance.now() < 6000) { refreshed = true; window.location.reload(); }
+      if (document.visibilityState === 'visible') doReload();
+      else pendingReload = true;
     });
   });
 }
