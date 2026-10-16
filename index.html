@@ -12,6 +12,10 @@
   (function () {
     function setAppVh() {
       var h = (window.visualViewport ? window.visualViewport.height : window.innerHeight);
+      /* sanity clamp: a stale/absurd visualViewport.height (taller than the layout viewport AND the screen) must never
+         stretch the page; anything above the largest plausible real height is clamped to it. Normal case: unchanged. */
+      var ceil = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, (window.screen && window.screen.height) || 0);
+      if (ceil > 0 && h > ceil) h = ceil;
       document.documentElement.style.setProperty('--app-vh', (h / 100) + 'px');
     }
     setAppVh();
@@ -13495,6 +13499,7 @@ function showTab(name, btn) {
  } else if (typeof defibGapModeOff === 'function') {
   defibGapModeOff();
  }
+ if (name === 'infusion' && typeof scheduleInfusionGaps === 'function') scheduleInfusionGaps();
  if (name === 'special' && typeof alignAllSubCardWidths === 'function') setTimeout(alignAllSubCardWidths, 50);
  if (name === 'defib' && typeof fitEcgTitle === 'function') fitEcgTitle();
  if (typeof fitAllDrugNames === 'function') fitAllDrugNames();
@@ -17890,6 +17895,18 @@ window.addEventListener('resize', function () {
    eyebrow and the footer — that distance collapses to equal the content's
    own natural height once margins are zeroed for measurement, which was an
    earlier bug here that made the computed gap always hit the floor. */
+/* Sanity-checked viewport height for the equal-gap fits (Special Calc + Cardio/Defib).
+   visualViewport.height can briefly report a stale / absurd value on some phones (pull-to-refresh, resume from background,
+   browser bar animation). Fed straight into the maths it blew every gap up to hundreds of px. The real viewport can never be
+   taller than the largest of the layout viewport / screen, so anything above that is clamped to it. Normal case: unchanged. */
+function sanePageViewportH() {
+  var vv = window.visualViewport ? window.visualViewport.height : 0;
+  var ceil = Math.max(window.innerHeight || 0, document.documentElement.clientHeight || 0, (window.screen && window.screen.height) || 0);
+  if (!(vv > 0)) return window.innerHeight;
+  return ceil > 0 ? Math.min(vv, ceil) : vv;
+}
+var SPECIAL_GAP_MAX = 90;   // px: no equal gap is ever allowed to be bigger than this (a runaway value = a bad measurement, not a real layout)
+var DEFIB_GAP_MAX = 90;
 var SPECIAL_FAV_FIT_MAX = 99;  // effectively no limit: the equal gap just keeps shrinking as cards are pinned (no sudden jump at the 5th); below the floor of what the rows' own padding allows, the page scrolls with that same equal gap
 var SPECIAL_GAP_SCROLL = 12;   // more pinned cards than that: fixed equal gap (px) everywhere, page scrolls
 var SPECIAL_GAP_MIN = 5; // px floor once content no longer fits the screen — falls back to normal scroll
@@ -17986,7 +18003,7 @@ function syncSpecialGaps() {
   kids.forEach(function (k) { k.style.marginTop = '0px'; k.style.marginBottom = '0px'; });
   footer.style.marginTop = '0px';
 
-  var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  var viewportH = sanePageViewportH();
   var hdrEl = document.querySelector('.app-header');
   var GB = window.HDR_GAP_BOT || 8;   // header bottom edge sits GB px below the subtitle's ink
   var eyebrowBottom = hdrEl ? hdrEl.getBoundingClientRect().bottom - GB : eyebrow.getBoundingClientRect().bottom;   // subtitle's visible bottom
@@ -18071,6 +18088,7 @@ function syncSpecialGaps() {
   var gap = (viewportH - eyebrowBottom - 1 - inkUsed) / slots;   // 1px safety so sub-pixel rounding never causes a 1px scroll
   var fallback = false;
   if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) { gap = SPECIAL_GAP_MIN; fallback = true; }   // doesn't fit → normal scroll
+  else if (gap > SPECIAL_GAP_MAX) { gap = SPECIAL_GAP_MAX; fallback = true; }   // runaway measurement → sane gap, no fill-the-screen correction pass
 
   /* Pinned (favourite) cards: up to SPECIAL_FAV_FIT_MAX of them still squeeze into ONE screen (the equal
      gap above just gets smaller as they are added). Beyond that the page is allowed to scroll and EVERY
@@ -18228,6 +18246,95 @@ if (window.visualViewport) window.visualViewport.addEventListener('resize', sche
   else start();
 })();
 
+/* ── Infusion Drugs: EQUAL visible gaps around the formula line ──────────────────────────────────
+   Was fixed CSS (banner padding + margin, Syringe-Pump margin -13px ...), so the gap above the "Formula: ml/hr = ..."
+   line (tab bar -> formula) and below it (formula -> Syringe Pump title) were different and moved with the screen
+   width. Now the same measured, ink-to-ink method as Special Calc / Cardio-Defib: the REAL glyph extents of
+       tab bar -> formula text -> Syringe Pump title -> (its subtitle ->) first category label
+   are measured and every one of those slots is set to their common mean. The slots only trade margin among
+   themselves (sum unchanged), so nothing below the Syringe row moves and the drug list stays exactly where it was.
+   If the Syringe Pump card is expanded, its subtitle -> label slot is not a text gap, so only the two slots above it
+   are equalised. Pure margins -> no scroll/viewport dependence, works the same on every phone and font. */
+var infGapRaf = null;
+function scheduleInfusionGaps() {
+  if (infGapRaf) cancelAnimationFrame(infGapRaf);
+  infGapRaf = requestAnimationFrame(function () { infGapRaf = null; syncInfusionGaps(); });
+}
+function syncInfusionGaps() {
+  var tabEl = document.getElementById('tab-infusion');
+  if (!tabEl || !tabEl.classList.contains('active')) return;
+  var tabBar = document.querySelector('.tab-bar');
+  var banner = tabEl.querySelector(':scope > .formula-banner');
+  var syr = document.getElementById('calccard-syringe');
+  var title = syr && syr.querySelector(':scope > .calc-title');
+  var txt = title && title.querySelector(':scope > span:not(.calc-title-dot):not(.special-cat-chevron)');
+  if (!tabBar || !banner || !syr || !txt) return;
+  var sub = txt.querySelector('.special-cat-sub');
+  var lab = tabEl.querySelector('.cat-label');
+  var open = syr.classList.contains('is-expanded');
+  var cv = document.createElement('canvas').getContext('2d');
+
+  /* TRUE glyph ink of an element's text: cap-top of the first line -> baseline of the last line. */
+  function ink(el) {
+    var r = document.createRange(); r.selectNodeContents(el);
+    var rects = Array.prototype.filter.call(r.getClientRects(), function (x) { return x.width > 0 && x.height > 0; });
+    if (!rects.length) return null;
+    var first = rects[0], last = rects[0];
+    rects.forEach(function (x) { if (x.top < first.top - 0.5) first = x; if (x.bottom > last.bottom + 0.5) last = x; });
+    var cs = getComputedStyle(el);
+    cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+    var m = cv.measureText('H');
+    var fa = m.fontBoundingBoxAscent, fd = m.fontBoundingBoxDescent, cap = m.actualBoundingBoxAscent;
+    if (!isFinite(fa) || !isFinite(fd) || !isFinite(cap)) return { top: first.top, bot: last.bottom };   // very old WebView: line box
+    return { top: first.top + (first.height - (fa + fd)) / 2 + fa - cap,
+             bot: last.bottom - (last.height - (fa + fd)) / 2 - fd };
+  }
+
+  // 1) drop last run's adjustments, read the natural CSS margins + natural gaps
+  banner.style.marginTop = ''; syr.style.marginTop = ''; syr.style.marginBottom = '';
+  var b0 = parseFloat(getComputedStyle(banner).marginTop) || 0;
+  var b1 = parseFloat(getComputedStyle(syr).marginTop) || 0;
+  var b2 = parseFloat(getComputedStyle(syr).marginBottom) || 0;
+  var fb = ink(banner), st = ink(txt);
+  var sb = (!open && sub) ? ink(sub) : null, lb = (!open && lab) ? ink(lab) : null;
+  if (!fb || !st) return;
+  var g0 = fb.top - tabBar.getBoundingClientRect().bottom;   // tab bar -> formula text
+  var g1 = st.top - fb.bot;                                   // formula text -> Syringe Pump title
+  var g2 = (sb && lb) ? lb.top - sb.bot : null;               // Syringe Pump subtitle -> first category label
+  var gs = [g0, g1]; if (g2 !== null) gs.push(g2);
+  for (var i = 0; i < gs.length; i++) if (!isFinite(gs[i])) return;
+  var mean = 0; gs.forEach(function (g) { mean += g; }); mean /= gs.length;
+
+  // 2) every slot moves by (mean - its gap); the deltas sum to zero, so the rest of the page does not shift
+  var n0 = b0 + (mean - g0), n1 = b1 + (mean - g1), n2 = (g2 !== null) ? b2 + (mean - g2) : b2;
+  if (n1 > -0.5) return;   // the Syringe row's negative top margin pairs with the banner's bottom margin; never let it flip sign (margin collapsing is only linear below 0)
+  banner.style.marginTop = n0 + 'px';
+  syr.style.marginTop = n1 + 'px';
+  if (g2 !== null) syr.style.marginBottom = n2 + 'px';
+}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(scheduleInfusionGaps);
+window.addEventListener('resize', scheduleInfusionGaps);
+window.addEventListener('orientationchange', scheduleInfusionGaps);
+window.addEventListener('pageshow', scheduleInfusionGaps);
+document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'visible') scheduleInfusionGaps(); });
+window.addEventListener('load', function () {
+  scheduleInfusionGaps();
+  setTimeout(scheduleInfusionGaps, 350);
+  setTimeout(scheduleInfusionGaps, 1200);
+});
+if (window.visualViewport) window.visualViewport.addEventListener('resize', scheduleInfusionGaps);
+(function observeInfusionLayout() {
+  if (!window.ResizeObserver) return;
+  function start() {
+    var ro = new ResizeObserver(function () { scheduleInfusionGaps(); });
+    ['.app-header', '.tab-bar', '#tab-infusion > .formula-banner', '#calccard-syringe'].forEach(function (sel) {
+      var el = document.querySelector(sel); if (el) ro.observe(el);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', start);
+  else start();
+})();
+
 /* ── Cardio/Defib: identical equal-gap "everything fits" layout as Special
    Calc above — same math, applied to #tab-defib's direct children (ECG
    Emergencies, Antihypertensives, AF, WCT/VT, SVT, BLS, Cardioversion cards)
@@ -18298,7 +18405,7 @@ function syncDefibGaps() {
   var titles = kids.map(function (k) { return k.querySelector(':scope > .calc-title'); }).filter(Boolean);
   titles.forEach(function (tt) { tt.style.paddingTop = ''; tt.style.paddingBottom = ''; });
 
-  var viewportH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  var viewportH = sanePageViewportH();
   var hdrEl = document.querySelector('.app-header');
   var GB = window.HDR_GAP_BOT || 8;   // header bottom edge sits GB px below the subtitle's ink
   var eyebrowBottom = hdrEl ? hdrEl.getBoundingClientRect().bottom - GB : eyebrow.getBoundingClientRect().bottom;   // subtitle's visible bottom
@@ -18318,6 +18425,7 @@ function syncDefibGaps() {
   var squeezed = false;
   var fallback = false;
   if (!isFinite(gap)) gap = DEFIB_GAP_MIN;
+  else if (gap > DEFIB_GAP_MAX) { gap = DEFIB_GAP_MAX; fallback = true; }   // runaway measurement → sane gap
 
   if (gap < DEFIB_GAP_MIN) {
     // Doesn't fit at the normal minimum gap (short screens, e.g. the S23).
