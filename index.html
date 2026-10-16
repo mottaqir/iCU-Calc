@@ -17905,6 +17905,15 @@ function sanePageViewportH() {
   if (!(vv > 0)) return window.innerHeight;
   return ceil > 0 ? Math.min(vv, ceil) : vv;
 }
+/* Is this top-level row of #tab-special currently EXPANDED? Categories carry is-open / is-expanded on the row itself, but
+   "At a Glance" lives inside a plain wrapper (#special-standalone-glance) and its is-expanded class is on the CARD INSIDE.
+   Checking only the wrapper made the fit treat an expanded At a Glance as collapsed: its bottom edge was taken as the
+   header's subtitle, while the footer sat thousands of px lower, so the "last row -> footer" gap came out ~4000px and the
+   equal-gap logic spread that same giant gap over EVERY slot (hundreds of px between all rows). */
+function specialKidOpen(k) {
+  if (k.classList.contains('is-open') || k.classList.contains('is-expanded')) return true;
+  return !!k.querySelector(':scope > .calc-card.is-expanded, :scope > .is-expanded, :scope > .is-open');
+}
 var SPECIAL_GAP_MAX = 90;   // px: no equal gap is ever allowed to be bigger than this (a runaway value = a bad measurement, not a real layout)
 var DEFIB_GAP_MAX = 90;
 var SPECIAL_FAV_FIT_MAX = 99;  // effectively no limit: the equal gap just keeps shrinking as cards are pinned (no sudden jump at the 5th); below the floor of what the rows' own padding allows, the page scrolls with that same equal gap
@@ -18020,7 +18029,7 @@ function syncSpecialGaps() {
     if (k.id === 'special-pinned-wrap') {
       var t = k.querySelectorAll('.calc-title > span:not(.calc-title-dot):not(.calc-pin), .gl-sub-header-txt > span:not(.gl-sub-emoji)');
       be = t.length ? t[t.length - 1] : null;
-    } else if (!k.classList.contains('is-open') && !k.classList.contains('is-expanded')) {
+    } else if (!specialKidOpen(k)) {
       var subs = k.querySelectorAll('.special-cat-sub');
       be = subs.length ? subs[subs.length - 1] : null;      // collapsed category → bottom ink = last subtitle line
     }                                                         // expanded → its own bottom edge
@@ -18171,7 +18180,7 @@ function syncSpecialGaps() {
       }
       var tt = inkExtent(k.querySelector(INK_TOP_SEL));
       var bb;
-      if (!k.classList.contains('is-open') && !k.classList.contains('is-expanded')) {
+      if (!specialKidOpen(k)) {
         var sb = k.querySelectorAll('.special-cat-sub');
         bb = sb.length ? inkExtent(sb[sb.length - 1]) : inkExtent(k.querySelector(INK_TOP_SEL));
         bb = bb ? bb.bot : null;
