@@ -35,7 +35,7 @@
       var sw = window.screen.width, sh = window.screen.height;
       var shortSide = Math.min(sw, sh), longSide = Math.max(sw, sh);
       var isFlat = shortSide < 600 && (longSide / shortSide) < 1.9;
-      if (isFlat) document.documentElement.style.setProperty('--footer-gap-bottom', '6px');
+      if (isFlat) { document.documentElement.style.setProperty('--footer-gap-bottom', '6px'); document.documentElement.setAttribute('data-flat', '1'); }
     } catch (e) { /* keep CSS default (12px) */ }
   })();
 </script>
@@ -221,18 +221,20 @@ html.ios-standalone .ios-top-strip {
 /* Header glass:
    • SOLID theme colour from the very top (status-bar edge) down to 8px below the eyebrow's ink — that 8px is the header's
      bottom gap, calibrated by fixHeaderGaps().
-   • FADE strip (::after) hangs a further --hdr-fade-h (8px) BELOW the header: solid theme colour -> transparent, so scrolled
+   • FADE strip (::after) hangs a further --hdr-fade-h (16px) from the solid band's bottom edge: solid theme colour -> transparent, so scrolled
      content eases out under the solid band. It doesn't take layout space. Its opacity (--hdr-fade-o) follows the scroll
      position (script): 0 at rest, so it never dims the tab capsules / first card while the page isn't scrolled.
    Solid layer sits BEHIND the content (z-index:-1), no backdrop-filter, so iOS WebKit has nothing to smear.
-   Tuning knob:  --hdr-fade-h   height of the fade strip (default 8px) */
+   Tuning knobs:  --hdr-fade-h   height of the fade strip (default 16px)
+                  --hdr-solid-up  how far the solid band's bottom edge sits above the header's layout edge (default 1.5px) */
 .app-header::before {
-  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  /* bottom: var(--hdr-solid-up) — the solid band stops 1.5px ABOVE the header's layout edge (visual only, layout untouched) */
+  content: ''; position: absolute; left: 0; right: 0; top: 0; bottom: var(--hdr-solid-up, 1.5px); z-index: -1; pointer-events: none;
   background: var(--bg);
 }
 .app-header::after {
-  content: ''; position: absolute; left: 0; right: 0; top: 100%; z-index: -1; pointer-events: none;
-  height: var(--hdr-fade-h, 8px);
+  content: ''; position: absolute; left: 0; right: 0; top: calc(100% - var(--hdr-solid-up, 1.5px)); z-index: -1; pointer-events: none;
+  height: var(--hdr-fade-h, 16px);
   /* ease-out curve (alpha = 1 - t^1.6): stays heavier near the solid band, so scrolled content is hidden more strongly
      and only thins out toward the bottom edge. (A plain linear fade would be 100 -> 0 in a straight line.) */
   background: linear-gradient(to bottom,
@@ -2385,6 +2387,9 @@ ul.vent-facts code{
   padding: 0 8px calc(var(--footer-gap-bottom, 12px) + env(safe-area-inset-bottom)) 8px; box-sizing: border-box;
 }
 .about-overlay.open { display: flex; }
+/* Flat-corner small phones (iPhone SE / 8, 16:9 Androids): the footer buttons sit only 6px from the bottom, so a popup aligned
+   to them ended up 6px from the bottom but 8px from the left/right edges. Here the popup keeps the SAME 8px on all three sides. */
+html[data-flat] .about-overlay { padding-bottom: calc(8px + env(safe-area-inset-bottom)); }
 .about-panel {
   position: relative; width: 100%; max-width: 420px;
   max-height: calc(100vh - 60px);
@@ -3083,7 +3088,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-adren">
  <div class="drug-header" onclick="toggleCard('adren')">
  <div class="drug-dot" style="color:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Adrenaline / Epinephrine</div><div class="drug-dilution">8 amp [8mg] + 42ml NS &rarr; 50ml<br>Conc: 160mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Adrenaline / Epinephrine</div><div class="drug-dilution">8 amp [8mg] + 42ml NS &rarr; 50ml<br>Conc: 160mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="adren">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-adren">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3103,7 +3108,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-nora">
  <div class="drug-header" onclick="toggleCard('nora')">
  <div class="drug-dot" style="color:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Noradrenaline / Norepinephrine</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Noradrenaline / Norepinephrine</div><div class="drug-dilution"><span class="mini-select" id="mini-nora-strength"><button type="button" class="mini-select-trigger" id="mini-nora-strength-trigger" onclick="toggleMiniSelect(event,'mini-nora-strength')">8mg</button><span class="mini-select-panel" data-owner="mini-nora-strength"><span class="mini-select-option" onclick="pickNoradStrength(event,4)">4mg</span><span class="mini-select-option selected" onclick="pickNoradStrength(event,8)">8mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,12)">12mg</span><span class="mini-select-option" onclick="pickNoradStrength(event,16)">16mg</span></span></span> + 5% DA &rarr; 50ml<br>Conc: <span id="dil-nora-conc">160</span>mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="nora">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#22c55e" id="rate-nora">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3123,7 +3128,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-vaso">
  <div class="drug-header" onclick="toggleCard('vaso')">
  <div class="drug-dot" style="color:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Vasopressin</div><div class="drug-dilution">1 ampule (20units) + 50ml NS &rarr; 50ml<br>Conc: 0.4units/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Vasopressin</div><div class="drug-dilution">1 ampule (20units) + 50ml NS &rarr; 50ml<br>Conc: 0.4units/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="vaso">&mdash;</span> units/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-vaso">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3138,7 +3143,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-dopa">
  <div class="drug-header" onclick="toggleCard('dopa')">
  <div class="drug-dot" style="color:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Dopamine</div><div class="drug-dilution">2 amp + 40ml NS &rarr; 50ml (400mg)<br>Conc: 8000mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Dopamine</div><div class="drug-dilution">2 amp + 40ml NS &rarr; 50ml (400mg)<br>Conc: 8000mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="dopa">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-dopa">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3158,7 +3163,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-dobu">
  <div class="drug-header" onclick="toggleCard('dobu')">
  <div class="drug-dot" style="color:#ef4444"></div>
- <div style="flex:1"><div class="drug-name">Dobutamine</div><div class="drug-dilution">2 amp + 40ml NS &rarr; 50ml (500mg)<br>Conc: 10000mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Dobutamine</div><div class="drug-dilution">2 amp + 40ml NS &rarr; 50ml (500mg)<br>Conc: 10000mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="dobu">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#ef4444" id="rate-dobu">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3182,7 +3187,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-fent">
  <div class="drug-header" onclick="toggleCard('fent')">
  <div class="drug-dot" style="color:#58a6ff"></div>
- <div style="flex:1"><div class="drug-name">Fentanyl</div><div class="drug-dilution">5 amp + 40ml NS &rarr; 50ml (500mcg)<br>Conc: 10mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Fentanyl</div><div class="drug-dilution">5 amp + 40ml NS &rarr; 50ml (500mcg)<br>Conc: 10mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="fent">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-fent">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3202,7 +3207,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-dex">
  <div class="drug-header" onclick="toggleCard('dex')">
  <div class="drug-dot" style="color:#58a6ff"></div>
- <div style="flex:1"><div class="drug-name">Dexmedetomidine</div><div class="drug-dilution">1 amp (2ml=200mcg) + 48ml NS &rarr; 50ml<br>Conc: 4mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Dexmedetomidine</div><div class="drug-dilution">1 amp (2ml=200mcg) + 48ml NS &rarr; 50ml<br>Conc: 4mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="dex">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-dex">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3222,7 +3227,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-prop">
  <div class="drug-header" onclick="toggleCard('prop')">
  <div class="drug-dot" style="color:#58a6ff"></div>
- <div style="flex:1"><div class="drug-name">Propofol</div><div class="drug-dilution">Neat (10mg/ml) — no dilution needed<br>Conc: 10mg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Propofol</div><div class="drug-dilution">Neat (10mg/ml) — no dilution needed<br>Conc: 10mg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="prop">&mdash;</span> mg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-prop">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3242,7 +3247,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-midaz">
  <div class="drug-header" onclick="toggleCard('midaz')">
  <div class="drug-dot" style="color:#58a6ff"></div>
- <div style="flex:1"><div class="drug-name">Midazolam</div><div class="drug-dilution">15mg (1 amp 3ml) + 47ml NS &rarr; 50ml<br>Conc: 0.3mg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Midazolam</div><div class="drug-dilution">15mg (1 amp 3ml) + 47ml NS &rarr; 50ml<br>Conc: 0.3mg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="midaz">&mdash;</span> mg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-midaz">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3277,7 +3282,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-ket">
  <div class="drug-header" onclick="toggleCard('ket')">
  <div class="drug-dot" style="color:#58a6ff"></div>
- <div style="flex:1"><div class="drug-name">Ketamine</div><div class="drug-dilution">500mg (1 vial = 10ml) + 40ml NS &rarr; 50ml<br>Conc: 10mg/ml = 10000mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Ketamine</div><div class="drug-dilution">500mg (1 vial = 10ml) + 40ml NS &rarr; 50ml<br>Conc: 10mg/ml = 10000mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="ket">&mdash;</span> mg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#58a6ff" id="rate-ket">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3300,7 +3305,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-thio">
  <div class="drug-header" onclick="toggleCard('thio')">
  <div class="drug-dot" style="color:#a78bfa"></div>
- <div style="flex:1"><div class="drug-name">Thiopental Sodium</div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml • Conc: <span id="thio-conc">50</span>mg/ml</span></div></div>
+ <div style="flex:1"><div class="drug-name">Thiopental Sodium</div><div class="drug-dilution">500mg × 5 vials (each mixed with 10ml WFI<br><span style="white-space:nowrap">/5% DA/0.9% NS) = 50ml<br>Conc: <span id="thio-conc">50</span>mg/ml</span><span style="white-space:nowrap">&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="thio">&mdash;</span> mg/hr</span></span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-thio">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3323,7 +3328,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-labet">
  <div class="drug-header" onclick="toggleCard('labet')">
  <div class="drug-dot" style="color:#f59e0b"></div>
- <div style="flex:1"><div class="drug-name">Labetalol</div><div class="drug-dilution">2 amp + 30ml 5% DA &rarr; 50ml (100mg)<br>Conc: 2mg/ml = 2000mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Labetalol</div><div class="drug-dilution">2 amp + 30ml 5% DA &rarr; 50ml (100mg)<br>Conc: 2mg/ml = 2000mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="labet">&mdash;</span> mg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-labet">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3343,7 +3348,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-gtn">
  <div class="drug-header" onclick="toggleCard('gtn')">
  <div class="drug-dot" style="color:#f59e0b"></div>
- <div style="flex:1"><div class="drug-name">GTN <span class="brand-name">(Glyceryl Trinitrate)</span></div><div class="drug-dilution">1 amp + 40ml NS &rarr; 50ml (50mg)<br>Conc: 1000mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">GTN <span class="brand-name">(Glyceryl Trinitrate)</span></div><div class="drug-dilution">1 amp + 40ml NS &rarr; 50ml (50mg)<br>Conc: 1000mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="gtn">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-gtn">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3358,7 +3363,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-amio">
  <div class="drug-header" onclick="toggleCard('amio')">
  <div class="drug-dot" style="color:#f59e0b"></div>
- <div style="flex:1"><div class="drug-name">Amiodarone <span class="brand-name">(Maintenance)</span></div><div class="drug-dilution">6 amp + 482ml 5% DA &rarr; 500ml (900mg)<br>Conc: 1.8mg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Amiodarone <span class="brand-name">(Maintenance)</span></div><div class="drug-dilution">6 amp + 482ml 5% DA &rarr; 500ml (900mg)<br>Conc: 1.8mg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="amio">&mdash;</span> mg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">Infusion rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-amio">33.3</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3375,7 +3380,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-isop">
  <div class="drug-header" onclick="toggleCard('isop')">
  <div class="drug-dot" style="color:#f59e0b"></div>
- <div style="flex:1"><div class="drug-name">Isoprenaline <span class="brand-name">(Isoproterenol)</span></div><div class="drug-dilution">2 amp (10ml) + 40ml 5% DA &rarr; 50ml (2mg)<br>Conc: 40mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Isoprenaline <span class="brand-name">(Isoproterenol)</span></div><div class="drug-dilution">2 amp (10ml) + 40ml 5% DA &rarr; 50ml (2mg)<br>Conc: 40mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="isop">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#f59e0b" id="rate-isop">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3394,7 +3399,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-octreo">
  <div class="drug-header" onclick="toggleCard('octreo')">
  <div class="drug-dot" style="color:#a78bfa"></div>
- <div style="flex:1"><div class="drug-name">Octreotide</div><div class="drug-dilution">1000mcg (1mg) + NS &rarr; 50ml<br>Conc: 20mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Octreotide</div><div class="drug-dilution">1000mcg (1mg) + NS &rarr; 50ml<br>Conc: 20mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="octreo">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-octreo">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3409,7 +3414,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-somato">
  <div class="drug-header" onclick="toggleCard('somato')">
  <div class="drug-dot" style="color:#a78bfa"></div>
- <div style="flex:1"><div class="drug-name">Somatostatin</div><div class="drug-dilution">3mg (3000mcg) + 47ml NS &rarr; 50ml<br>Conc: 60mcg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Somatostatin</div><div class="drug-dilution">3mg (3000mcg) + 47ml NS &rarr; 50ml<br>Conc: 60mcg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="somato">&mdash;</span> mcg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#a78bfa" id="rate-somato">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3459,7 +3464,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-lasix">
  <div class="drug-header" onclick="toggleCard('lasix')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Furosemide IV</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-lasix-amp"><button type="button" class="mini-select-trigger" id="mini-lasix-amp-trigger" onclick="toggleMiniSelect(event,'mini-lasix-amp')">10 amp</button><span class="mini-select-panel" data-owner="mini-lasix-amp"><span class="mini-select-option selected" onclick="pickLasixAmp(event,10)">10 amp (20ml, no dilution)</span><span class="mini-select-option" onclick="pickLasixAmp(event,5)">5 amp (diluted, 50ml)</span></span></span> <span id="lasix-dil-txt">= 20ml (200mg), no dilution</span><br>Conc: <span id="lasix-conc">10</span>mg/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Furosemide IV</div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-lasix-amp"><button type="button" class="mini-select-trigger" id="mini-lasix-amp-trigger" onclick="toggleMiniSelect(event,'mini-lasix-amp')">10 amp</button><span class="mini-select-panel" data-owner="mini-lasix-amp"><span class="mini-select-option selected" onclick="pickLasixAmp(event,10)">10 amp (20ml, no dilution)</span><span class="mini-select-option" onclick="pickLasixAmp(event,5)">5 amp (diluted, 50ml)</span></span></span> <span id="lasix-dil-txt">= 20ml (200mg), no dilution</span><br>Conc: <span id="lasix-conc">10</span>mg/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="lasix">&mdash;</span> mg/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-lasix">&mdash;</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -3474,7 +3479,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <div class="drug-card" id="card-ins">
  <div class="drug-header" onclick="toggleCard('ins')">
  <div class="drug-dot" style="color:#10b981"></div>
- <div style="flex:1"><div class="drug-name">Regular Insulin (Human) <span class="brand-name" style="font-size:0.72em">100 units/ml</span></div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-ins-units"><button type="button" class="mini-select-trigger" id="mini-ins-units-trigger" onclick="toggleMiniSelect(event,'mini-ins-units')">50 unit</button><span class="mini-select-panel" data-owner="mini-ins-units"><span class="mini-select-option selected" onclick="pickInsUnits(event,50)">50 unit</span><span class="mini-select-option" onclick="pickInsUnits(event,100)">100 unit</span></span></span> in 50ml NS<br>Conc: <span id="ins-conc">1</span> unit/ml</div></div>
+ <div style="flex:1"><div class="drug-name">Regular Insulin (Human) <span class="brand-name" style="font-size:0.72em">100 units/ml</span></div><div class="drug-dilution" onclick="dilTap(event)"><span class="mini-select" id="mini-ins-units"><button type="button" class="mini-select-trigger" id="mini-ins-units-trigger" onclick="toggleMiniSelect(event,'mini-ins-units')">50 unit</button><span class="mini-select-panel" data-owner="mini-ins-units"><span class="mini-select-option selected" onclick="pickInsUnits(event,50)">50 unit</span><span class="mini-select-option" onclick="pickInsUnits(event,100)">100 unit</span></span></span> in 50ml NS<br>Conc: <span id="ins-conc">1</span> unit/ml&nbsp;|&nbsp;<span class="kcl-mmolhr"><span class="conc-hr" data-k="ins">&mdash;</span> units/hr</span></div></div>
  <div class="drug-rate-preview"><div class="rate-caption">S/P rate</div><div class="rate-line"><div class="rate-num" style="color:#10b981" id="rate-ins">6</div><div class="rate-unit">ml/hr</div></div></div>
  </div>
  <div class="drug-body">
@@ -17880,7 +17885,7 @@ window.addEventListener('resize', function () {
    eyebrow and the footer — that distance collapses to equal the content's
    own natural height once margins are zeroed for measurement, which was an
    earlier bug here that made the computed gap always hit the floor. */
-var SPECIAL_FAV_FIT_MAX = 4;   // up to this many pinned cards: shrink the equal gap so everything stays on one screen
+var SPECIAL_FAV_FIT_MAX = 99;  // effectively no limit: the equal gap just keeps shrinking as cards are pinned (no sudden jump at the 5th); below the floor of what the rows' own padding allows, the page scrolls with that same equal gap
 var SPECIAL_GAP_SCROLL = 12;   // more pinned cards than that: fixed equal gap (px) everywhere, page scrolls
 var SPECIAL_GAP_MIN = 5; // px floor once content no longer fits the screen — falls back to normal scroll
 var specialGapRaf = null;
@@ -17949,6 +17954,8 @@ function specialGapModeOff() {
     tabEl.style.paddingBottom = '';
     tabEl.style.flexGrow = '';
     Array.prototype.forEach.call(tabEl.children, function (k) { k.style.marginTop = ''; k.style.marginBottom = ''; });
+    var pb = document.getElementById('special-pinned-body');
+    if (pb) Array.prototype.forEach.call(pb.children, function (c) { c.style.marginTop = ''; c.style.marginBottom = ''; });
   }
 }
 
@@ -17983,13 +17990,13 @@ function syncSpecialGaps() {
        subtitle ink → tab bar → 1st row … row → row … last row → footer text.
      "Visible" = ink to ink: each row's own built-in padding (title padding, subtitle line-box, footer
      padding) is measured and subtracted, so every slot LOOKS the same, not just has the same margin. */
-  var INK_TOP_SEL = '.special-cat-label, .special-cat-title-text, .calc-title > span:not(.calc-title-dot):not(.calc-pin)';
+  var INK_TOP_SEL = '.special-cat-label, .special-cat-title-text, .calc-title > span:not(.calc-title-dot):not(.calc-pin), .gl-sub-header-txt > span:not(.gl-sub-emoji)';
   function inkOf(k) {
     var kr = k.getBoundingClientRect();
     var te = k.querySelector(INK_TOP_SEL);
     var be = null;
     if (k.id === 'special-pinned-wrap') {
-      var t = k.querySelectorAll('.calc-title > span:not(.calc-title-dot):not(.calc-pin)');
+      var t = k.querySelectorAll('.calc-title > span:not(.calc-title-dot):not(.calc-pin), .gl-sub-header-txt > span:not(.gl-sub-emoji)');
       be = t.length ? t[t.length - 1] : null;
     } else if (!k.classList.contains('is-open') && !k.classList.contains('is-expanded')) {
       var subs = k.querySelectorAll('.special-cat-sub');
@@ -18008,7 +18015,54 @@ function syncSpecialGaps() {
   var inkUsed = tabBar.getBoundingClientRect().height + (footerRect.height - fTop);
   ink.forEach(function (o) { inkUsed += o.h - o.top - o.bot; });
 
-  var slots = kids.length + 2;   // subtitle→tab bar, tab bar→1st row, (N-1) between rows, last row→footer
+  /* PINNED CARDS: the pinned strip is ONE top-level row, but the gaps BETWEEN its cards must be the same
+     equal gap as everything else (they used to keep a fixed CSS gap, ~29px vs ~23px elsewhere).
+     So every pinned card is measured on its own and each internal gap becomes one more slot. */
+  var PIN_TXT_SEL = '.calc-title > span:not(.calc-title-dot):not(.calc-pin), .gl-sub-header-txt > span:not(.gl-sub-emoji)';
+  var pinCards = [], pinInk = [];
+  var pinBodyEl = document.getElementById('special-pinned-body');
+  var pinWrapEl = document.getElementById('special-pinned-wrap');
+  if (pinBodyEl && pinWrapEl && getComputedStyle(pinWrapEl).display !== 'none') {
+    pinCards = Array.prototype.filter.call(pinBodyEl.children, function (c) {
+      return c.nodeType === 1 && getComputedStyle(c).display !== 'none';
+    });
+    pinCards.forEach(function (c) { c.style.marginTop = '0px'; c.style.marginBottom = '0px'; });   // drop the CSS 2.7px gaps for measuring
+    var wrapIdx = kids.indexOf(pinWrapEl);
+    if (wrapIdx > -1) {
+      ink[wrapIdx] = inkOf(pinWrapEl);   // re-measure with the CSS gaps removed
+      inkUsed = tabBar.getBoundingClientRect().height + (footerRect.height - fTop);
+      ink.forEach(function (o) { inkUsed += o.h - o.top - o.bot; });
+    }
+    pinInk = pinCards.map(function (c) {
+      var cr = c.getBoundingClientRect();
+      var te = c.querySelector(PIN_TXT_SEL);
+      var open = c.classList.contains('is-expanded') || c.classList.contains('is-open');
+      var tits = c.querySelectorAll(PIN_TXT_SEL);
+      var be = (!open && tits.length) ? tits[0] : null;
+      return {
+        h: cr.height,
+        top: te ? Math.max(0, te.getBoundingClientRect().top - cr.top) : 0,
+        bot: be ? Math.max(0, cr.bottom - be.getBoundingClientRect().bottom) : 0
+      };
+    });
+    /* The pinned strip's first/last ink edges now come from its first/last card. */
+    if (wrapIdx > -1 && pinInk.length) {
+      ink[wrapIdx].top = pinInk[0].top;
+      ink[wrapIdx].bot = pinInk[pinInk.length - 1].bot;
+    }
+    /* Recompute the ink budget: the strip counts as the SUM of its individual cards' ink heights
+       (the gaps between them are now slots of their own, not part of the block). */
+    inkUsed = tabBar.getBoundingClientRect().height + (footerRect.height - fTop);
+    ink.forEach(function (o, i) {
+      if (i === wrapIdx && pinInk.length) {
+        pinInk.forEach(function (p) { inkUsed += p.h - p.top - p.bot; });
+      } else {
+        inkUsed += o.h - o.top - o.bot;
+      }
+    });
+  }
+  var extraPinSlots = Math.max(0, pinCards.length - 1);
+  var slots = kids.length + 2 + extraPinSlots;   // subtitle→tab bar, tab bar→1st row, (N-1) between rows, last row→footer, + gaps between pinned cards
   var gap = (viewportH - eyebrowBottom - 1 - inkUsed) / slots;   // 1px safety so sub-pixel rounding never causes a 1px scroll
   var fallback = false;
   if (!isFinite(gap) || gap < SPECIAL_GAP_MIN) { gap = SPECIAL_GAP_MIN; fallback = true; }   // doesn't fit → normal scroll
@@ -18017,7 +18071,7 @@ function syncSpecialGaps() {
      gap above just gets smaller as they are added). Beyond that the page is allowed to scroll and EVERY
      slot (subtitle→tab bar … last row→footer) is a fixed SPECIAL_GAP_SCROLL px. */
   var favWrap = document.getElementById('special-pinned-body');
-  var favCount = favWrap ? favWrap.querySelectorAll(':scope > .calc-card').length : 0;
+  var favCount = favWrap ? favWrap.querySelectorAll(':scope > *').length : 0;
   if (favCount > SPECIAL_FAV_FIT_MAX) {
     gap = SPECIAL_GAP_SCROLL;
     fallback = true;                    // fixed gap: no fit-to-screen correction pass
@@ -18031,6 +18085,11 @@ function syncSpecialGaps() {
       k.style.marginTop = Math.max(0, g - prevBot - ink[i].top) + 'px';
     });
     footer.style.marginTop = Math.max(0, g - (ink.length ? ink[ink.length - 1].bot : 0) - fTop) + 'px';
+    // gaps BETWEEN the pinned cards: same equal visible gap (ink to ink) as every other slot
+    pinCards.forEach(function (c, j) {
+      c.style.marginBottom = '0px';
+      c.style.marginTop = j ? Math.max(0, g - pinInk[j - 1].bot - pinInk[j].top) + 'px' : '0px';
+    });
   }
   applySpecialGaps(gap);
 
@@ -18046,20 +18105,83 @@ function syncSpecialGaps() {
     }
   }
 
-  // Last row -> footer text gap == gap between rows (measured on the real text lines).
-  balanceFooterGap(kids, footer,
-    function (k) { return textExtent(k.querySelector(INK_TOP_SEL)); },
-    function (k) {
+  /* FINAL PASS — measure the REAL text lines and make EVERY visible slot identical:
+       subtitle → tab bar → 1st row … (incl. the gaps between the pinned cards) … last row → footer text.
+     Each gap depends only on its own margin, so moving every margin by (mean − its gap) keeps the total
+     height unchanged: the page still fills the screen exactly and nothing starts scrolling. */
+  (function equalizeAllSlots() {
+    var sy = window.pageYOffset || 0;
+    var cv = document.createElement('canvas').getContext('2d');
+    /* TRUE glyph ink of an element's text: cap-top of the first line → baseline of the last line (what the eye
+       sees), instead of the taller line box. Font-agnostic, so a late font swap / different phone font still lines up. */
+    function inkExtent(el) {
+      if (!el) return null;
+      var r = document.createRange(); r.selectNodeContents(el);
+      var rects = Array.prototype.filter.call(r.getClientRects(), function (x) { return x.width > 0 && x.height > 0; });
+      if (!rects.length) return null;
+      var cs = getComputedStyle(el);
+      cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      var m = cv.measureText('H');
+      var fa = m.fontBoundingBoxAscent, fd = m.fontBoundingBoxDescent, cap = m.actualBoundingBoxAscent;
+      if (!isFinite(fa) || !isFinite(fd) || !isFinite(cap)) return textExtent(el);   // very old WebView: fall back to the line box
+      var first = rects[0], last = rects[0];
+      rects.forEach(function (x) { if (x.top < first.top - 0.5) first = x; if (x.bottom > last.bottom + 0.5) last = x; });
+      var baseFirst = first.top + (first.height - (fa + fd)) / 2 + fa;
+      var baseLast = last.bottom - (last.height - (fa + fd)) / 2 - fd;
+      return { top: baseFirst - cap + sy, bot: baseLast + sy };
+    }
+    var TXT = '.calc-title > span:not(.calc-title-dot):not(.calc-pin), .gl-sub-header-txt > span:not(.gl-sub-emoji)';
+    var blocks = [];   // { top, bot, mEl }  — mEl = element whose marginTop sets the gap ABOVE this block
+    var ok = true;
+    kids.forEach(function (k) {
       if (k.id === 'special-pinned-wrap') {
-        var t = k.querySelectorAll('.calc-title > span:not(.calc-title-dot):not(.calc-pin)');
-        return t.length ? textExtent(t[t.length - 1]) : null;
+        var cards = Array.prototype.filter.call(document.getElementById('special-pinned-body').children, function (c) {
+          return c.nodeType === 1 && getComputedStyle(c).display !== 'none';
+        });
+        cards.forEach(function (c, j) {
+          var te = inkExtent(c.querySelector(TXT));
+          if (!te) { ok = false; return; }
+          var open = c.classList.contains('is-expanded') || c.classList.contains('is-open');
+          blocks.push({ top: te.top, bot: open ? c.getBoundingClientRect().bottom + sy : te.bot, mEl: j ? c : k });
+        });
+        return;
       }
+      var tt = inkExtent(k.querySelector(INK_TOP_SEL));
+      var bb;
       if (!k.classList.contains('is-open') && !k.classList.contains('is-expanded')) {
         var sb = k.querySelectorAll('.special-cat-sub');
-        return sb.length ? textExtent(sb[sb.length - 1]) : null;
+        bb = sb.length ? inkExtent(sb[sb.length - 1]) : inkExtent(k.querySelector(INK_TOP_SEL));
+        bb = bb ? bb.bot : null;
+      } else {
+        bb = k.getBoundingClientRect().bottom + sy;
       }
-      return { bot: k.getBoundingClientRect().bottom + (window.pageYOffset || 0) };
+      if (!tt || bb == null) { ok = false; return; }
+      blocks.push({ top: tt.top, bot: bb, mEl: k });
     });
+    var eb = inkExtent(eyebrow), fl = inkExtent(footer.querySelector('.ft-line1'));
+    if (!ok || !blocks.length || !eb || !fl) return;
+    var tbR = tabBar.getBoundingClientRect();
+    var gaps = [], els = [];
+    gaps.push(tbR.top + sy - eb.bot);            els.push(tabBar);      // subtitle → tab bar
+    gaps.push(blocks[0].top - (tbR.bottom + sy)); els.push(blocks[0].mEl); // tab bar → 1st row
+    for (var i = 1; i < blocks.length; i++) { gaps.push(blocks[i].top - blocks[i - 1].bot); els.push(blocks[i].mEl); }
+    gaps.push(fl.top - blocks[blocks.length - 1].bot); els.push(footer);   // last row → footer text
+    var sum = 0; gaps.forEach(function (g) { sum += g; });
+    var mean = sum / gaps.length;
+    var cur = els.map(function (e) { return parseFloat(e.style.marginTop) || 0; });
+    {
+      /* A row's own padding sets a floor on how small its gap can get. If the equal gap would have to go below
+         that floor for some slot, lift the common gap to the floor (the page then scrolls a little) so that
+         EVERY slot — including the one after the last pinned card — stays identical, never tighter than the rest. */
+      var floorGap = -Infinity;
+      for (var f = 0; f < gaps.length; f++) floorGap = Math.max(floorGap, gaps[f] - cur[f] - 4);
+      if (isFinite(floorGap)) mean = Math.max(mean, floorGap);
+    }
+    var nxt = cur.map(function (c, idx) { return c + (mean - gaps[idx]); });
+    for (var n = 0; n < nxt.length; n++) if (!isFinite(nxt[n]) || nxt[n] < -4.01) return;   // a sliver of negative margin (≤4px) is fine when a row's own padding already exceeds the target; anything bigger = bail out
+    // The same element can own two slots only if it is both first block and wrap — each els[] entry is unique here.
+    for (var q = 0; q < els.length; q++) els[q].style.marginTop = nxt[q] + 'px';
+  })();
 }
 
 function scheduleSpecialCompactFit() {
@@ -18117,7 +18239,8 @@ function defibGapModeOn() {
   var footer = document.querySelector('.app-footer');
   if (header) header.style.paddingBottom = ''; /* keep the header's own bottom padding: gap under the subtitle == gap above the title */
   if (tabBar) { tabBar.style.paddingTop = ''; tabBar.style.paddingBottom = '0px'; }  /* capsule position stays fixed */
-  if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; }
+  /* flex-grow 0: otherwise any leftover screen height is absorbed INSIDE the tab, i.e. silently added to the last-card → footer gap */
+  if (tabEl) { tabEl.style.paddingTop = '0px'; tabEl.style.paddingBottom = '0px'; tabEl.style.flexGrow = '0'; }
   if (footer) footer.style.paddingTop = '0px';
 }
 
@@ -18132,6 +18255,7 @@ function defibGapModeOff() {
   if (tabEl) {
     tabEl.style.paddingTop = '';
     tabEl.style.paddingBottom = '';
+    tabEl.style.flexGrow = '';
     Array.prototype.forEach.call(tabEl.children, function (k) {
       k.style.marginTop = ''; k.style.marginBottom = '';
       var tt = k.querySelector(':scope > .calc-title');
@@ -18239,14 +18363,53 @@ function syncDefibGaps() {
     }
   }
 
-  // Last card -> footer text gap == gap between cards (measured on the real text lines).
-  var TITLE_SPAN = ':scope > .calc-title > span:not(.calc-title-dot):not(.calc-pin)';
-  balanceFooterGap(kids, footer,
-    function (k) { return textExtent(k.querySelector(TITLE_SPAN)); },
-    function (k) {
-      if (k.classList.contains('is-expanded')) return { bot: k.getBoundingClientRect().bottom + (window.pageYOffset || 0) };
-      return textExtent(k.querySelector(TITLE_SPAN));
+  /* FINAL PASS — same as Special Calc: measure the REAL glyph ink and make EVERY visible slot identical
+     (subtitle → tab bar → 1st card → … → last card → footer text). This also cancels the old 5px-less/5px-more
+     first-card/footer offset above, since all slots now converge on one common gap. */
+  (function equalizeAllSlots() {
+    var sy = window.pageYOffset || 0;
+    var cv = document.createElement('canvas').getContext('2d');
+    function inkExtent(el) {   // cap-top of the first line → baseline of the last line (what the eye sees)
+      if (!el) return null;
+      var r = document.createRange(); r.selectNodeContents(el);
+      var rects = Array.prototype.filter.call(r.getClientRects(), function (x) { return x.width > 0 && x.height > 0; });
+      if (!rects.length) return null;
+      var cs = getComputedStyle(el);
+      cv.font = cs.fontStyle + ' ' + cs.fontWeight + ' ' + cs.fontSize + ' ' + cs.fontFamily;
+      var m = cv.measureText('H');
+      var fa = m.fontBoundingBoxAscent, fd = m.fontBoundingBoxDescent, cap = m.actualBoundingBoxAscent;
+      if (!isFinite(fa) || !isFinite(fd) || !isFinite(cap)) return textExtent(el);   // very old WebView: line box
+      var first = rects[0], last = rects[0];
+      rects.forEach(function (x) { if (x.top < first.top - 0.5) first = x; if (x.bottom > last.bottom + 0.5) last = x; });
+      return { top: first.top + (first.height - (fa + fd)) / 2 + fa - cap + sy,
+               bot: last.bottom - (last.height - (fa + fd)) / 2 - fd + sy };
+    }
+    var TITLE_SPAN = ':scope > .calc-title > span:not(.calc-title-dot):not(.calc-pin)';
+    var blocks = [], ok = true;
+    kids.forEach(function (k) {
+      var te = inkExtent(k.querySelector(TITLE_SPAN));
+      if (!te) { ok = false; return; }
+      var open = k.classList.contains('is-expanded');
+      blocks.push({ top: te.top, bot: open ? k.getBoundingClientRect().bottom + sy : te.bot, mEl: k });
     });
+    var eb = inkExtent(eyebrow), fl = inkExtent(footer.querySelector('.ft-line1'));
+    if (!ok || !blocks.length || !eb || !fl) return;
+    var tbR = tabBar.getBoundingClientRect();
+    var gaps = [], els = [];
+    gaps.push(tbR.top + sy - eb.bot);             els.push(tabBar);
+    gaps.push(blocks[0].top - (tbR.bottom + sy)); els.push(blocks[0].mEl);
+    for (var i = 1; i < blocks.length; i++) { gaps.push(blocks[i].top - blocks[i - 1].bot); els.push(blocks[i].mEl); }
+    gaps.push(fl.top - blocks[blocks.length - 1].bot); els.push(footer);
+    var sum = 0; gaps.forEach(function (g) { sum += g; });
+    var mean = sum / gaps.length;
+    var cur = els.map(function (e) { return parseFloat(e.style.marginTop) || 0; });
+    var floorGap = -Infinity;   // a card's own padding limits how small its gap can get; lift the common gap to that floor
+    for (var f = 0; f < gaps.length; f++) floorGap = Math.max(floorGap, gaps[f] - cur[f] - 4);
+    if (isFinite(floorGap)) mean = Math.max(mean, floorGap);
+    var nxt = cur.map(function (c, idx) { return c + (mean - gaps[idx]); });
+    for (var n = 0; n < nxt.length; n++) if (!isFinite(nxt[n]) || nxt[n] < -4.01) return;
+    for (var q = 0; q < els.length; q++) els[q].style.marginTop = nxt[q] + 'px';
+  })();
 }
 
 function scheduleDefibCompactFit() {
@@ -20207,6 +20370,7 @@ if ('serviceWorker' in navigator) {
     // Panel's bottom edge = bottom edge of the footer icon buttons (measured live)
     var fb = document.querySelector('.app-footer .footer-icon-btn');
     if (!fb) return;
+    if (document.documentElement.hasAttribute('data-flat')) { ov.style.paddingBottom = ''; return; }   // flat phones: CSS gives equal 8px left/right/bottom
     var gap = ov.getBoundingClientRect().bottom - fb.getBoundingClientRect().bottom;
     if (gap >= 0 && gap < 200) ov.style.paddingBottom = gap + 'px';
   }
@@ -20288,6 +20452,49 @@ if ('serviceWorker' in navigator) {
     requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+})();
+</script>
+
+<script>
+/* ── Infusion cards: "Conc: … | X unit/hr" ──
+   Same figure the Potassium card already shows (concentration × syringe-pump rate = drug delivered per hour),
+   now on every infusion card that has a Conc: line. It is read from the card's own Conc: text and its S/P rate,
+   so it updates by itself whenever the rate (weight / dose / strength / amp count) changes. */
+(function () {
+  function fmt(v) {
+    if (!isFinite(v)) return '\u2014';
+    var a = Math.abs(v), r;
+    if (a >= 100) r = Math.round(v);
+    else if (a >= 10) { r = Math.round(v * 10) / 10; if (Math.abs(r - Math.round(r)) < 0.11) r = Math.round(r); }
+    else r = Math.round(v * 100) / 100;
+    return String(r);
+  }
+  function update(el) {
+    var k = el.getAttribute('data-k');
+    var rateEl = document.getElementById('rate-' + k);
+    var dil = el.closest('.drug-dilution');
+    var m = dil && /Conc:\s*([0-9][0-9.,]*)/.exec(dil.textContent);
+    var conc = m ? parseFloat(m[1].replace(/,/g, '')) : NaN;
+    var rate = rateEl ? parseFloat(rateEl.textContent) : NaN;
+    var txt = (isFinite(conc) && isFinite(rate)) ? fmt(conc * rate) : '\u2014';
+    if (el.textContent !== txt) el.textContent = txt;
+  }
+  function init() {
+    var els = document.querySelectorAll('.conc-hr[data-k]');
+    Array.prototype.forEach.call(els, function (el) {
+      update(el);
+      if (el._concBound || !window.MutationObserver) return;
+      el._concBound = true;
+      var mo = new MutationObserver(function () { update(el); });
+      var opts = { childList: true, characterData: true, subtree: true };
+      var rateEl = document.getElementById('rate-' + el.getAttribute('data-k'));
+      if (rateEl) mo.observe(rateEl, opts);
+      var dil = el.closest('.drug-dilution');
+      if (dil) Array.prototype.forEach.call(dil.querySelectorAll('span[id*="conc"]'), function (c) { mo.observe(c, opts); });
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  window.addEventListener('load', function () { setTimeout(init, 0); });
 })();
 </script>
 </body>
