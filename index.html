@@ -227,7 +227,22 @@ body::before {
   background: var(--mural) 0 0 / 100% 100% no-repeat;
 }
 body .app-header::before {
-  background: var(--mural) 0 0 / 100vw var(--mural-h) no-repeat, var(--bg);
+  /* Top layer: --bg (same colour as the status bar / theme-color) fading to transparent over the top 2/3 of the header,
+     so the mural dissolves into the status bar instead of starting abruptly under it. Eased (smoothstep-like) stops.
+     Tuning knob: change 66.67% (end of fade) — 100% = whole header, 50% = top half. */
+  background:
+    linear-gradient(to bottom,
+      var(--bg) 0%,
+      color-mix(in srgb, var(--bg) 97%, transparent) 8%,
+      color-mix(in srgb, var(--bg) 90%, transparent) 17%,
+      color-mix(in srgb, var(--bg) 78%, transparent) 27%,
+      color-mix(in srgb, var(--bg) 62%, transparent) 37%,
+      color-mix(in srgb, var(--bg) 44%, transparent) 47%,
+      color-mix(in srgb, var(--bg) 26%, transparent) 56%,
+      color-mix(in srgb, var(--bg) 10%, transparent) 62%,
+      color-mix(in srgb, var(--bg) 0%, transparent) 66.67%),
+    var(--mural) 0 0 / 100vw var(--mural-h) no-repeat,
+    var(--bg);
 }
 body .app-footer,
 body .tab-bar { background: transparent; }
