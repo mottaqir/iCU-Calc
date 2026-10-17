@@ -59,7 +59,7 @@
      was silently ignored, so the status bar just stayed on whatever color
      Chrome had defaulted to — which is exactly why toggling to the in-app
      light theme left a dark status bar behind. -->
-<meta name="theme-color" id="themeColorMeta" content="#101114">
+<meta name="theme-color" id="themeColorMeta" content="#000000">
 
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="application-name" content="iCU Calc">
@@ -69,7 +69,7 @@
      iOS reads this once when the app is added to the Home Screen, so it is static (no per-theme switching). -->
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
 <meta name="apple-mobile-web-app-title" content="iCU Calc">
-<meta name="msapplication-TileColor" content="#101114">
+<meta name="msapplication-TileColor" content="#000000">
 <meta name="msapplication-TileImage" content="./icon-144x144.png">
 <meta name="color-scheme" content="dark light">
 <link rel="apple-touch-icon" href="./icon-192x192.png">
@@ -87,7 +87,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,700&display=swap');
 
 :root {
-  --bg:           #101114;   /* charcoal black */
+  --bg:           #000000;   /* charcoal black */
   --surface:      #161b22;
   --surface2:     #1c2128;
   --border:       #30363d;
@@ -227,20 +227,20 @@ body::before {
   background: var(--mural) 0 0 / 100% 100% no-repeat;
 }
 body .app-header::before {
-  /* Top layer: --bg (same colour as the status bar / theme-color) fading to transparent over the top 2/3 of the header,
+  /* Top layer: --bg (same colour as the status bar / theme-color) fading to transparent over the top 3/4 of the header,
      so the mural dissolves into the status bar instead of starting abruptly under it. Eased (smoothstep-like) stops.
-     Tuning knob: change 66.67% (end of fade) — 100% = whole header, 50% = top half. */
+     Tuning knob: change 75% (end of fade) — 100% = whole header, 50% = top half. */
   background:
     linear-gradient(to bottom,
       var(--bg) 0%,
-      color-mix(in srgb, var(--bg) 97%, transparent) 8%,
-      color-mix(in srgb, var(--bg) 90%, transparent) 17%,
-      color-mix(in srgb, var(--bg) 78%, transparent) 27%,
-      color-mix(in srgb, var(--bg) 62%, transparent) 37%,
-      color-mix(in srgb, var(--bg) 44%, transparent) 47%,
-      color-mix(in srgb, var(--bg) 26%, transparent) 56%,
-      color-mix(in srgb, var(--bg) 10%, transparent) 62%,
-      color-mix(in srgb, var(--bg) 0%, transparent) 66.67%),
+      color-mix(in srgb, var(--bg) 97%, transparent) 9%,
+      color-mix(in srgb, var(--bg) 90%, transparent) 19%,
+      color-mix(in srgb, var(--bg) 78%, transparent) 30%,
+      color-mix(in srgb, var(--bg) 62%, transparent) 42%,
+      color-mix(in srgb, var(--bg) 44%, transparent) 53%,
+      color-mix(in srgb, var(--bg) 26%, transparent) 63%,
+      color-mix(in srgb, var(--bg) 10%, transparent) 70%,
+      color-mix(in srgb, var(--bg) 0%, transparent) 75%),
     var(--mural) 0 0 / 100vw var(--mural-h) no-repeat,
     var(--bg);
 }
@@ -2952,7 +2952,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  var metaTC = document.getElementById('themeColorMeta');
  if (metaTC) {
    metaTC.removeAttribute('media'); // JS is now authoritative over the static media-query fallback
-   metaTC.setAttribute('content', saved === 'light' ? '#f6f8fa' : '#101114');
+   metaTC.setAttribute('content', saved === 'light' ? '#f6f8fa' : '#000000');
  }
  })();
 </script>
@@ -15642,7 +15642,7 @@ function applyTheme(theme) {
  document.getElementById('themeIconMoon').style.display = 'none';
  }
  var metaTC = document.getElementById('themeColorMeta');
- if (metaTC) metaTC.setAttribute('content', theme === 'light' ? '#f6f8fa' : '#101114');
+ if (metaTC) metaTC.setAttribute('content', theme === 'light' ? '#f6f8fa' : '#000000');
  }
 
 function toggleTheme() {
@@ -18351,18 +18351,18 @@ function specialKidOpen(k) {
 }
 var SPECIAL_GAP_MAX = 90;   // px: no equal gap is ever allowed to be bigger than this (a runaway value = a bad measurement, not a real layout)
 var DEFIB_GAP_MAX = 90;
-var SPECIAL_FAV_FIT_MAX = 99;  // effectively no limit: the equal gap just keeps shrinking as cards are pinned (no sudden jump at the 5th); below the floor of what the rows' own padding allows, the page scrolls with that same equal gap
+var SPECIAL_FAV_FIT_MAX = 5;   // up to 5 pinned cards: the whole tab fits ONE screen (equal gap everywhere, shrinking as cards are pinned); MORE than 5: minimum-gap mode (same equal gap everywhere, normal padding, page scrolls)
 var SPECIAL_GAP_SCROLL = 12;   // more pinned cards than that: fixed equal gap (px) everywhere, page scrolls
 var SPECIAL_GAP_MIN = 5; // px floor once content no longer fits the screen — falls back to normal scroll
 /* Pinned-card overflow handling (Special Calc):
-   1) Once the equal gap has shrunk to the smallest value the rows' own padding allows, the two gaps around the tab bar
-      (subtitle -> tab bar, tab bar -> 1st row) are HALVED, and everything that frees up is shared EQUALLY by every gap
-      from the 1st row down to the footer text.
-   2) If that is still not enough, on SMALL / REGULAR phones (viewport height < SPECIAL_BIG_VH) each collapsed row's own
-      top+bottom padding is trimmed in SPECIAL_TIGHT_STEP steps (up to SPECIAL_TIGHT_MAX px) - only as much as needed.
-   3) LARGE phones (>= SPECIAL_BIG_VH) never trim padding: the card gap bottoms out at the same value a regular phone has with
-      5 pins, so they simply hold as many pins as fit at that gap; more pins -> normal scrolling. */
-var SPECIAL_HALVE_EPS = 0.5;     // px tolerance when deciding that the equal gap has hit its floor
+   EVERY slot — subtitle -> tab bar, tab bar -> 1st row, row -> row (incl. between the pinned cards), last row -> footer text —
+   always gets the SAME visible gap. The tab bar gets no special (halved) treatment.
+   1) Up to SPECIAL_FAV_FIT_MAX (5) pinned cards: the tab is fitted to ONE screen. If the equal gap would drop below the
+      smallest value the rows' own padding allows, on SMALL / REGULAR phones (viewport height < SPECIAL_BIG_VH) each collapsed
+      row's own top+bottom padding is trimmed in SPECIAL_TIGHT_STEP steps (up to SPECIAL_TIGHT_MAX px) - only as much as needed.
+   2) LARGE phones (>= SPECIAL_BIG_VH) never trim padding.
+   3) MORE than SPECIAL_FAV_FIT_MAX pinned cards: minimum-gap mode - no padding trimming, the same smallest equal gap
+      everywhere, and the page simply scrolls. */
 var SPECIAL_TIGHT_MAX = 3;       // px: max shrink of each row's top AND bottom padding
 var SPECIAL_TIGHT_STEP = 0.5;
 var SPECIAL_BIG_VH = 840;        // px: viewport height from which a phone counts as "large"
@@ -18442,6 +18442,8 @@ function syncSpecialGaps() {
   var tabEl = document.getElementById('tab-special');
   if (!tabEl || !tabEl.classList.contains('active')) return;
   var tightMax = sanePageViewportH() >= SPECIAL_BIG_VH ? 0 : SPECIAL_TIGHT_MAX;
+  var favBodyEl = document.getElementById('special-pinned-body');
+  if (favBodyEl && favBodyEl.querySelectorAll(':scope > *').length > SPECIAL_FAV_FIT_MAX) tightMax = 0;   // more than 5 pins: minimum-gap mode, rows keep their normal padding
   var d = 0, res = null;
   for (var guard = 0; guard < 16; guard++) {
     tabEl.style.setProperty('--sp-tight', d + 'px');
@@ -18567,8 +18569,8 @@ function syncSpecialGapsPass() {
   else if (gap > SPECIAL_GAP_MAX) { gap = SPECIAL_GAP_MAX; fallback = true; }   // runaway measurement → sane gap, no fill-the-screen correction pass
 
   /* Pinned (favourite) cards: up to SPECIAL_FAV_FIT_MAX of them still squeeze into ONE screen (the equal
-     gap above just gets smaller as they are added). Beyond that the page is allowed to scroll and EVERY
-     slot (subtitle→tab bar … last row→footer) is a fixed SPECIAL_GAP_SCROLL px. */
+     gap above just gets smaller as they are added). Beyond that (minimum-gap mode) the page is allowed to scroll and EVERY
+     slot (subtitle→tab bar … last row→footer) gets the same minimum gap (SPECIAL_GAP_SCROLL px, never below what the rows' padding allows). */
   var favWrap = document.getElementById('special-pinned-body');
   var favCount = favWrap ? favWrap.querySelectorAll(':scope > *').length : 0;
   if (favCount > SPECIAL_FAV_FIT_MAX) {
@@ -18677,21 +18679,9 @@ function syncSpecialGapsPass() {
     var docNow = footer.getBoundingClientRect().bottom + sy + bodyPad2;
     var avail = fillScreen ? sum + (viewportH - 0.5 - docNow) : sum;
     var meanAll = avail / gaps.length;
-    var targets;
-    if (fillScreen && gaps.length > 3 && isFinite(floorGap) && meanAll <= floorGap + SPECIAL_HALVE_EPS) {
-      /* The equal gap has hit its floor: HALVE the two gaps around the tab bar and share what that frees up
-         EQUALLY across every gap from the 1st row down to the footer text. */
-      var tightPx = parseFloat(tabEl.style.getPropertyValue('--sp-tight')) || 0;   // padding trimmed per row side in squeeze mode
-      var m0 = Math.max(meanAll, floorGap + 2 * tightPx);   // the equal gap as it would be with the UNtrimmed padding...
-      var tab0 = Math.max(m0 / 2, floors[0]), tab1 = Math.max(m0 / 2, floors[1]);   // ...and the tab-bar gaps are half of THAT (not half of the trimmed one)
-      var nCard = gaps.length - 2, cardFloor = -Infinity;
-      for (var cf = 2; cf < gaps.length; cf++) cardFloor = Math.max(cardFloor, floors[cf]);
-      var cardT = Math.max((avail - tab0 - tab1) / nCard, cardFloor);   // below the floor = cannot fit -> page scrolls a little
-      targets = gaps.map(function (g, i) { return i === 0 ? tab0 : (i === 1 ? tab1 : cardT); });
-    } else {
-      var mean = isFinite(floorGap) ? Math.max(meanAll, floorGap) : meanAll;   // every slot identical (never tighter than the floor)
-      targets = gaps.map(function () { return mean; });
-    }
+    /* EVERY slot identical (never tighter than the floor) - including the two gaps around the tab bar. */
+    var mean = isFinite(floorGap) ? Math.max(meanAll, floorGap) : meanAll;
+    var targets = gaps.map(function () { return mean; });
     var nxt = cur.map(function (c, idx) { return c + (targets[idx] - gaps[idx]); });
     for (var n = 0; n < nxt.length; n++) if (!isFinite(nxt[n]) || nxt[n] < -4.01) return;   // a sliver of negative margin (≤4px) is fine when a row's own padding already exceeds the target; anything bigger = bail out
     // The same element can own two slots only if it is both first block and wrap — each els[] entry is unique here.
@@ -19325,9 +19315,18 @@ function updateCategorySubtitles() {
   });
 }
 
+/* Default favourites for a FIRST-TIME user (nothing stored yet): the four most-used bedside calculators. They are stored like
+   any other pin, so the user can unpin them and pin something else. A user who already has a stored pin list (even an empty
+   one after unpinning everything) is never touched: the defaults are only seeded when the storage key does not exist. */
+var SPECIAL_DEFAULT_FAVS = ['calccard-crcl', 'calccard-renaldose', 'calccard-map', 'calccard-calcium'];
 function getFavoriteCalcs() {
   try {
     var raw = localStorage.getItem(SPECIAL_FAV_KEY);
+    if (raw === null) {
+      var seed = SPECIAL_DEFAULT_FAVS.slice();
+      try { localStorage.setItem(SPECIAL_FAV_KEY, JSON.stringify(seed)); } catch (e2) {}
+      return seed;
+    }
     var arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr) ? arr : [];
   } catch (e) { return []; }
