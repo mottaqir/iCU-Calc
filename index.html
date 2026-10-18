@@ -871,10 +871,10 @@ input[type=range]::-moz-range-progress {
 .calc-pin-icon {
   /* Outline star (rounded joins, uniform stroke) drawn as a mask so it takes the button's
      colour (faint → accent when pinned). The ☆ glyph in the markup is hidden (font-size:0). */
-  display: inline-block; width: 13px; height: 12.4px; font-size: 0; line-height: 0;
+  display: inline-block; width: 11.5px; height: 11px; font-size: 0; line-height: 0;   /* stroke 100/746 of the box = ~1.5px, same weight as the left chevron (2.5/24 of 15px = ~1.56px); viewBox widened so the thicker line is not clipped. star size (originally 13 x 12.4; left chevron's visible height is ~9.6px, the thin-outlined star needs a little more to look the same size); the 24px button = tap target is unchanged */
   background-color: currentColor;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='262 154 700 670'%3E%3Cpath d='M612 182 L715 379 L934 416 L778 575 L811 795 L612 696 L413 795 L446 575 L290 416 L509 379Z' fill='none' stroke='black' stroke-width='47' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
-          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='262 154 700 670'%3E%3Cpath d='M612 182 L715 379 L934 416 L778 575 L811 795 L612 696 L413 795 L446 575 L290 416 L509 379Z' fill='none' stroke='black' stroke-width='47' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='239 131 746 715'%3E%3Cpath d='M612 182 L715 379 L934 416 L778 575 L811 795 L612 696 L413 795 L446 575 L290 416 L509 379Z' fill='none' stroke='black' stroke-width='100' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='239 131 746 715'%3E%3Cpath d='M612 182 L715 379 L934 416 L778 575 L811 795 L612 696 L413 795 L446 575 L290 416 L509 379Z' fill='none' stroke='black' stroke-width='100' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
 }
 @media (hover: hover) {
   .calc-pin:hover { color: var(--accent); }
@@ -19005,7 +19005,35 @@ function syncDefibGaps() {
       if (vis.length < 2) return null;
       return { wrap: wrap, top: wr.top + sy + (vis[0] - 0.7 - r0) * sc, bot: wr.top + sy + (vis[vis.length - 1] + 0.7 - r0) * sc };
     }
-    var blocks = [], ok = true, afterSplit = false;
+    /* Visible bottom of an EXPANDED card: the lowest text line / painted box / image inside it. The card's own box ends
+       ~25px lower (inner padding + line slack) - that invisible strip used to be counted as part of the card, so the gap after an
+       open card came out ~25px bigger than every other gap. trail = that invisible strip (the next card may overlap it). */
+    function alphaOf(c) {
+      if (!c || c === 'transparent') return 0;
+      var m = /\/\s*([\d.]+)\s*\)/.exec(c); if (m) return parseFloat(m[1]);
+      var p = c.match(/[\d.]+/g); return (/^rgba/.test(c) && p && p.length >= 4) ? parseFloat(p[3]) : 1;
+    }
+    function openVisibleBottom(k) {
+      var kb = k.getBoundingClientRect().bottom, best = -Infinity;
+      var tw = document.createTreeWalker(k, NodeFilter.SHOW_TEXT, null), tn;
+      while ((tn = tw.nextNode())) {
+        if (!tn.textContent.trim()) continue;
+        var rg = document.createRange(); rg.selectNodeContents(tn);
+        Array.prototype.forEach.call(rg.getClientRects(), function (r) { if (r.width > 0 && r.height > 0 && r.bottom > best) best = r.bottom; });
+      }
+      Array.prototype.forEach.call(k.querySelectorAll('*'), function (el) {
+        if (el.closest('svg') && el.tagName.toLowerCase() !== 'svg') return;
+        var r = el.getBoundingClientRect(); if (r.width < 1 || r.height < 1) return;
+        var cs = getComputedStyle(el); if (cs.visibility === 'hidden' || cs.display === 'none') return;
+        var painted = /^(IMG|svg|CANVAS|INPUT|SELECT|TEXTAREA|BUTTON|VIDEO|HR|TABLE)$/i.test(el.tagName)
+          || alphaOf(cs.backgroundColor) > 0.04 || cs.backgroundImage !== 'none'
+          || (parseFloat(cs.borderBottomWidth) > 0 && alphaOf(cs.borderBottomColor) > 0.04);
+        if (painted && r.bottom > best) best = r.bottom;
+      });
+      if (!isFinite(best) || best > kb) best = kb;
+      return { bot: best + sy, trail: Math.max(0, kb - best) };
+    }
+    var blocks = [], ok = true, afterSplit = false, prevTrail = 0;
     kids.forEach(function (k) {
       var te = inkExtent(k.querySelector(TITLE_SPAN));
       if (!te) { ok = false; return; }
@@ -19014,11 +19042,13 @@ function syncDefibGaps() {
         /* the gap this card is allotted is shared: HALF above the infographic, HALF below it */
         blocks.push({ top: te.top, bot: te.bot, mEl: k, wAbove: afterSplit ? 0.5 : 1, lo: -4 });
         blocks.push({ top: sheet.top, bot: sheet.bot, mEl: sheet.wrap, wAbove: 0.5, lo: -24 });
-        afterSplit = true;
+        afterSplit = true; prevTrail = 0;
         return;
       }
       var open = k.classList.contains('is-expanded');
-      blocks.push({ top: te.top, bot: open ? k.getBoundingClientRect().bottom + sy : te.bot, mEl: k, wAbove: afterSplit ? 0.5 : 1, lo: -4 });
+      var ov = open ? openVisibleBottom(k) : null;
+      blocks.push({ top: te.top, bot: open ? ov.bot : te.bot, trail: open ? ov.trail : 0, mEl: k, wAbove: afterSplit ? 0.5 : 1, lo: Math.min(-4, -prevTrail) });
+      prevTrail = open ? ov.trail : 0;
       afterSplit = false;
     });
     var hdrStuck = /sticky|fixed/.test(getComputedStyle(document.querySelector('.app-header')).position);   // sticky header: its viewport position does NOT move with the scroll offset
@@ -19030,7 +19060,7 @@ function syncDefibGaps() {
     slot(tbR.top + sy - eb.bot, tabBar, 1, -4);
     slot(blocks[0].top - (tbR.bottom + sy), blocks[0].mEl, 1, blocks[0].lo);
     for (var i = 1; i < blocks.length; i++) slot(blocks[i].top - blocks[i - 1].bot, blocks[i].mEl, blocks[i].wAbove, blocks[i].lo);
-    slot(fl.top - blocks[blocks.length - 1].bot, footer, afterSplit ? 0.5 : 1, -4);
+    slot(fl.top - blocks[blocks.length - 1].bot, footer, afterSplit ? 0.5 : 1, Math.min(-4, -(blocks[blocks.length - 1].trail || 0)));
     var sum = 0, wsum = 0; gaps.forEach(function (g, ix) { sum += g; wsum += wts[ix]; });
     var mean = sum / wsum;   // the full-size gap; a half-slot gets mean / 2
     var cur = els.map(function (e) { return parseFloat(e.style.marginTop) || 0; });
