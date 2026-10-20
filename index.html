@@ -3326,7 +3326,7 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
  <input type="range" id="range-midmor" min="1" max="10" step="1" value="2" oninput="calcFixed('midmor',this.value)" style="accent-color:#58a6ff">
  <div class="range-limits"><span>1</span><span>10</span></div>
  </div>
- <div class="note-box">1ml = 1mg Morphine (Conc: 1mg/ml) + 1mg Midazolam (Conc: 1mg/ml) | Rate ml/hr directly</div>
+ <div class="note-box">1ml = 0.67mg Morphine (Conc: 0.67mg/ml) + 1mg Midazolam (Conc: 1mg/ml) | Rate ml/hr directly</div>
  </div>
  </div>
  <div class="drug-card" id="card-ket">
@@ -9799,7 +9799,7 @@ function eiwSwitchPO4(which){
         <span class="gl-collapse-chevron" id="glc-mentzer-chevron">▼</span>
        </div>
        <div class="gl-collapse-body" id="glc-mentzer-body" style="display:none">
-       <div class="gl-formula gl-amber"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">Mentzer = MCV ÷ RBC count (millions/μL)</div><div class="gl-formula-note">&gt;13 → IDA more likely • &lt;13 → Thalassaemia trait more likely. Unreliable if both coexist.</div></div>
+       <div class="gl-formula gl-amber"><div class="gl-formula-label">Formula</div><div class="gl-formula-eq">Mentzer = MCV ÷ RBC count (millions/μL)</div><div class="gl-formula-note">&gt;13 → favours IDA • &lt;13 → favours Thalassaemia trait • exactly 13 → indeterminate • 12–&lt;13 → borderline (app’s cautious band, not an established cut-off). Screening clue only; unreliable if both coexist.</div></div>
        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 2px">
         <div style="background:var(--surface-deep);border-radius:4px;padding:5px 2px">
          <div style="font-size:9.5px;color:var(--text-faint);margin-bottom:3px;letter-spacing:0.4px">MCV (fL)</div>
@@ -15132,6 +15132,20 @@ function idaSwitchTab(section, tab, btn) {
  if (pane) pane.classList.add('active');
 }
 
+// Single source of truth for Mentzer interpretation (used by the Calc card AND the Guideline tab).
+// Mentzer = MCV ÷ RBC (millions/µL). A screening clue, not a diagnosis. Classified on the value as displayed (1 dp).
+// <13 favours thalassaemia trait, >13 favours IDA (conventional cut-off); exactly 13.0 is indeterminate.
+// The 12–<13 'borderline' band is this app's cautious interpretation, not an established standard.
+function mentzerClassify(mcv, rbc) {
+ var idx = Math.round((mcv / rbc) * 10) / 10;
+ var badge, color, text;
+ if (idx > 13)       { badge = 'Favours IDA';           color = '#ef4444'; text = 'Index >13 — favours iron deficiency anaemia over thalassaemia trait.'; }
+ else if (idx === 13) { badge = 'Indeterminate';         color = '#f59e0b'; text = 'Index = 13 — indeterminate; correlate with other CBC indices.'; }
+ else if (idx >= 12)  { badge = 'Borderline';            color = '#f59e0b'; text = 'Borderline (12–<13) — app’s cautious band, not an established cut-off. Correlate with other CBC indices.'; }
+ else                 { badge = 'Favours thalassaemia';  color = '#10b981'; text = 'Index <12 — favours thalassaemia trait; consider haemoglobin electrophoresis.'; }
+ return { idx: idx, badge: badge, color: color, text: text };
+}
+
 function calcMentzer() {
  var mcvEl = document.getElementById('ida-mcv');
  if (!mcvEl) return;
@@ -15144,12 +15158,9 @@ function calcMentzer() {
  if (!isFinite(mcv) || !isFinite(rbc) || rbc === 0) {
   valEl.textContent = '—'; badgeEl.textContent = '—'; badgeEl.style.color=''; badgeEl.style.background='var(--surface2)'; textEl.textContent=''; return;
  }
- var idx = mcv / rbc;
- valEl.textContent = idx.toFixed(1);
- var badge, color, text;
- if (idx >= 13) { badge='Favours IDA'; color='#ef4444'; text='Index ≥13 — favours iron deficiency anaemia over thalassaemia trait.'; }
- else if (idx >= 12) { badge='Grey zone'; color='#f59e0b'; text='Borderline (12–13). ' + (isFinite(rdw) && rdw>15 ? 'Elevated RDW here leans toward IDA.' : 'A normal RDW here leans toward thalassaemia trait.'); }
- else { badge='Favours thalassaemia'; color='#10b981'; text='Index <12 — favours thalassaemia trait; consider haemoglobin electrophoresis.'; }
+ var mz = mentzerClassify(mcv, rbc);
+ valEl.textContent = mz.idx.toFixed(1);
+ var badge = mz.badge, color = mz.color, text = mz.text;
  badgeEl.textContent = badge; badgeEl.style.color = color; badgeEl.style.background = color+'22';
  textEl.textContent = text;
 }
@@ -15208,9 +15219,9 @@ function calcTable() {
  var textEl = document.getElementById('ida-table-text');
  if (!isFinite(w) || !isFinite(hb)) { valEl.textContent='— mg'; textEl.textContent=''; return; }
  if (w < 35) { valEl.textContent='— mg'; textEl.textContent='Table method is not validated below 35 kg — use the Ganzoni formula instead.'; return; }
- var dose = hb < 10 ? (w < 70 ? 1500 : 2000) : (w < 70 ? 1000 : 1500);
+ var dose = hb >= 14 ? 500 : hb < 10 ? (w < 70 ? 1500 : 2000) : (w < 70 ? 1000 : 1500);
  valEl.textContent = dose + ' mg';
- textEl.textContent = 'Based on Hb ' + (hb<10 ? '<10 g/dL' : '≥10 g/dL') + ' and weight ' + (w<70 ? '35–<70 kg' : '≥70 kg') + ', per ferric carboxymaltose simplified dosing table.';
+ textEl.textContent = 'Based on Hb ' + (hb<10 ? '<10 g/dL' : hb<14 ? '10–<14 g/dL' : '≥14 g/dL') + ' and weight ' + (w<70 ? '35–<70 kg' : '≥70 kg') + ', per ferric carboxymaltose simplified dosing table.';
 }
 
 function idaUpdateTsatMode() {
@@ -16011,7 +16022,7 @@ function calcWellsPE() {
  if (!titleEl) return;
 
  let tier, prevalence, color, borderColor;
- if      (total <= 1) { tier = 'Low Probability';      prevalence = '≈1–3%';   color = '#10b981'; borderColor = '#10b98140'; }
+ if      (total < 2)  { tier = 'Low Probability';      prevalence = '≈1–3%';   color = '#10b981'; borderColor = '#10b98140'; }
  else if (total <= 6) { tier = 'Moderate Probability'; prevalence = '≈16–28%'; color = 'var(--accent)'; borderColor = 'var(--border)'; }
  else                 { tier = 'High Probability';     prevalence = '≈38–78%'; color = '#ef4444'; borderColor = '#ef444460'; }
 
@@ -16027,18 +16038,32 @@ function calcWellsPE() {
 
 // ─────────────────────── ABG INTERPRETER ───────────────────────
 function calcABG() {
- const ph   = parseFloat(document.getElementById('abg-ph-n')   ? document.getElementById('abg-ph-n').value   : 7.40) || 7.40;
- const pco2 = parseFloat(document.getElementById('abg-pco2-n') ? document.getElementById('abg-pco2-n').value : 40)   || 40;
- const hco3 = parseFloat(document.getElementById('abg-hco3-n') ? document.getElementById('abg-hco3-n').value : 24)   || 24;
- const pao2 = parseFloat(document.getElementById('abg-pao2-n') ? document.getElementById('abg-pao2-n').value : 95)   || 95;
- const na   = parseFloat(document.getElementById('abg-na-n')   ? document.getElementById('abg-na-n').value   : 140)  || 140;
- const cl   = parseFloat(document.getElementById('abg-cl-n')   ? document.getElementById('abg-cl-n').value   : 102)  || 102;
+ // Blank / non-positive entries are treated as MISSING (NaN) — never silently replaced by a 'normal' default
+ const abgNum = id => { const el = document.getElementById(id); const v = el ? parseFloat(el.value) : NaN; return v > 0 ? v : NaN; };
+ const ph   = abgNum('abg-ph-n');
+ const pco2 = abgNum('abg-pco2-n');
+ const hco3 = abgNum('abg-hco3-n');
+ const pao2 = abgNum('abg-pao2-n');
+ const na   = abgNum('abg-na-n');
+ const cl   = abgNum('abg-cl-n');
 
  const primaryEl = document.getElementById('abg-primary');
  const stepsEl   = document.getElementById('abg-steps');
  const boxEl     = document.getElementById('abg-result-box');
  const critEl    = document.getElementById('abg-critical-alert');
  if (!primaryEl) return;
+
+ // pH, PaCO2 and HCO3 are all required to classify — otherwise ask, don't guess
+ if (isNaN(ph) || isNaN(pco2) || isNaN(hco3)) {
+  primaryEl.style.color = 'var(--text-muted)';
+  primaryEl.innerHTML = '— Enter pH, PaCO₂ and HCO₃ —';
+  stepsEl.innerHTML = '';
+  if (boxEl) boxEl.style.borderColor = 'var(--border)';
+  if (critEl) critEl.style.display = 'none';
+  ['abg-exp-pco2', 'abg-pf-ratio', 'abg-ag-value', 'abg-delta-value'].forEach(id => { const e = document.getElementById(id); if (e) { e.textContent = '—'; e.style.color = 'var(--text)'; } });
+  ['abg-exp-pco2-note', 'abg-pf-note', 'abg-ag-note', 'abg-delta-note'].forEach(id => { const e = document.getElementById(id); if (e) e.textContent = ''; });
+  return;
+ }
 
  let steps = [];
  let primaryLabel = '', primaryColor = '#10b981';
@@ -16099,7 +16124,7 @@ function calcABG() {
  if      (ag > 12) agText += '<span style="color:#ef4444">High AG (' + ag.toFixed(1) + ') — MUDPILES</span>';
  else if (ag < 8)  agText += '<span style="color:#f59e0b">Low AG — hypoalbuminaemia / myeloma / Li toxicity</span>';
  else              agText += '<span style="color:#10b981">Normal (8–12)</span>';
- steps.push('<b>Step 4 — Anion Gap:</b> ' + agText);
+ steps.push('<b>Step 4 — Anion Gap:</b> ' + (isNaN(ag) ? 'enter Na⁺ and Cl⁻ to calculate' : agText));
 
  // Step 5: Delta ratio (if high AG metabolic acidosis)
  if (ag > 12 && disorder === 'Metabolic Acidosis') {
@@ -16118,7 +16143,7 @@ function calcABG() {
  else if (pao2 < 80)  o2text += '<span style="color:#f59e0b">Hypoxaemia</span>';
  else if (pao2 <= 100) o2text += '<span style="color:#10b981">Normal</span>';
  else                  o2text += '<span style="color:var(--accent)">Hyperoxia — consider reducing FiO₂</span>';
- steps.push('<b>Oxygenation:</b> PaO₂ ' + o2text);
+ steps.push('<b>Oxygenation:</b> ' + (isNaN(pao2) ? 'enter PaO₂' : 'PaO₂ ' + o2text));
 
  primaryEl.style.color = primaryColor;
  primaryEl.innerHTML = disorder === 'Normal ABG' ? '✅ Normal ABG' : '<span style="font-size:0.8em;vertical-align:0.10em">⚠️</span> ' + disorder;
@@ -16160,19 +16185,23 @@ function calcABG() {
  const pfEl = document.getElementById('abg-pf-ratio');
  const pfNoteEl = document.getElementById('abg-pf-note');
  if (pfEl && pfNoteEl) {
-  const fio2 = parseFloat(fio2El ? fio2El.value : 21) || 21;
+  const fio2v = fio2El ? parseFloat(fio2El.value) : 21;
+  const fio2 = fio2v > 0 ? fio2v : NaN;
   const pf = pao2 / (fio2 / 100);
-  pfEl.textContent = pf.toFixed(0);
-  if      (pf < 100) { pfEl.style.color = '#ef4444'; pfNoteEl.innerHTML = '<span style="color:#ef4444">Severe ARDS</span>'; }
-  else if (pf < 200) { pfEl.style.color = '#f59e0b'; pfNoteEl.innerHTML = '<span style="color:#f59e0b">Moderate ARDS</span>'; }
-  else if (pf < 300) { pfEl.style.color = '#f97316'; pfNoteEl.innerHTML = '<span style="color:#f97316">Mild ARDS</span>'; }
+  pfEl.textContent = isNaN(pf) ? '—' : pf.toFixed(0);
+  if (isNaN(pf)) { pfEl.style.color = 'var(--text)'; pfNoteEl.textContent = 'Enter PaO₂ and FiO₂'; }
+  else if (pf <= 100) { pfEl.style.color = '#ef4444'; pfNoteEl.innerHTML = '<span style="color:#ef4444">Severe ARDS</span>'; }
+  else if (pf <= 200) { pfEl.style.color = '#f59e0b'; pfNoteEl.innerHTML = '<span style="color:#f59e0b">Moderate ARDS</span>'; }
+  else if (pf <= 300) { pfEl.style.color = '#f97316'; pfNoteEl.innerHTML = '<span style="color:#f97316">Mild ARDS</span>'; }
   else                { pfEl.style.color = '#10b981'; pfNoteEl.innerHTML = '<span style="color:#10b981">Normal</span>'; }
  }
 
  // Anion Gap — mirrors Step 4 above, shown as a standalone quick value
  const agEl = document.getElementById('abg-ag-value');
  const agNoteEl = document.getElementById('abg-ag-note');
- if (agEl && agNoteEl) {
+ if (agEl && agNoteEl && isNaN(ag)) {
+  agEl.textContent = '—'; agEl.style.color = 'var(--text)'; agNoteEl.textContent = 'Needs Na⁺ and Cl⁻';
+ } else if (agEl && agNoteEl) {
   agEl.textContent = ag.toFixed(1);
   if      (ag > 12) { agEl.style.color = '#ef4444'; agNoteEl.innerHTML = '<span style="color:#ef4444">High — MUDPILES</span>'; }
   else if (ag < 8)  { agEl.style.color = '#f59e0b'; agNoteEl.innerHTML = '<span style="color:#f59e0b">Low</span>'; }
@@ -16183,7 +16212,7 @@ function calcABG() {
  const deltaEl = document.getElementById('abg-delta-value');
  const deltaNoteEl = document.getElementById('abg-delta-note');
  if (deltaEl && deltaNoteEl) {
-  if (ag > 12 && hco3 !== 24) {
+  if (ag > 12 && hco3 < 24) {
    const dd = (ag - 12) / (24 - hco3);
    deltaEl.textContent = dd.toFixed(2);
    if      (dd < 0.4) { deltaEl.style.color = '#f59e0b'; deltaNoteEl.innerHTML = '<span style="color:#f59e0b">Pure NAGMA (concurrent)</span>'; }
@@ -16193,7 +16222,7 @@ function calcABG() {
   } else {
    deltaEl.textContent = '—';
    deltaEl.style.color = 'var(--text)';
-   deltaNoteEl.textContent = 'Needs AG >12';
+   deltaNoteEl.textContent = 'Needs AG >12 and HCO₃ <24';
   }
  }
 }
@@ -16493,7 +16522,7 @@ function calcCBC() {
 
  // — Haematocrit
  if (hct > 0) {
-  if      (hct < hctLo) { findings.push('<span style="color:' + (hct < 25 ? '#ef4444' : '#f59e0b') + '">' + (hct < 25 ? '🔴' : '🟡') + ' Hct ' + hct + '% — Low</span>'); if (hct >= hctLo - 1) {} }
+  if      (hct < hctLo) { findings.push('<span style="color:' + (hct < 25 ? '#ef4444' : '#f59e0b') + '">' + (hct < 25 ? '🔴' : '🟡') + ' Hct ' + hct + '% — Low</span>'); hasAbnormal = true; }
   else if (hct > hctHi) { findings.push('<span style="color:#f59e0b">🟡 Hct ' + hct + '% — Elevated (dehydration / polycythaemia)</span>'); hasAbnormal = true; }
   else                   { findings.push('<span style="color:#10b981">✅ Hct ' + hct + '% — Normal</span>'); }
  }
@@ -16923,10 +16952,9 @@ function glcbcCalcMentzer() {
  const mcv = parseFloat(document.getElementById('glcbc-mentzer-mcv-n').value);
  const rbc = parseFloat(document.getElementById('glcbc-mentzer-rbc-n').value);
  if (!mcv || !rbc) return;
- const index = mcv / rbc;
- const interp = index > 13
-  ? 'Index = ' + index.toFixed(1) + ' → suggests Iron Deficiency Anaemia.'
-  : 'Index = ' + index.toFixed(1) + ' → suggests Thalassaemia trait.';
+ const mz = mentzerClassify(mcv, rbc);
+ const index = mz.idx;
+ const interp = 'Index = ' + index.toFixed(1) + ' → ' + mz.badge + '. ' + mz.text;
  document.getElementById('glcbc-mentzer-val').textContent = index.toFixed(1);
  document.getElementById('glcbc-mentzer-interp').textContent = interp;
 }
@@ -17511,7 +17539,7 @@ function calcAPACHE() {
  let crBase = 0;
  if      (cr >= 3.5) crBase = 4;
  else if (cr >= 2.0) crBase = 3;
- else if (cr >= 1.5) crBase = 1;
+ else if (cr >= 1.5) crBase = 2;
  else if (cr >= 0.6) crBase = 0;
  else                crBase = 2;
  const crS = arf === 1 ? Math.min(crBase * 2, 8) : crBase;
@@ -17776,7 +17804,7 @@ function calcNEWS2() {
 
  const hasSingle3 = [rrS, spo2S, sbpS, hrS, tmpS, cnsS].some(s => s === 3);
  let risk, action, color;
- if (total >= 7 || (hasSingle3 && total >= 5)) {
+ if (total >= 7) {
   risk = '🔴 High Risk'; action = 'Urgent ICU review / escalate immediately'; color = '#ef4444';
  } else if (total >= 5 || hasSingle3) {
   risk = '🟡 Medium Risk'; action = 'Hourly obs • Senior review'; color = '#f59e0b';
@@ -18121,7 +18149,7 @@ function calcJones() {
   let meets = false;
   if (majorCount >= 2) meets = true;
   else if (majorCount >= 1 && minorCount >= 2) meets = true;
-  else if (recurrent && highRisk && minorCount >= 3) meets = true;
+  else if (recurrent && minorCount >= 3) meets = true;
 
   const breakdown = majorCount + ' major, ' + minorCount + ' minor — ' + (gasEvidence ? 'GAS evidence present' : 'GAS evidence NOT documented');
 
@@ -18346,9 +18374,9 @@ function dkaSetAMS(val, btn) {
 }
 
 function calcDKA() {
-  const gluc   = parseFloat(document.getElementById('dka-gluc')?.value) || 0;
-  const ph     = parseFloat(document.getElementById('dka-ph')?.value) || 0;
-  const hco3   = parseFloat(document.getElementById('dka-hco3')?.value) || 0;
+  const gluc   = parseFloat(document.getElementById('dka-gluc')?.value);
+  const ph     = parseFloat(document.getElementById('dka-ph')?.value);
+  const hco3   = parseFloat(document.getElementById('dka-hco3')?.value);
   const ag     = parseFloat(document.getElementById('dka-ag')?.value) || 0;
   const osm    = parseFloat(document.getElementById('dka-osm')?.value) || 0;
   const sglt2  = document.getElementById('dka-sglt2')?.checked;
@@ -18361,6 +18389,15 @@ function calcDKA() {
   const mgtEl  = document.getElementById('dka-management');
   const boxEl  = document.getElementById('dka-result-box');
   if (!diagEl) return;
+
+  // Missing core inputs must never be read as 0 (blank glucose would look 'euglycaemic', blank HCO3 'acidotic')
+  if (Number.isNaN(gluc) || (Number.isNaN(ph) && Number.isNaN(hco3))) {
+    diagEl.textContent = '— Enter glucose and pH or HCO₃ —';
+    diagEl.style.color = 'var(--text-muted)';
+    sevEl.innerHTML = ''; criEl.innerHTML = ''; mgtEl.innerHTML = '';
+    if (boxEl) boxEl.style.borderColor = '#f59e0b30';
+    return;
+  }
 
   const ketHigh = dkaKetone === 'high' || dkaKetone === 'mod';
   const ketPos  = dkaKetone !== 'none';
@@ -18379,7 +18416,7 @@ function calcDKA() {
   // ── Scoring logic ──
   const isDKA    = acidotic && ketHigh && glucHigh;
   const isEuDKA  = acidotic && ketHigh && !glucHighNumeric;   // euDKA defined by genuinely non-elevated glucose — NOT overridden by known-diabetes flag, since euDKA occurs precisely in known diabetics with normal/near-normal glucose
-  const isHHS    = glucVeryHigh && osmHigh && !ketHigh && !acidotic;
+  const isHHS    = glucVeryHigh && osmHigh && !ketHigh && !phLow && hco3 >= 15;   // 2024 consensus HHS: pH ≥7.30 and HCO₃ ≥15
   const isOverlap= glucVeryHigh && osmHigh && ketPos && acidotic;
   const euDKAtrigger = isEuDKA;
 
@@ -20227,7 +20264,7 @@ const DRUGS = [
   {id:'amiodarone',name:'Amiodarone (maintenance)',        cat:'Antiarrhythmic',       amt:900, amtU:'mg',   vol:500, doseU:'mg/min',     lo:0.5,  hi:1,    note:'900mg in 500ml D5W (1.8mg/ml) — FDA-labelled safe range 1–6mg/ml, >2mg/ml requires central line. Loading 150 mg over 10 min given separately, then this maintenance infusion.'},
   {id:'lidocaine',name:'Lidocaine',                        cat:'Antiarrhythmic',       amt:2,   amtU:'g',    vol:50, doseU:'mg/min',     lo:1,    hi:4,    note:'Reduce dose in hepatic failure or low cardiac output.'},
   {id:'esmolol',  name:'Esmolol',                          cat:'Antihypertensive',     amt:2500,amtU:'mg',   vol:50, doseU:'mcg/kg/min', lo:50,   hi:200,  note:'Loading bolus 500 mcg/kg over 1 min usually precedes infusion.'},
-  {id:'labetalol',name:'Labetalol',                        cat:'Antihypertensive',     amt:200, amtU:'mg',   vol:50, doseU:'mg/hr',      lo:2,    hi:8,    note:'Avoid in reactive airway disease/decompensated HF.'},
+  {id:'labetalol',name:'Labetalol',                        cat:'Antihypertensive',     amt:200, amtU:'mg',   vol:50, doseU:'mg/hr',      lo:30,   hi:120,    note:'Avoid in reactive airway disease/decompensated HF.'},
   {id:'nicardipine',name:'Nicardipine',                    cat:'Antihypertensive',     amt:25,  amtU:'mg',   vol:50, doseU:'mg/hr',      lo:5,    hi:15,   note:'Titrate every 5–15 min; avoid extravasation (vesicant).'},
   {id:'diltiazem',name:'Diltiazem',                        cat:'Antihypertensive',     amt:125, amtU:'mg',   vol:50, doseU:'mg/hr',      lo:5,    hi:15,   note:'Often preceded by 0.25 mg/kg IV bolus for rate control.'},
   {id:'ntg',      name:'Nitroglycerin (GTN)',              cat:'Antihypertensive',     amt:50,  amtU:'mg',   vol:50, doseU:'mcg/min',    lo:5,    hi:200,  note:'Tolerance with prolonged use; use non-PVC tubing/glass bottle.'},
@@ -20255,7 +20292,7 @@ const DRUGS = [
   {id:'furosemide',name:'Furosemide (infusion)',             cat:'Diuretic',             amt:250, amtU:'mg',   vol:50,  doseU:'mg/hr',       lo:1,   hi:20,   note:'A loading bolus is often given before starting the infusion.'},
   {id:'magnesium',name:'Magnesium Sulfate',                  cat:'Electrolyte',          amt:4,   amtU:'g',    vol:50,  doseU:'g/hr',        lo:0.5, hi:2,    note:'Monitor deep tendon reflexes, respiratory rate and renal function at higher doses.'},
   {id:'kcl',      name:'Potassium Chloride',                 cat:'Electrolyte',          amt:40,  amtU:'mEq',  vol:50, doseU:'mEq/hr',      lo:5,   hi:20,   note:'Max peripheral rate usually ~10 mEq/hr; higher rates need central line + cardiac monitoring.'},
-  {id:'bicarb',   name:'Sodium Bicarbonate',                 cat:'Electrolyte',          amt:150, amtU:'mEq',  vol:50,doseU:'mEq/hr',      lo:10,  hi:40,   note:'Used for severe metabolic acidosis / urine alkalinisation; avoid extravasation.'},
+  {id:'bicarb',   name:'Sodium Bicarbonate',                 cat:'Electrolyte',          amt:50,  amtU:'mEq',  vol:50,doseU:'mEq/hr',      lo:10,  hi:40,   note:'Used for severe metabolic acidosis / urine alkalinisation; avoid extravasation.'},
 
   {id:'custom',   name:'Custom / Other Drug',                cat:'Custom',               amt:null,amtU:'mg',   vol:null,doseU:'mcg/kg/min', lo:null,hi:null, note:'Enter the concentration and dose manually for any drug not listed.'},
 ];
