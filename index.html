@@ -251,6 +251,9 @@ body .tab-bar { background: transparent; }
 .app-header {
   position: sticky; top: 0; z-index: 100;
   isolation: isolate;
+  /* iOS home-screen seam fix: the solid band overshoots the layout edge by 1px (negative = below the edge) instead of stopping
+     1.5px short, so the body mural no longer shows through as a hairline under the header. Tab capsules start >=3px lower, no overlap. */
+  --hdr-solid-up: -1px;
   /* Visible gap from the panel top to the title's ink = 8px, and from the subtitle's ink (descenders) to the panel bottom = 8px (solid),
      on every tab, always. --hdr-pad-t / --hdr-pad-b are calibrated by fixHeaderGaps() in script (font-metric aware);
      the numbers here are the fallback until it runs. */
@@ -19092,7 +19095,9 @@ if (window.visualViewport) window.visualViewport.addEventListener('resize', sche
    child is a plain .calc-card with identical title-bar padding, unlike
    Special Calc's mixed category-header/standalone-card first row. */
 var DEFIB_GAP_MIN = 6;
-var DEFIB_TITLE_PAD_CUT_MAX = 7;   // title-bar padding may shrink by at most this many px (11px -> 4px)
+var DEFIB_TITLE_PAD_CUT_MAX = 9;      // EXPERIMENT (iPhone SE fit): a screen that needs up to this much title-padding squeeze (11px -> 2px) still fits without scrolling. Revert = 7
+var DEFIB_TITLE_PAD_CUT_TIGHT = 2;    /* the "tight" look the S23 ends up with (title padding 9px, card margins 0). A screen that needs MORE than the max
+   above (iPhone SE with the ECG sheet open) keeps exactly this tight spacing and the page scrolls, instead of jumping back to the roomy 6px-gap layout. */
 var defibGapRaf = null;
 var defibBase = null;   // the "primary view" fit (everything collapsed): { gap, cut, squeezed, mean, w, h } — reused while anything is expanded so the card gaps never change
 
@@ -19183,6 +19188,7 @@ function syncDefibGaps() {
   var gap = (space - usedHeight()) / gapCount;
   var squeezed = false;
   var fallback = false;
+  var tight = false;   // no-fit but kept at the tight spacing (never reuses the roomy collapsed-view gaps)
   if (!isFinite(gap)) gap = DEFIB_GAP_MIN;
   else if (gap > DEFIB_GAP_MAX) { gap = DEFIB_GAP_MAX; fallback = true; }   // runaway measurement → sane gap
 
@@ -19205,9 +19211,18 @@ function syncDefibGaps() {
         gap = Math.max(0, (space - usedHeight()) / gapCount);
         squeezed = true;
       } else {
-        // can't fit even fully squeezed (e.g. ECG sheet expanded) → normal scrolling layout
-        gap = DEFIB_GAP_MIN;
-        fallback = true;
+        // Can't fit even at the tightest allowed squeeze (e.g. iPhone SE, ECG sheet open): keep the SAME tight spacing as the
+        // screens that do fit (title padding cut = DEFIB_TITLE_PAD_CUT_TIGHT, card margins 0) and let the page scroll.
+        cutUsed = DEFIB_TITLE_PAD_CUT_TIGHT;
+        titles.forEach(function (tt) {
+          var pad = parseFloat(getComputedStyle(tt).paddingTop) || 11;
+          tt.style.paddingTop = (pad - cutUsed) + 'px';
+          tt.style.paddingBottom = (pad - cutUsed) + 'px';
+        });
+        gap = 0;
+        squeezed = true;
+        tight = true;
+        fallback = true;   // still scrolls: skips the fill-the-screen correction
       }
     } else {
       gap = DEFIB_GAP_MIN;
@@ -19215,7 +19230,7 @@ function syncDefibGaps() {
     }
   }
 
-  if (baseOk && (anyOpen || fallback)) {
+  if (baseOk && (anyOpen || (fallback && !tight))) {
     gap = defibBase.gap; squeezed = defibBase.squeezed; fallback = true; useBase = true;   // fallback=true also skips the fill-the-screen correction below
     titles.forEach(function (tt) {
       tt.style.paddingTop = ''; tt.style.paddingBottom = '';
@@ -19367,9 +19382,12 @@ function syncDefibGaps() {
        Works for any screen height: it is all derived from the measured common gap. If a half-gap would be below what the
        elements' own padding allows (or leaves the card slots below their floor), the plain equal gap above is kept. */
     var restW = wsum - wts[0] - wts[1];
-    if (gaps.length > 2 && restW > 0) {
+    var ecgCardEl = document.getElementById('calccard-ecgemerg');
+    var ecgCollapsed = !!(ecgCardEl && !ecgCardEl.classList.contains('is-expanded'));   // "10 ECG Emergencies" fully collapsed: every slot equal, capsule included
+    if (gaps.length > 2 && restW > 0 && !ecgCollapsed) {
       var half = mean / 2;
-      var t0 = Math.max(half, gaps[0] - cur[0] + los[0]);
+      var capMin = (window.HDR_GAP_BOT || 8) + 3;   // keep the capsule's top edge clear of the header's bottom edge even on very tight fits
+      var t0 = Math.max(half, capMin, gaps[0] - cur[0] + los[0]);
       var t1 = Math.max(half, gaps[1] - cur[1] + los[1]);
       var rest = (mean * wsum - t0 - t1) / restW;   // common gap for every slot from the 1st card to the footer
       var restOk = isFinite(rest);
@@ -19384,7 +19402,7 @@ function syncDefibGaps() {
     for (var q = 0; q < els.length; q++) els[q].style.marginTop = nxt[q] + 'px';
   })();
 
-  if (!anyOpen && !fallback && !useBase) {
+  if (!anyOpen && !useBase && (!fallback || tight)) {
     defibBase = { gap: gap, cut: cutUsed, squeezed: squeezed, mean: finalMean, w: window.innerWidth || 0, h: viewportH };
   }
 }
