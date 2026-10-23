@@ -19095,7 +19095,7 @@ if (window.visualViewport) window.visualViewport.addEventListener('resize', sche
    child is a plain .calc-card with identical title-bar padding, unlike
    Special Calc's mixed category-header/standalone-card first row. */
 var DEFIB_GAP_MIN = 6;
-var DEFIB_TITLE_PAD_CUT_MAX = 9;      // EXPERIMENT (iPhone SE fit): a screen that needs up to this much title-padding squeeze (11px -> 2px) still fits without scrolling. Revert = 7
+var DEFIB_TITLE_PAD_CUT_MAX = 2.5;    // a screen that needs up to this much title-padding squeeze (11px -> 8.5px) still fits without scrolling
 var DEFIB_TITLE_PAD_CUT_TIGHT = 2;    /* the "tight" look the S23 ends up with (title padding 9px, card margins 0). A screen that needs MORE than the max
    above (iPhone SE with the ECG sheet open) keeps exactly this tight spacing and the page scrolls, instead of jumping back to the roomy 6px-gap layout. */
 var defibGapRaf = null;
@@ -19386,8 +19386,7 @@ function syncDefibGaps() {
     var ecgCollapsed = !!(ecgCardEl && !ecgCardEl.classList.contains('is-expanded'));   // "10 ECG Emergencies" fully collapsed: every slot equal, capsule included
     if (gaps.length > 2 && restW > 0 && !ecgCollapsed) {
       var half = mean / 2;
-      var capMin = (window.HDR_GAP_BOT || 8) + 3;   // keep the capsule's top edge clear of the header's bottom edge even on very tight fits
-      var t0 = Math.max(half, capMin, gaps[0] - cur[0] + los[0]);
+      var t0 = Math.max(half, gaps[0] - cur[0] + los[0]);
       var t1 = Math.max(half, gaps[1] - cur[1] + los[1]);
       var rest = (mean * wsum - t0 - t1) / restW;   // common gap for every slot from the 1st card to the footer
       var restOk = isFinite(rest);
