@@ -19095,9 +19095,11 @@ if (window.visualViewport) window.visualViewport.addEventListener('resize', sche
    child is a plain .calc-card with identical title-bar padding, unlike
    Special Calc's mixed category-header/standalone-card first row. */
 var DEFIB_GAP_MIN = 6;
-var DEFIB_TITLE_PAD_CUT_MAX = 2.5;    // a screen that needs up to this much title-padding squeeze (11px -> 8.5px) still fits without scrolling
+var DEFIB_TITLE_PAD_CUT_MAX = 9;      // EXPERIMENT (iPhone SE fit): a screen that needs up to this much title-padding squeeze (11px -> 2px) still fits without scrolling. Revert = 7
 var DEFIB_TITLE_PAD_CUT_TIGHT = 2;    /* the "tight" look the S23 ends up with (title padding 9px, card margins 0). A screen that needs MORE than the max
    above (iPhone SE with the ECG sheet open) keeps exactly this tight spacing and the page scrolls, instead of jumping back to the roomy 6px-gap layout. */
+var DEFIB_PIN_CAPSULE_GAP = 12.9;   // eyebrow -> capsule and capsule -> 1st card never get smaller than this (px of visible gap; the S23 look)
+var DEFIB_PIN_SHEET_GAP = 14.3;     // each half-gap above / below the ECG infographic never gets smaller than this
 var defibGapRaf = null;
 var defibBase = null;   // the "primary view" fit (everything collapsed): { gap, cut, squeezed, mean, w, h } — reused while anything is expanded so the card gaps never change
 
@@ -19385,15 +19387,25 @@ function syncDefibGaps() {
     var ecgCardEl = document.getElementById('calccard-ecgemerg');
     var ecgCollapsed = !!(ecgCardEl && !ecgCardEl.classList.contains('is-expanded'));   // "10 ECG Emergencies" fully collapsed: every slot equal, capsule included
     if (gaps.length > 2 && restW > 0 && !ecgCollapsed) {
+      /* Slots that are ALREADY small and must stay as they are on any squeezed fit: eyebrow -> capsule, capsule -> 1st card, and the two
+         halves around the ECG infographic. They keep at least their S23 look (DEFIB_PIN_*), and everything left over is shared
+         equally by the slots from the 2nd card down to the footer. Roomier screens are untouched: their half-gaps are already bigger. */
       var half = mean / 2;
-      var t0 = Math.max(half, gaps[0] - cur[0] + los[0]);
-      var t1 = Math.max(half, gaps[1] - cur[1] + los[1]);
-      var rest = (mean * wsum - t0 - t1) / restW;   // common gap for every slot from the 1st card to the footer
-      var restOk = isFinite(rest);
-      for (var r = 2; restOk && r < gaps.length; r++) if (rest * wts[r] < gaps[r] - cur[r] + los[r] - 0.01) restOk = false;
+      var sheetIdx = -1;
+      for (var si = 0; si < els.length; si++) if (els[si] && els[si].id === 'ecgEmergImgWrap') sheetIdx = si;
+      var pinned = {};
+      pinned[0] = Math.max(half, DEFIB_PIN_CAPSULE_GAP, gaps[0] - cur[0] + los[0]);
+      pinned[1] = Math.max(half, DEFIB_PIN_CAPSULE_GAP, gaps[1] - cur[1] + los[1]);
+      var rest0 = (mean * wsum - pinned[0] - pinned[1]) / restW;   // the plain half-gap result, used only to see whether the sheet halves are roomy already
+      if (sheetIdx >= 0) for (var pk = sheetIdx; pk <= sheetIdx + 1 && pk < gaps.length; pk++)
+        pinned[pk] = Math.max(rest0 * wts[pk], DEFIB_PIN_SHEET_GAP, gaps[pk] - cur[pk] + los[pk]);
+      var pinSum = 0, pinW = 0;
+      Object.keys(pinned).forEach(function (kx) { pinSum += pinned[kx]; pinW += wts[kx]; });
+      var rest = (mean * wsum - pinSum) / (wsum - pinW);   // common gap for every other slot (2nd card -> footer)
+      var restOk = isFinite(rest) && wsum - pinW > 0;
+      for (var r = 2; restOk && r < gaps.length; r++) if (!(r in pinned) && rest * wts[r] < gaps[r] - cur[r] + los[r] - 0.01) restOk = false;
       if (restOk) {
-        tgt[0] = t0; tgt[1] = t1;
-        for (var r2 = 2; r2 < gaps.length; r2++) tgt[r2] = rest * wts[r2];
+        for (var r2 = 0; r2 < gaps.length; r2++) tgt[r2] = (r2 in pinned) ? pinned[r2] : rest * wts[r2];
       }
     }
     var nxt = cur.map(function (c, idx) { return c + tgt[idx] - gaps[idx]; });
