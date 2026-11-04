@@ -13981,7 +13981,8 @@ function calcK() {
 
  const dailyReq = 1 * wt;
  const totalWithDaily = deficit + dailyReq;
- document.getElementById('k-result-total').textContent = totalWithDaily.toFixed(0) + ' mmol total (≈ ' + Math.ceil(totalWithDaily/20) + ' amp)';
+ const totalWhole = Math.round(totalWithDaily); // whole mmol, same rounding as the infusion-card quick calc (calcKQuick)
+ document.getElementById('k-result-total').textContent = totalWhole + ' mmol total (≈ ' + Number((totalWhole/20).toFixed(1)) + ' amp)';
  document.getElementById('k-result-total-detail').textContent = 'Deficit ' + deficit.toFixed(0) + ' + Maintenance ' + dailyReq.toFixed(0) + ' (1mmol/kg/day) = ' + totalWithDaily.toFixed(0) + ' mmol over 24hr';
 }
 
