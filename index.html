@@ -18962,13 +18962,31 @@ function syncSpecialGapsPass() {
   return { fits: endBottom <= viewportH + 0.5, anyOpen: anyOpen };
 }
 
+/* On-screen keyboard guard: while a text field has focus AND the visible viewport is clearly shorter than it was before the
+   keyboard came up, the equal-gap fit is NOT re-run - the layout measured before the keyboard stays exactly as it was. (The
+   keyboard shrinks visualViewport and shifts the scroll offset; re-fitting against that transient state is what blew the
+   gaps up to ~200px on iOS.) Once the keyboard goes away the viewport is back to normal, so the very next fit runs as usual. */
+var specialBaseVH = (window.visualViewport ? window.visualViewport.height : window.innerHeight) || 0;
+function specialKeyboardUp() {
+  var vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  var a = document.activeElement, typing = false;
+  if (a) {
+    var tg = a.tagName;
+    if (tg === 'TEXTAREA' || a.isContentEditable) typing = true;
+    else if (tg === 'INPUT') typing = !/^(range|checkbox|radio|button|submit|reset|file|color|image)$/i.test(a.type || '');
+  }
+  if (!typing) { specialBaseVH = vh; return false; }   // no keyboard possible: remember the normal viewport height
+  return specialBaseVH > 0 && vh < specialBaseVH - 100;
+}
 function scheduleSpecialCompactFit() {
   if (specialGapRaf) cancelAnimationFrame(specialGapRaf);
   specialGapRaf = requestAnimationFrame(function () {
     specialGapRaf = null;
+    if (specialKeyboardUp()) return;   // keyboard open: keep the current layout untouched
     syncSpecialGaps();
   });
 }
+document.addEventListener('focusout', function () { setTimeout(scheduleSpecialCompactFit, 350); }, true);   // keyboard closing: refit once it has settled
 function fitSpecialCalcCompact() { syncSpecialGaps(); }
 
 if (document.fonts && document.fonts.ready) {
