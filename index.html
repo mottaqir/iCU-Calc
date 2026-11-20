@@ -2653,9 +2653,10 @@ body:not([data-theme="light"]) .ab-warn {
 #gsHandle {
   background: var(--surface);
   border-color: var(--border);
+  border-width: 2.2px;   /* search toggle outline = same thickness as the icon's stroke (2.2 in a 24px icon = 2.2px) */
   position: relative; left: -1px;
 }
-#gsHandle svg { color: var(--muted); }
+#gsHandle svg { color: var(--muted); width: 24px; height: 24px; }   /* search icon bigger (was 18px) */
 #gsHandle:hover { background: var(--surface2); border-color: var(--accent); }
 
 .gs-backdrop {
