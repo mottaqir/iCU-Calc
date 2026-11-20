@@ -84,7 +84,7 @@
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,700;1,700&display=swap');
 
 :root {
   --bg:           #000000;   /* charcoal black */
@@ -299,13 +299,15 @@ body .tab-bar { background: transparent; }
   margin-bottom: var(--hdr-eb-mb, 0px);
 }
 .hdr-title {
-  font-size: clamp(13px, 4vw, 17px);
-  font-family: var(--heading);
+  font-size: clamp(24px, 7.2vw, 28px);
+  font-family: 'Lora', Georgia, 'Times New Roman', serif;
   font-weight: 700;
   color: var(--text-strong);
-  letter-spacing: -0.3px;
-  line-height: 1.2;
+  letter-spacing: 0;
+  line-height: 1;
 }
+.hdr-title .hdr-calc { font-style: italic; font-weight: 700; color: #2d8ca0; }   /* = Special Calc tab outline colour rgb(45,140,160) */
+[data-theme="light"] .hdr-title .hdr-calc { color: #226978; }   /* = Special Calc tab's active colour */
 .hdr-btn {
   display: flex; align-items: center; justify-content: center;
   width: 36px; height: 36px;
@@ -2963,8 +2965,8 @@ try { if (navigator.standalone === true) document.documentElement.classList.add(
 <header class="app-header">
   <!-- Left Branding -->
   <div class="hdr-center">
-    <h1 class="hdr-title" id="hdrTitle">Bedside Critical Assessment &amp; Measures</h1>
-    <div class="hdr-eyebrow" style="margin-top:3px;text-transform:none;letter-spacing:0.06em;font-size:0.78rem">a quick decision supporting tool</div>
+    <h1 class="hdr-title" id="hdrTitle">iCU <span class="hdr-calc">Calc</span></h1>
+    <div class="hdr-eyebrow" style="margin-top:-3px;text-transform:none;letter-spacing:0.06em;font-size:0.78rem">a quick decision supporting tool</div>
   </div>
   <!-- ═══ GLOBAL SEARCH TOGGLE ═══ -->
   <button class="hdr-btn" id="gsHandle" onclick="gsOpen()" aria-label="Search">
@@ -20028,7 +20030,7 @@ try { hgInit(); } catch(e) {}
   });
 })();
 
-/* ── Header title: keep "Bedside Critical Assessment & Measures" on one line ── */
+/* ── Header title: keep the "iCU Calc" brand title on one line ── */
 (function () {
   var _twCanvas3 = null;
   function textWidth(text, font) {
@@ -21600,5 +21602,155 @@ html body .tab-btn.active::before {
   animation: tabGradSpin 3.2s linear infinite;
 }
 </style>
+<style id="light-input-outline">
+/* ── Light theme: every text/number input gets a thin, clearly visible outline ──
+   (Special Calc / Cardio tabs strip inline borders with !important, so those two get an ID-level selector to win.) */
+[data-theme="light"] { --inp-outline: #8c96a1; }
+[data-theme="light"] input:is([type="number"],[type="text"],[type="search"],[type="tel"],[type="email"],[type="password"],:not([type])):not(.gs-input),
+[data-theme="light"] textarea,
+[data-theme="light"] :is(#tab-special,#tab-defib) input:is([type="number"],[type="text"],[type="search"],[type="tel"],[type="email"],[type="password"],:not([type])):not(.gs-input) {
+  border-style: solid !important; border-width: 1px !important; border-color: var(--inp-outline) !important;
+}
+[data-theme="light"] input:is([type="number"],[type="text"],[type="search"],[type="tel"],[type="email"],[type="password"],:not([type])):not(.gs-input):focus,
+[data-theme="light"] textarea:focus,
+[data-theme="light"] :is(#tab-special,#tab-defib) input:is([type="number"],[type="text"],[type="search"],[type="tel"],[type="email"],[type="password"],:not([type])):not(.gs-input):focus {
+  border-color: var(--accent) !important;
+}
+
+/* ── Edit hint for slider-paired number boxes: thin border + blinking cursor (no glow / no shadow) ── */
+body:not([data-theme="light"]) { --ld-border: #4b535d; }
+[data-theme="light"] { --ld-border: #8c96a1; }
+input.ld-field { box-shadow: none; }
+body:not([data-theme="light"]) input.ld-field,
+body:not([data-theme="light"]) :is(#tab-special,#tab-defib) input.ld-field {
+  border-style: solid !important; border-width: 1px !important; border-color: var(--ld-border) !important;
+}
+body:not([data-theme="light"]) input.ld-field:focus,
+body:not([data-theme="light"]) :is(#tab-special,#tab-defib) input.ld-field:focus { border-color: var(--accent) !important; }
+.ld-ov {
+  position: absolute; display: none; pointer-events: none; box-sizing: border-box;
+  align-items: center; justify-content: center; overflow: hidden;
+  white-space: pre; line-height: normal; z-index: 1; text-align: center; margin: 0;
+}
+input.ld-on:not(:focus) { -webkit-text-fill-color: transparent; }
+input.ld-on:focus + .ld-ov { display: none !important; }
+.ld-last { position: relative; display: inline-block; }
+.ld-last::after {
+  content: ""; position: absolute; left: 100%; margin-left: 1px; top: 10%; height: 80%;
+  width: 0; border-left: 0.3px solid var(--accent);   /* hairline border: browsers draw it as exactly 1 device pixel (the thinnest line a screen can show) and never drop it below that, so it can't vanish */
+  animation: ldBlink 1.1s linear infinite;
+}
+@keyframes ldBlink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .ld-last::after { animation: none; } }
+</style>
+<script id="ld-hint">
+(function () {
+  'use strict';
+  try {
+    var desc = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value');
+    if (!desc || !desc.get || !desc.set) return;
+    var items = [];
+    var ro = (typeof ResizeObserver !== 'undefined') ? new ResizeObserver(function (es) {
+      es.forEach(function (e) { var it = e.target._ld || e.target._ldItem; if (it) place(it); });
+    }) : null;
+
+    function px(v) { return parseFloat(v) || 0; }
+
+
+    function place(it) {
+      var inp = it.inp, ov = it.ov;
+      if (!inp.classList.contains('ld-on') || !inp.offsetParent) { ov.style.display = 'none'; return; }
+      var cs = getComputedStyle(inp);
+      ov.style.display = 'flex';
+      ov.style.left = inp.offsetLeft + 'px';
+      ov.style.top = inp.offsetTop + 'px';
+      ov.style.width = inp.offsetWidth + 'px';
+      ov.style.height = inp.offsetHeight + 'px';
+      ov.style.paddingLeft = (px(cs.paddingLeft) + px(cs.borderLeftWidth)) + 'px';
+      ov.style.paddingRight = (px(cs.paddingRight) + px(cs.borderRightWidth)) + 'px';
+      ov.style.paddingTop = (px(cs.paddingTop) + px(cs.borderTopWidth)) + 'px';
+      ov.style.paddingBottom = (px(cs.paddingBottom) + px(cs.borderBottomWidth)) + 'px';
+      ov.style.fontFamily = cs.fontFamily;
+      ov.style.fontSize = cs.fontSize;
+      ov.style.fontWeight = cs.fontWeight;
+      ov.style.letterSpacing = cs.letterSpacing;
+      ov.style.color = cs.color;
+      ov.style.justifyContent = (cs.textAlign === 'right' || cs.textAlign === 'end') ? 'flex-end'
+                               : (cs.textAlign === 'left' || cs.textAlign === 'start') ? 'flex-start' : 'center';
+    }
+
+    function refresh(it) {
+      var v = desc.get.call(it.inp);
+      var has = (v !== '' && v != null);
+      it.inp.classList.toggle('ld-on', has);
+      if (!has) { it.ov.style.display = 'none'; return; }
+      it.pre.textContent = v.slice(0, -1);
+      it.d.textContent = v.slice(-1);
+      place(it);
+    }
+
+    function build(inp) {
+      if (inp._ld) return;
+      var par = inp.parentElement;
+      if (!par) return;
+      if (getComputedStyle(par).position === 'static') par.style.position = 'relative';
+      var ov = document.createElement('span');
+      ov.className = 'ld-ov';
+      ov.setAttribute('aria-hidden', 'true');
+      ov.innerHTML = '<span class="ld-txt"><span class="ld-pre"></span><span class="ld-last"><span class="ld-d"></span></span></span>';
+      inp.insertAdjacentElement('afterend', ov);
+      var it = { inp: inp, ov: ov, pre: ov.querySelector('.ld-pre'), d: ov.querySelector('.ld-d') };
+      inp._ld = it;
+      inp.classList.add('ld-field');
+      Object.defineProperty(inp, 'value', {
+        configurable: true, enumerable: true,
+        get: function () { return desc.get.call(this); },
+        set: function (v) { desc.set.call(this, v); refresh(it); }
+      });
+      inp.addEventListener('input', function () { refresh(it); });
+      inp.addEventListener('change', function () { refresh(it); });
+      items.push(it);
+      if (ro) { ro.observe(inp); if (!par._ldItem) { par._ldItem = it; ro.observe(par); } }
+      refresh(it);
+    }
+
+    function scan() {
+      document.querySelectorAll('input[type="number"]').forEach(function (inp) {
+        if (inp.parentElement && inp.parentElement.querySelector('input[type="range"]')) build(inp);
+      });
+    }
+    function placeAll() {
+      items = items.filter(function (it) { return it.inp.isConnected; });   // drop boxes removed by re-renders (e.g. renderBolus)
+      items.forEach(place);
+    }
+    window.icuLdScan = scan;
+
+    function init() {
+      scan();
+      window.addEventListener('resize', placeAll);
+      window.addEventListener('orientationchange', placeAll);
+      document.addEventListener('click', function () { requestAnimationFrame(placeAll); }, true);
+      // Cards rebuilt by JS (Bolus weight sliders are re-rendered on tab switch) get their hint too.
+      var scanQueued = false;
+      new MutationObserver(function (muts) {
+        if (scanQueued) return;
+        var hit = muts.some(function (m) {
+          return Array.prototype.some.call(m.addedNodes, function (n) {
+            return n.nodeType === 1 && (n.tagName === 'INPUT' || (n.querySelector && n.querySelector('input[type="number"]')));
+          });
+        });
+        if (!hit) return;
+        scanQueued = true;
+        requestAnimationFrame(function () { scanQueued = false; scan(); placeAll(); });
+      }).observe(document.body, { childList: true, subtree: true });
+      var mo = new MutationObserver(placeAll);
+      mo.observe(document.body, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+      mo.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] });
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(placeAll);
+    }
+    if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
+  } catch (e) { /* hint is cosmetic — never break the app */ }
+})();
+</script>
 </body>
 </html>
