@@ -8511,15 +8511,16 @@ oninput="menuWtAutoApply(this.value)">
 <script id="icuClassicSw">!function(){var t=document.documentElement,e="icuUI",a=null,o=0;function n(t){a||((a=document.createElement("div")).className="icu-toast",document.body.appendChild(a)),a.textContent=t,a.style.opacity="1",clearTimeout(o),o=setTimeout(function(){a.style.opacity="0"},1400)}function i(){return t.classList.contains("icu-classic")}function c(t){var e=document.querySelector("#calccard-syringe>.calc-title>span:nth-child(2)");e&&(e.innerHTML=t?'Syringe Pump Calculator <span class="special-cat-sub">calculate Syringe Pump dose rate of any drug</span>':"calculate Syringe Pump dose/rate of any drug")}var r,s=0;function l(){i()&&(cancelAnimationFrame(s),s=requestAnimationFrame(function(){try{"function"==typeof syncSpecialGaps&&syncSpecialGaps()}catch(t){}}))}function u(a){if(!i()){var o="light"===t.getAttribute("data-theme");t.classList.add("icu-classic","tp-open");try{var r=document.querySelector("#tab-infusion>.formula-banner");r&&(r.style.removeProperty("font-size"),r.style.removeProperty("margin-top"))}catch(t){}!function(t){var e=document.getElementById("oldApp");try{"function"==typeof applyTheme&&applyTheme(t)}catch(t){}"light"===t?(e.setAttribute("data-theme","light"),document.body.setAttribute("data-theme","light")):(e.removeAttribute("data-theme"),document.body.removeAttribute("data-theme"))}(o?"light":"dark"),c(!0);try{var s=a&&sessionStorage.getItem("icuClassicTab")||"bolus",u=document.querySelector(".tab-bar .tab-btn-"+s)||document.querySelector(".tab-bar .tab-btn");window.showTab&&u&&window.showTab(s,u)}catch(t){}l(),window.scrollTo(0,0);try{localStorage.setItem(e,"classic")}catch(t){}window.dispatchEvent(new Event("resize")),a||n("Classic layout on")}}function d(a){if(i()){var o="light"===document.body.getAttribute("data-theme");t.classList.remove("icu-classic","tp-open"),c(!1),o?t.setAttribute("data-theme","light"):t.removeAttribute("data-theme");try{localStorage.setItem("icuTheme",o?"light":"dark"),localStorage.setItem(e,"new")}catch(t){}var r=document.getElementById("themeToggle");r&&r.setAttribute("aria-pressed",o?"false":"true"),window.scrollTo(0,0),window.dispatchEvent(new Event("resize")),a||n("New layout on")}}"function"==typeof(r=window.showTab)&&(window.showTab=function(t){var e=r.apply(this,arguments);if(i())try{sessionStorage.setItem("icuClassicTab",t)}catch(t){}return l(),e}),function(){var e=window.toggleTheme;"function"==typeof e&&(window.toggleTheme=function(){var a=e.apply(this,arguments);if(i()){var o="light"===document.body.getAttribute("data-theme");o?t.setAttribute("data-theme","light"):t.removeAttribute("data-theme");try{localStorage.setItem("icuTheme",o?"light":"dark")}catch(t){}}return a})}(),window.addEventListener("resize",l),window.addEventListener("orientationchange",l),document.fonts&&document.fonts.ready&&document.fonts.ready.then(l);var m=0,h=0;function y(){try{"classic"===localStorage.getItem(e)&&u(!0)}catch(t){}t.classList.remove("icu-boot")}document.addEventListener("click",function(t){if(t.target&&t.target.closest&&t.target.closest(i()?"#oldApp .hdr-title":".wordmark")){t.stopImmediatePropagation();var e=Date.now();(0===m||e-h>1500)&&(m=0,h=e),++m>=3&&(m=0,i()?d():u())}},!0),"complete"===document.readyState?setTimeout(y,150):window.addEventListener("load",function(){setTimeout(y,250)}),window.__icuClassic={on:u,off:d,is:i}}();</script>
 
 <style id="homeSearchKbCss">
-/* Home search, strict "page never moves" mode.
-   sb-open : search is open. The home screen becomes a non-scrollable box (overflow:clip,
-             unlike overflow:hidden, can't be scrolled by the browser's focus/keyboard logic).
-   sb-kb   : keyboard is up (or expected). Only the search bar is lifted above it and the
-             result popup is shortened to end right above the bar. */
+/* Home search: the app never moves.
+   When search opens, the search bar (the field being typed into) slides UP to the top of the
+   hero area, right under the iCU Calc title. A field that is already at the top of the screen
+   can never be hidden by the keyboard, so the browser has nothing to scroll or pan.
+   The result popup sits between the bar and the keyboard. */
+.bar-row{transition:transform .22s cubic-bezier(.3,.8,.25,1)}
 html.sb-open .screen{overflow:clip!important}
 html.sb-open .body{overflow:visible!important;z-index:8!important}
-html.sb-kb .bar-row{transform:translateY(calc(-1 * var(--sb-shift,0px)))}
-html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
+html.sb-open .bar-row{transform:translateY(calc(-1 * var(--sb-shift,0px)))}
+html.sb-kb .hero-pop{top:var(--sb-pop-t,50px)!important;bottom:var(--sb-pop-b,10px)!important}
 </style>
 <script id="homeSearchKbFix">
 (function(){
@@ -8531,7 +8532,8 @@ html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
       scr=document.querySelector('.screen'),
       vk=navigator.virtualKeyboard||null,
       vv=window.visualViewport||null,
-      KEY='icuSbKbH', overlay=false, kbSeen=false, waiting=false, waitTimer=0;
+      KEY='icuSbKbH', BAR_TOP=50, GAP=8,
+      overlay=false, kbSeen=false, waiting=false, waitTimer=0, H0=0;
   if(!bar||!row||!hero||!scr) return;
 
   function isOpen(){ return bar.classList.contains('open'); }
@@ -8542,52 +8544,60 @@ html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
     if(!vk) return;
     try{ if(vk.overlaysContent!==v) vk.overlaysContent=v; overlay=v; }catch(e){}
   }
-  /* last real keyboard height is remembered, so the bar can be placed above the keyboard
-     BEFORE it appears (then the browser has nothing to scroll into view) */
   function savedKb(){
     var v=0; try{ v=parseFloat(localStorage.getItem(KEY))||0; }catch(e){}
-    var H=winH();
-    return (v>120&&v<H*0.8)?v:Math.round(H*0.5);
+    var h=H0||winH();
+    return (v>120&&v<h*0.8)?v:Math.round(h*0.5);
   }
   function saveKb(h){ try{ localStorage.setItem(KEY, String(Math.round(h))); }catch(e){} }
 
-  function clearLift(){
-    html.classList.remove('sb-kb');
-    html.style.removeProperty('--sb-shift');
-    html.style.removeProperty('--sb-pop-b');
-  }
   function stopWaiting(){ waiting=false; clearTimeout(waitTimer); }
   function startWaiting(){
     waiting=true; kbSeen=false; clearTimeout(waitTimer);
-    waitTimer=setTimeout(function(){ waiting=false; if(!kbSeen){ clearLift(); } }, 1600);
+    waitTimer=setTimeout(function(){ waiting=false; apply(); }, 1600);
   }
   function reset(){
-    stopWaiting(); kbSeen=false; clearLift();
-    html.classList.remove('sb-open');
+    stopWaiting(); kbSeen=false;
+    html.classList.remove('sb-kb','sb-open');
+    html.style.removeProperty('--sb-shift');
+    html.style.removeProperty('--sb-pop-t');
+    html.style.removeProperty('--sb-pop-b');
     setOverlay(false);
   }
 
-  function keyboard(){
-    var H=winH(), h=0;
-    if(vk&&overlay&&vk.boundingRect) h=vk.boundingRect.height||0;       /* keyboard overlays the page */
-    if(vv){ h=Math.max(h, H-(vv.offsetTop+vv.height)); }               /* browsers that resize/pan instead */
-    return {h:h, bottom:H-h};
+  /* height of the keyboard in CSS px, whichever way the browser handles it */
+  function keyboardH(){
+    var base=H0||winH(), bottom=base;
+    if(vk&&overlay&&vk.boundingRect) bottom=Math.min(bottom, base-(vk.boundingRect.height||0));
+    if(vv) bottom=Math.min(bottom, vv.offsetTop+vv.height);
+    return Math.max(0, base-bottom);
+  }
+  function currentTy(){
+    var t=getComputedStyle(row).transform;
+    if(!t||t==='none') return 0;
+    var m=t.match(/matrix(3d)?\(([^)]+)\)/); if(!m) return 0;
+    var p=m[2].split(',');
+    return parseFloat(p[m[1]?13:5])||0;
   }
 
   function apply(){
     if(!isOpen()||homeHidden()){ reset(); return; }
-    var H=winH(), k=keyboard();
-    if(k.h>=80){ kbSeen=true; saveKb(k.h); }
-    else if(waiting&&!kbSeen){ var e=savedKb(); k={h:e,bottom:H-e}; }    /* keyboard on its way */
-    else { clearLift(); return; }                                       /* keyboard dismissed */
+    var base=H0||winH(), kb=keyboardH();
+    if(kb>=80){ kbSeen=true; saveKb(kb); }
+    else if(waiting&&!kbSeen){ kb=savedKb(); }                          /* keyboard on its way */
+    else { kb=0; }
+
     html.classList.add('sb-kb');
-    var cur=parseFloat(html.style.getPropertyValue('--sb-shift'))||0;
-    var r=row.getBoundingClientRect();
-    var natTop=r.top+cur, natBottom=r.bottom+cur;                       /* position without the lift */
-    var shift=Math.max(0, natBottom-(k.bottom-8));
+    var hr=hero.getBoundingClientRect(), r=row.getBoundingClientRect();
+    var natTop=r.top-currentTy();                                       /* bar position without any lift */
+    var shift=Math.max(0, natTop-(hr.top+BAR_TOP));                     /* slide it up under the title */
     html.style.setProperty('--sb-shift', shift.toFixed(1)+'px');
+
     var G=parseFloat(getComputedStyle(scr).getPropertyValue('--G'))||10;
-    var popB=Math.max(G, hero.getBoundingClientRect().bottom-(natTop-shift-14));
+    var popT=BAR_TOP+r.height+GAP;
+    var popB=Math.max(G, hr.bottom-(base-kb-GAP));                       /* end just above the keyboard */
+    popB=Math.min(popB, Math.max(G, hr.height-popT-90));                 /* always keep some room */
+    html.style.setProperty('--sb-pop-t', popT.toFixed(1)+'px');
     html.style.setProperty('--sb-pop-b', popB.toFixed(1)+'px');
   }
 
@@ -8601,6 +8611,7 @@ html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
 
   new MutationObserver(function(){
     if(isOpen()){
+      if(!html.classList.contains('sb-open')){ H0=winH(); }             /* full height, before the keyboard */
       html.classList.add('sb-open');
       setOverlay(true);
       startWaiting();
@@ -8611,7 +8622,7 @@ html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
   }).observe(bar,{attributes:true,attributeFilter:['class']});
 
   new MutationObserver(function(){
-    if((overlay||html.classList.contains('sb-open')) && homeHidden()) reset();   /* inner page opened */
+    if((overlay||html.classList.contains('sb-open')) && homeHidden()) reset();   /* an inner page opened */
   }).observe(html,{attributes:true,attributeFilter:['class']});
 
   if(input) input.addEventListener('focus', function(){ if(isOpen()){ startWaiting(); apply(); } });
