@@ -8511,10 +8511,13 @@ oninput="menuWtAutoApply(this.value)">
 <script id="icuClassicSw">!function(){var t=document.documentElement,e="icuUI",a=null,o=0;function n(t){a||((a=document.createElement("div")).className="icu-toast",document.body.appendChild(a)),a.textContent=t,a.style.opacity="1",clearTimeout(o),o=setTimeout(function(){a.style.opacity="0"},1400)}function i(){return t.classList.contains("icu-classic")}function c(t){var e=document.querySelector("#calccard-syringe>.calc-title>span:nth-child(2)");e&&(e.innerHTML=t?'Syringe Pump Calculator <span class="special-cat-sub">calculate Syringe Pump dose rate of any drug</span>':"calculate Syringe Pump dose/rate of any drug")}var r,s=0;function l(){i()&&(cancelAnimationFrame(s),s=requestAnimationFrame(function(){try{"function"==typeof syncSpecialGaps&&syncSpecialGaps()}catch(t){}}))}function u(a){if(!i()){var o="light"===t.getAttribute("data-theme");t.classList.add("icu-classic","tp-open");try{var r=document.querySelector("#tab-infusion>.formula-banner");r&&(r.style.removeProperty("font-size"),r.style.removeProperty("margin-top"))}catch(t){}!function(t){var e=document.getElementById("oldApp");try{"function"==typeof applyTheme&&applyTheme(t)}catch(t){}"light"===t?(e.setAttribute("data-theme","light"),document.body.setAttribute("data-theme","light")):(e.removeAttribute("data-theme"),document.body.removeAttribute("data-theme"))}(o?"light":"dark"),c(!0);try{var s=a&&sessionStorage.getItem("icuClassicTab")||"bolus",u=document.querySelector(".tab-bar .tab-btn-"+s)||document.querySelector(".tab-bar .tab-btn");window.showTab&&u&&window.showTab(s,u)}catch(t){}l(),window.scrollTo(0,0);try{localStorage.setItem(e,"classic")}catch(t){}window.dispatchEvent(new Event("resize")),a||n("Classic layout on")}}function d(a){if(i()){var o="light"===document.body.getAttribute("data-theme");t.classList.remove("icu-classic","tp-open"),c(!1),o?t.setAttribute("data-theme","light"):t.removeAttribute("data-theme");try{localStorage.setItem("icuTheme",o?"light":"dark"),localStorage.setItem(e,"new")}catch(t){}var r=document.getElementById("themeToggle");r&&r.setAttribute("aria-pressed",o?"false":"true"),window.scrollTo(0,0),window.dispatchEvent(new Event("resize")),a||n("New layout on")}}"function"==typeof(r=window.showTab)&&(window.showTab=function(t){var e=r.apply(this,arguments);if(i())try{sessionStorage.setItem("icuClassicTab",t)}catch(t){}return l(),e}),function(){var e=window.toggleTheme;"function"==typeof e&&(window.toggleTheme=function(){var a=e.apply(this,arguments);if(i()){var o="light"===document.body.getAttribute("data-theme");o?t.setAttribute("data-theme","light"):t.removeAttribute("data-theme");try{localStorage.setItem("icuTheme",o?"light":"dark")}catch(t){}}return a})}(),window.addEventListener("resize",l),window.addEventListener("orientationchange",l),document.fonts&&document.fonts.ready&&document.fonts.ready.then(l);var m=0,h=0;function y(){try{"classic"===localStorage.getItem(e)&&u(!0)}catch(t){}t.classList.remove("icu-boot")}document.addEventListener("click",function(t){if(t.target&&t.target.closest&&t.target.closest(i()?"#oldApp .hdr-title":".wordmark")){t.stopImmediatePropagation();var e=Date.now();(0===m||e-h>1500)&&(m=0,h=e),++m>=3&&(m=0,i()?d():u())}},!0),"complete"===document.readyState?setTimeout(y,150):window.addEventListener("load",function(){setTimeout(y,250)}),window.__icuClassic={on:u,off:d,is:i}}();</script>
 
 <style id="homeSearchKbCss">
-/* While the home search is open and the keyboard is up: the page does not move.
-   Only the search bar is lifted to sit just above the keyboard, and the result
-   popup (hero-pop) is shortened so it ends right above the search bar. */
-html.sb-kb .body{overflow:visible!important;z-index:8!important}
+/* Home search, strict "page never moves" mode.
+   sb-open : search is open. The home screen becomes a non-scrollable box (overflow:clip,
+             unlike overflow:hidden, can't be scrolled by the browser's focus/keyboard logic).
+   sb-kb   : keyboard is up (or expected). Only the search bar is lifted above it and the
+             result popup is shortened to end right above the bar. */
+html.sb-open .screen{overflow:clip!important}
+html.sb-open .body{overflow:visible!important;z-index:8!important}
 html.sb-kb .bar-row{transform:translateY(calc(-1 * var(--sb-shift,0px)))}
 html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
 </style>
@@ -8522,30 +8525,50 @@ html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
 (function(){
   var html=document.documentElement,
       bar=document.getElementById('actionBar'),
+      input=document.getElementById('sbInput'),
       row=document.querySelector('.bar-row'),
       hero=document.querySelector('.hero'),
       scr=document.querySelector('.screen'),
       vk=navigator.virtualKeyboard||null,
       vv=window.visualViewport||null,
-      overlay=false;
-  if(!bar||!row||!hero) return;
+      KEY='icuSbKbH', overlay=false, kbSeen=false, waiting=false, waitTimer=0;
+  if(!bar||!row||!hero||!scr) return;
 
   function isOpen(){ return bar.classList.contains('open'); }
-  function homeHidden(){ return html.classList.contains('tp-open') || !scr || scr.getClientRects().length===0; }
+  function homeHidden(){ return html.classList.contains('tp-open') || scr.getClientRects().length===0; }
+  function winH(){ return window.innerHeight||html.clientHeight; }
 
   function setOverlay(v){
     if(!vk) return;
     try{ if(vk.overlaysContent!==v) vk.overlaysContent=v; overlay=v; }catch(e){}
   }
-  function clearVars(){
-    if(html.classList.contains('sb-kb')) html.classList.remove('sb-kb');
+  /* last real keyboard height is remembered, so the bar can be placed above the keyboard
+     BEFORE it appears (then the browser has nothing to scroll into view) */
+  function savedKb(){
+    var v=0; try{ v=parseFloat(localStorage.getItem(KEY))||0; }catch(e){}
+    var H=winH();
+    return (v>120&&v<H*0.8)?v:Math.round(H*0.5);
+  }
+  function saveKb(h){ try{ localStorage.setItem(KEY, String(Math.round(h))); }catch(e){} }
+
+  function clearLift(){
+    html.classList.remove('sb-kb');
     html.style.removeProperty('--sb-shift');
     html.style.removeProperty('--sb-pop-b');
   }
-  function reset(){ clearVars(); setOverlay(false); }
+  function stopWaiting(){ waiting=false; clearTimeout(waitTimer); }
+  function startWaiting(){
+    waiting=true; kbSeen=false; clearTimeout(waitTimer);
+    waitTimer=setTimeout(function(){ waiting=false; if(!kbSeen){ clearLift(); } }, 1600);
+  }
+  function reset(){
+    stopWaiting(); kbSeen=false; clearLift();
+    html.classList.remove('sb-open');
+    setOverlay(false);
+  }
 
   function keyboard(){
-    var H=window.innerHeight||html.clientHeight, h=0;
+    var H=winH(), h=0;
     if(vk&&overlay&&vk.boundingRect) h=vk.boundingRect.height||0;       /* keyboard overlays the page */
     if(vv){ h=Math.max(h, H-(vv.offsetTop+vv.height)); }               /* browsers that resize/pan instead */
     return {h:h, bottom:H-h};
@@ -8553,8 +8576,10 @@ html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
 
   function apply(){
     if(!isOpen()||homeHidden()){ reset(); return; }
-    var k=keyboard();
-    if(k.h<80){ clearVars(); return; }                                  /* keyboard not showing */
+    var H=winH(), k=keyboard();
+    if(k.h>=80){ kbSeen=true; saveKb(k.h); }
+    else if(waiting&&!kbSeen){ var e=savedKb(); k={h:e,bottom:H-e}; }    /* keyboard on its way */
+    else { clearLift(); return; }                                       /* keyboard dismissed */
     html.classList.add('sb-kb');
     var cur=parseFloat(html.style.getPropertyValue('--sb-shift'))||0;
     var r=row.getBoundingClientRect();
@@ -8566,27 +8591,35 @@ html.sb-kb .hero-pop{bottom:var(--sb-pop-b,10px)!important}
     html.style.setProperty('--sb-pop-b', popB.toFixed(1)+'px');
   }
 
-  /* keep the page from being panned/scrolled by the browser while searching */
+  /* safety net: if anything still scrolls the page, put it straight back */
   function pin(){
     if(!isOpen()) return;
-    if(scr&&scr.scrollTop) scr.scrollTop=0;
+    if(scr.scrollTop) scr.scrollTop=0;
     var se=document.scrollingElement;
     if(se&&(se.scrollTop||se.scrollLeft)) se.scrollTo(0,0);
   }
 
   new MutationObserver(function(){
-    if(isOpen()){ setOverlay(true); apply(); } else if(overlay||html.classList.contains('sb-kb')){ reset(); }
+    if(isOpen()){
+      html.classList.add('sb-open');
+      setOverlay(true);
+      startWaiting();
+      apply();
+    } else if(overlay||html.classList.contains('sb-open')||html.classList.contains('sb-kb')){
+      reset();
+    }
   }).observe(bar,{attributes:true,attributeFilter:['class']});
 
   new MutationObserver(function(){
-    if((overlay||html.classList.contains('sb-kb')) && homeHidden()) reset();   /* an inner page was opened */
+    if((overlay||html.classList.contains('sb-open')) && homeHidden()) reset();   /* inner page opened */
   }).observe(html,{attributes:true,attributeFilter:['class']});
 
+  if(input) input.addEventListener('focus', function(){ if(isOpen()){ startWaiting(); apply(); } });
   if(vk) vk.addEventListener('geometrychange', apply);
   if(vv){ vv.addEventListener('resize', apply); vv.addEventListener('scroll', function(){ pin(); apply(); }); }
   window.addEventListener('resize', function(){ if(isOpen()) apply(); });
   window.addEventListener('scroll', pin, {passive:true});
-  if(scr) scr.addEventListener('scroll', pin, {passive:true});
+  scr.addEventListener('scroll', pin, {passive:true});
 })();
 </script>
 </body>
